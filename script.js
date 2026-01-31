@@ -11,6 +11,13 @@
     skills: document.getElementById("view-skills"),
   };
 
+  window.addEventListener("error", (e) => {
+  alert("JS Error: " + (e.message || "unknown"));
+});
+window.addEventListener("unhandledrejection", (e) => {
+  alert("Promise Error: " + (e.reason?.message || e.reason || "unknown"));
+});
+
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
   const btnMenu = document.getElementById("btnMenu");
@@ -25,7 +32,7 @@
   function setActiveView(viewKey) {
     navButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.view === viewKey));
     Object.keys(views).forEach((k) => views[k]?.classList.toggle("is-visible", k === viewKey));
-    if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Setup";
+    if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
     if (pageSubtitle) pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
     sidebar?.classList.remove("is-open");
   }
@@ -1096,7 +1103,7 @@
         renderAdmin();
         alert(`Imported ${imported.length} item(s).`);
       } catch {
-        alert("Import failed. Make sure it's a Life Setup JSON export file.");
+        alert("Import failed. Make sure it's a Life Admin JSON export file.");
       }
     });
 
