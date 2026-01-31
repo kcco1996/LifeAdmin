@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 
+  <script>
+  // iOS Home Screen web-clip sometimes drops the trailing slash and GitHub Pages can 404.
+  (function () {
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+    if (!isStandalone) return;
+
+    const p = location.pathname;
+    const isRepoRoot = p.endsWith("/LifeAdmin") && !p.endsWith("/LifeAdmin/");
+    if (isRepoRoot) location.replace(p + "/" + location.search + location.hash);
+  })();
+</script>
+
     <!-- Icons -->
 <link rel="icon" href="assets/icons/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
@@ -14,7 +26,7 @@
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Life Setup</title>
+  <title>Life Admin</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -25,7 +37,7 @@
       <div class="brand">
         <div class="brand__mark" aria-hidden="true">🏠</div>
         <div class="brand__text">
-          <div class="brand__name">Life Setup</div>
+          <div class="brand__name">Life Admin</div>
           <div class="brand__tag">Admin • Home • Skills</div>
         </div>
       </div>
