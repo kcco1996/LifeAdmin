@@ -650,17 +650,86 @@ select:not(#modal select) option{
 }
 
 /* Modal: light fields, black text */
-#modal .field__control{
+#modal .field__control,
+#fundModal .field__control{
   background: rgba(255,255,255,0.92) !important;
   color: #0b0d12 !important;
   border-color: rgba(0,0,0,0.18) !important;
 }
-#modal .field__control::placeholder{
+
+#modal .field__control::placeholder,
+#fundModal .field__control::placeholder{
   color: rgba(11, 13, 18, 0.50) !important;
 }
+
 #modal input[type="date"].field__control{ color-scheme: light; }
 #modal select.field__control{ color-scheme: light; }
 #modal select.field__control option{ background: #ffffff; color: #0b0d12; }
 
+#fundModal select.field__control{ color-scheme: light; }
+#fundModal select.field__control option{ background: #ffffff; color: #0b0d12; }
+
+
 /* Hidden cards fully disappear */
 [hidden]{ display:none !important; }
+
+.money-summary{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.money-chip{
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+.money-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom: 10px;
+}
+
+.fund-meta{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.fund-row{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+.fund-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.fund-name{
+  font-weight: 800;
+  letter-spacing: .1px;
+  font-size: 13px;
+}
+
+.fund-sub{
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.fund-actions{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
+

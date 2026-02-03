@@ -74,7 +74,7 @@
           <button class="icon-btn" id="btnMenu" aria-label="Open menu" type="button">☰</button>
 
           <div>
-            <h1 class="page-title" id="pageTitle">Life Admin</h1>
+            <h1 class="page-title" id="pageTitle">Life Setup</h1>
             <p class="page-subtitle" id="pageSubtitle">
               Keep your real-world life organised with calm, smart nudges.
             </p>
@@ -116,6 +116,7 @@
                 <button class="chip" type="button" data-admin-filter="account">Accounts</button>
                 <button class="chip" type="button" data-admin-filter="vehicle">Vehicle</button>
                 <button class="chip" type="button" data-admin-filter="info">Info</button>
+                <button class="chip" type="button" data-admin-filter="money">Money</button>
               </div>
             </div>
 
@@ -238,6 +239,91 @@
           </div>
         </div>
 
+        <!-- Money -->
+<article class="card" data-cat-card="money">
+  <div class="card__header">
+    <h2 class="card__title">Money &amp; Future Fund</h2>
+    <span class="badge badge--neutral" id="badgeMoney">—</span>
+  </div>
+
+  <div class="money-summary" id="moneySummary"></div>
+
+  <div class="money-actions">
+    <button class="mini-btn" type="button" id="btnAddFund">+ Add fund</button>
+  </div>
+
+  <ul class="list" id="listMoneyFunds"></ul>
+
+  <p class="muted muted--pad" id="emptyMoneyFunds" hidden>
+    No funds yet. Add one like “Emergency Fund” or “House Deposit”.
+  </p>
+</article>
+
+<!-- Modal (Money Fund Add/Edit) -->
+<div class="modal" id="fundModal" aria-hidden="true">
+  <div class="modal__backdrop" data-close="true"></div>
+
+  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="fundModalTitle">
+    <div class="modal__header">
+      <h2 class="modal__title" id="fundModalTitle">Add Fund</h2>
+      <button class="icon-btn icon-btn--sm" type="button" id="btnCloseFundModal" aria-label="Close">✕</button>
+    </div>
+
+    <form id="fundForm" class="form" autocomplete="off">
+      <input type="hidden" name="id" />
+
+      <div class="form__row">
+        <label class="field">
+          <span class="field__label">Fund name</span>
+          <input class="field__control" name="name" placeholder="e.g., Emergency Fund" required />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Priority</span>
+          <select class="field__control" name="priority" required>
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form__row">
+        <label class="field">
+          <span class="field__label">Target (£)</span>
+          <input class="field__control" name="target" type="number" min="0" step="0.01" placeholder="e.g., 5000" />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Current (£)</span>
+          <input class="field__control" name="current" type="number" min="0" step="0.01" placeholder="e.g., 1200" />
+        </label>
+      </div>
+
+      <div class="form__row">
+        <label class="field">
+          <span class="field__label">Monthly goal (£)</span>
+          <input class="field__control" name="monthlyGoal" type="number" min="0" step="0.01" placeholder="e.g., 150" />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Notes (optional)</span>
+          <input class="field__control" name="notes" placeholder="e.g., keep 3–6 months buffer" />
+        </label>
+      </div>
+
+      <div class="form__actions">
+        <button class="ghost-btn" type="button" id="btnCancelFund">Cancel</button>
+        <button class="primary-btn" type="submit">Save fund</button>
+      </div>
+
+      <p class="muted muted--small">
+        Tip: You can deposit/withdraw from the fund list after saving.
+      </p>
+    </form>
+  </div>
+</div>
+
+
         <!-- VIEW: FUTURE HOME (placeholder so router works) -->
         <div class="view" id="view-home">
           <div class="grid grid--rooms">
@@ -352,6 +438,7 @@
               <option value="account">Accounts &amp; Services</option>
               <option value="info">Important Info</option>
               <option value="vehicle">Vehicle</option>
+              <option value="money">Money &amp; Future Fund</option> 
             </select>
           </label>
 

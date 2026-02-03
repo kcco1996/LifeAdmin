@@ -12,11 +12,11 @@
   };
 
   window.addEventListener("error", (e) => {
-  alert("JS Error: " + (e.message || "unknown"));
-});
-window.addEventListener("unhandledrejection", (e) => {
-  alert("Promise Error: " + (e.reason?.message || e.reason || "unknown"));
-});
+    alert("JS Error: " + (e.message || "unknown"));
+  });
+  window.addEventListener("unhandledrejection", (e) => {
+    alert("Promise Error: " + (e.reason?.message || e.reason || "unknown"));
+  });
 
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
@@ -41,10 +41,8 @@ window.addEventListener("unhandledrejection", (e) => {
   btnMenu?.addEventListener("click", () => sidebar?.classList.toggle("is-open"));
 
   // =========================
-  // STORAGE
+  // IDS / HELPERS
   // =========================
-  const LS_KEY = "lifeSetup.lifeAdmin.items.v5";
-
   function uid() {
     return crypto?.randomUUID
       ? crypto.randomUUID()
@@ -61,123 +59,14 @@ window.addEventListener("unhandledrejection", (e) => {
     }
   }
 
-  function loadItems() {
-    const raw = localStorage.getItem(LS_KEY);
-    const arr = safeParseArray(raw);
-    return normaliseItems(arr ?? []);
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
-
-  function saveItems(items) {
-    localStorage.setItem(LS_KEY, JSON.stringify(items));
-  }
-
-  function normaliseItems(arr) {
-    const nowISO = new Date().toISOString();
-
-    return arr
-      .map((x) => {
-        const name = (x?.name ?? x?.title ?? "").toString().trim();
-        if (!name) return null;
-
-        const item = {
-          id: (x?.id ?? uid()).toString(),
-          category: (x?.category ?? "renewal"),
-          name,
-          details: (x?.details ?? "").toString(),
-          dueDateISO: x?.dueDateISO ?? x?.dueDate ?? null,
-          reminderProfile: (x?.reminderProfile ?? "gentle"),
-          priority: (x?.priority ?? "normal"),
-          archived: Boolean(x?.archived ?? false),
-          recurrence: (x?.recurrence ?? "none"),
-          customDays: x?.customDays != null ? Number(x.customDays) : null,
-          createdAtISO: (x?.createdAtISO ?? nowISO).toString(),
-          updatedAtISO: (x?.updatedAtISO ?? nowISO).toString(),
-          doneCount: Number.isFinite(Number(x?.doneCount)) ? Number(x.doneCount) : 0,
-        };
-
-        if (!["renewal", "account", "vehicle", "info"].includes(item.category)) item.category = "renewal";
-        if (!["gentle", "careful", "tight"].includes(item.reminderProfile)) item.reminderProfile = "gentle";
-        if (!["normal", "high"].includes(item.priority)) item.priority = "normal";
-        if (!["none", "weekly", "monthly", "yearly", "custom"].includes(item.recurrence)) item.recurrence = "none";
-
-        if (item.dueDateISO && !/^\d{4}-\d{2}-\d{2}$/.test(String(item.dueDateISO))) {
-          item.dueDateISO = null;
-        } else if (item.dueDateISO) {
-          item.dueDateISO = String(item.dueDateISO);
-        }
-
-        if (item.recurrence !== "custom") item.customDays = null;
-        if (item.recurrence === "custom") {
-          if (!Number.isFinite(item.customDays) || item.customDays <= 0) item.customDays = 30;
-        }
-
-        return item;
-      })
-      .filter(Boolean);
-  }
-
-  // =========================
-  // DOM HOOKS
-  // =========================
-  const adminStats = document.getElementById("adminStats");
-  const listAlerts = document.getElementById("listAlerts");
-  const emptyAlerts = document.getElementById("emptyAlerts");
-  const badgeAlerts = document.getElementById("badgeAlerts");
-
-  const listRenewals = document.getElementById("listRenewals");
-  const listAccounts = document.getElementById("listAccounts");
-  const listInfo = document.getElementById("listInfo");
-  const listVehicle = document.getElementById("listVehicle");
-
-  const emptyRenewals = document.getElementById("emptyRenewals");
-  const emptyAccounts = document.getElementById("emptyAccounts");
-  const emptyInfo = document.getElementById("emptyInfo");
-  const emptyVehicle = document.getElementById("emptyVehicle");
-
-  const badgeRenewals = document.getElementById("badgeRenewals");
-  const badgeAccounts = document.getElementById("badgeAccounts");
-  const badgeInfo = document.getElementById("badgeInfo");
-  const badgeVehicle = document.getElementById("badgeVehicle");
-
-  const overallDot = document.getElementById("overallDot");
-  const statusText = document.getElementById("statusText");
-
-  // Controls
-  const searchInput = document.getElementById("adminSearch");
-  const showArchivedCheckbox = document.getElementById("chkArchived");
-  const focusWeekCheckbox = document.getElementById("chkFocusWeek");
-  const calmCheckbox = document.getElementById("chkCalmMode");
-  const sortSelect = document.getElementById("selSort");
-  const btnSampleData = document.getElementById("btnSampleData");
-  const btnImport = document.getElementById("btnImport");
-  const templateSelect = document.getElementById("selTemplate");
-  const filterButtons = Array.from(document.querySelectorAll("[data-admin-filter]"));
-
-  // Modal
-  const btnAdd = document.getElementById("btnAdd");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalBackdrop = modal?.querySelector(".modal__backdrop");
-  const btnCloseModal = document.getElementById("btnCloseModal");
-  const btnCancel = document.getElementById("btnCancel");
-  const itemForm = document.getElementById("itemForm");
-  const customDaysWrap = document.getElementById("customDaysWrap");
-
-  // =========================
-  // AUTO CALM CONFIG
-  // =========================
-  const AUTO_CALM_ENABLED = true;
-  const AUTO_CALM_THRESHOLD = 3; // X = switch to Calm Mode when urgent > X
-
-  const uiState = {
-    filter: "all",
-    query: "",
-    showArchived: false,
-    sort: "dueSoonest",
-    focusWeek: false,
-    calmMode: false,
-    calmModeManual: null, // null = follow auto, true/false = user override
-  };
 
   // =========================
   // DATE + STATUS
@@ -207,11 +96,6 @@ window.addEventListener("unhandledrejection", (e) => {
     if (d <= 14) return "red";
     if (d <= 30) return "amber";
     return "green";
-  }
-
-  function isDueThisWeek(item) {
-    const d = daysUntil(item.dueDateISO);
-    return d !== null && d <= 7;
   }
 
   function badgeFromStatus(status) {
@@ -253,12 +137,258 @@ window.addEventListener("unhandledrejection", (e) => {
   }
 
   // =========================
+  // GLOBAL STORE + MIGRATION (PART A)
+  // =========================
+  const LS_STORE_KEY = "lifeSetup.store.v1";
+  const LS_LEGACY_LIFEADMIN = "lifeSetup.lifeAdmin.items.v5";
+
+  function defaultRooms() {
+    return {}; // Part A: store scaffolding only (Home build comes in Part B)
+  }
+
+  function defaultSkills() {
+    return {}; // Part A: store scaffolding only (Skills build comes in Part B)
+  }
+
+  function makeFund(name) {
+    return {
+      id: uid(),
+      name,
+      priority: "normal",
+      target: 0,
+      current: 0,
+      monthlyGoal: 0,
+      notes: "",
+      createdAtISO: new Date().toISOString(),
+      updatedAtISO: new Date().toISOString(),
+    };
+  }
+
+  function defaultStore() {
+    return {
+      version: 1,
+      lifeAdmin: { items: [] },
+      home: { rooms: defaultRooms() },
+      skills: { categories: defaultSkills() },
+      money: { funds: [], currency: "GBP" },
+      settings: { calmModeAuto: true, calmThreshold: 3 },
+    };
+  }
+
+  function normaliseItems(arr) {
+    const nowISO = new Date().toISOString();
+    return (arr ?? [])
+      .map((x) => {
+        const name = (x?.name ?? x?.title ?? "").toString().trim();
+        if (!name) return null;
+
+        const item = {
+          id: (x?.id ?? uid()).toString(),
+          category: (x?.category ?? "renewal"),
+          name,
+          details: (x?.details ?? "").toString(),
+          dueDateISO: x?.dueDateISO ?? x?.dueDate ?? null,
+          reminderProfile: (x?.reminderProfile ?? "gentle"),
+          priority: (x?.priority ?? "normal"),
+          archived: Boolean(x?.archived ?? false),
+          recurrence: (x?.recurrence ?? "none"),
+          customDays: x?.customDays != null ? Number(x.customDays) : null,
+          createdAtISO: (x?.createdAtISO ?? nowISO).toString(),
+          updatedAtISO: (x?.updatedAtISO ?? nowISO).toString(),
+          doneCount: Number.isFinite(Number(x?.doneCount)) ? Number(x.doneCount) : 0,
+        };
+
+        const allowedCats = ["renewal", "account", "vehicle", "info", "money"];
+        if (!allowedCats.includes(item.category)) item.category = "renewal";
+
+        if (!["gentle", "careful", "tight"].includes(item.reminderProfile)) item.reminderProfile = "gentle";
+        if (!["normal", "high"].includes(item.priority)) item.priority = "normal";
+        if (!["none", "weekly", "monthly", "yearly", "custom"].includes(item.recurrence)) item.recurrence = "none";
+
+        if (item.dueDateISO && !/^\d{4}-\d{2}-\d{2}$/.test(String(item.dueDateISO))) {
+          item.dueDateISO = null;
+        } else if (item.dueDateISO) {
+          item.dueDateISO = String(item.dueDateISO);
+        }
+
+        if (item.recurrence !== "custom") item.customDays = null;
+        if (item.recurrence === "custom") {
+          if (!Number.isFinite(item.customDays) || item.customDays <= 0) item.customDays = 30;
+        }
+
+        return item;
+      })
+      .filter(Boolean);
+  }
+
+  function normaliseFunds(funds) {
+    if (!Array.isArray(funds)) return [];
+    const nowISO = new Date().toISOString();
+    return funds
+      .map((f) => {
+        const name = String(f?.name ?? "").trim();
+        if (!name) return null;
+
+        const target = Number(f?.target ?? 0);
+        const current = Number(f?.current ?? 0);
+        const monthlyGoal = Number(f?.monthlyGoal ?? 0);
+
+        return {
+          id: String(f?.id ?? uid()),
+          name,
+          priority: ["normal", "high"].includes(f?.priority) ? f.priority : "normal",
+          target: Number.isFinite(target) && target >= 0 ? target : 0,
+          current: Number.isFinite(current) && current >= 0 ? current : 0,
+          monthlyGoal: Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0,
+          notes: String(f?.notes ?? ""),
+          createdAtISO: String(f?.createdAtISO ?? nowISO),
+          updatedAtISO: String(f?.updatedAtISO ?? nowISO),
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function normaliseStore(s) {
+    const base = defaultStore();
+    base.lifeAdmin.items = normaliseItems(Array.isArray(s?.lifeAdmin?.items) ? s.lifeAdmin.items : []);
+
+    base.money = {
+      currency: String(s?.money?.currency ?? "GBP"),
+      funds: normaliseFunds(s?.money?.funds),
+    };
+
+    base.settings = {
+      ...base.settings,
+      ...(typeof s?.settings === "object" && s.settings ? s.settings : {}),
+    };
+
+    // Part A: home/skills store placeholders
+    base.home.rooms = s?.home?.rooms ?? base.home.rooms;
+    base.skills.categories = s?.skills?.categories ?? base.skills.categories;
+
+    return base;
+  }
+
+  function saveStore(store) {
+    localStorage.setItem(LS_STORE_KEY, JSON.stringify(store));
+  }
+
+  function loadStore() {
+    const raw = localStorage.getItem(LS_STORE_KEY);
+    if (raw) {
+      try {
+        return normaliseStore(JSON.parse(raw));
+      } catch {
+        // fall through to migration
+      }
+    }
+
+    // MIGRATE legacy Life Admin
+    const legacyRaw = localStorage.getItem(LS_LEGACY_LIFEADMIN);
+    const legacyArr = safeParseArray(legacyRaw) ?? [];
+
+    const store = defaultStore();
+    store.lifeAdmin.items = normaliseItems(legacyArr);
+    saveStore(store);
+    return store;
+  }
+
+  // Keep existing Life Admin API the same
+  function loadItems() {
+    return loadStore().lifeAdmin.items;
+  }
+
+  function saveItems(items) {
+    const store = loadStore();
+    store.lifeAdmin.items = normaliseItems(items);
+    saveStore(store);
+  }
+
+  // =========================
+  // DOM HOOKS (Life Admin)
+  // =========================
+  const adminStats = document.getElementById("adminStats");
+  const listAlerts = document.getElementById("listAlerts");
+  const emptyAlerts = document.getElementById("emptyAlerts");
+  const badgeAlerts = document.getElementById("badgeAlerts");
+
+  const listRenewals = document.getElementById("listRenewals");
+  const listAccounts = document.getElementById("listAccounts");
+  const listInfo = document.getElementById("listInfo");
+  const listVehicle = document.getElementById("listVehicle");
+
+  const emptyRenewals = document.getElementById("emptyRenewals");
+  const emptyAccounts = document.getElementById("emptyAccounts");
+  const emptyInfo = document.getElementById("emptyInfo");
+  const emptyVehicle = document.getElementById("emptyVehicle");
+
+  const badgeRenewals = document.getElementById("badgeRenewals");
+  const badgeAccounts = document.getElementById("badgeAccounts");
+  const badgeInfo = document.getElementById("badgeInfo");
+  const badgeVehicle = document.getElementById("badgeVehicle");
+
+  const overallDot = document.getElementById("overallDot");
+  const statusText = document.getElementById("statusText");
+
+  // Money panel DOM
+  const badgeMoney = document.getElementById("badgeMoney");
+  const moneySummary = document.getElementById("moneySummary");
+  const btnAddFund = document.getElementById("btnAddFund");
+  const listMoneyFunds = document.getElementById("listMoneyFunds");
+  const emptyMoneyFunds = document.getElementById("emptyMoneyFunds");
+
+  // Controls
+  const searchInput = document.getElementById("adminSearch");
+  const showArchivedCheckbox = document.getElementById("chkArchived");
+  const focusWeekCheckbox = document.getElementById("chkFocusWeek");
+  const calmCheckbox = document.getElementById("chkCalmMode");
+  const sortSelect = document.getElementById("selSort");
+  const btnSampleData = document.getElementById("btnSampleData");
+  const btnImport = document.getElementById("btnImport");
+  const templateSelect = document.getElementById("selTemplate");
+  const filterButtons = Array.from(document.querySelectorAll("[data-admin-filter]"));
+
+  // Modal (Life Admin items)
+  const btnAdd = document.getElementById("btnAdd");
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalBackdrop = modal?.querySelector(".modal__backdrop");
+  const btnCloseModal = document.getElementById("btnCloseModal");
+  const btnCancel = document.getElementById("btnCancel");
+  const itemForm = document.getElementById("itemForm");
+  const customDaysWrap = document.getElementById("customDaysWrap");
+
+  // Modal (Funds)
+  const fundModal = document.getElementById("fundModal");
+  const fundModalTitle = document.getElementById("fundModalTitle");
+  const fundBackdrop = fundModal?.querySelector(".modal__backdrop");
+  const btnCloseFundModal = document.getElementById("btnCloseFundModal");
+  const btnCancelFund = document.getElementById("btnCancelFund");
+  const fundForm = document.getElementById("fundForm");
+
+  // =========================
+  // AUTO CALM CONFIG
+  // =========================
+  const AUTO_CALM_ENABLED = true;
+  const AUTO_CALM_THRESHOLD = 3;
+
+  const uiState = {
+    filter: "all",
+    query: "",
+    showArchived: false,
+    sort: "dueSoonest",
+    focusWeek: false,
+    calmMode: false,
+    calmModeManual: null,
+  };
+
+  // =========================
   // URGENCY + CALM MODE HELPERS
   // =========================
   function isUrgentItem(item) {
     if (item.archived) return false;
     const s = statusFromDays(daysUntil(item.dueDateISO));
-    return s === "red" || s === "amber"; // urgent = red + amber
+    return s === "red" || s === "amber";
   }
 
   function urgentCount(items) {
@@ -266,7 +396,6 @@ window.addEventListener("unhandledrejection", (e) => {
   }
 
   function applyCalmMode(items) {
-    // Calm mode: hide greens + hide archived
     return items.filter((i) => !i.archived && isUrgentItem(i));
   }
 
@@ -293,10 +422,18 @@ window.addEventListener("unhandledrejection", (e) => {
 
     if (d === null) {
       if (item.category === "info") return "Handy to keep this here so you don’t have to hunt for it later.";
+      if (item.category === "money") return "Worth keeping this saved so your money plan stays simple.";
       return "Worth keeping this saved so it stays easy to manage.";
     }
 
     if (d < 0) return "It might be worth sorting this soon, just to get it off your mind.";
+
+    if (item.category === "money") {
+      if (name.includes("budget")) return "A quick check-in can keep things feeling under control.";
+      if (name.includes("payday")) return "Might be a good time to plan transfers before money disappears.";
+      if (name.includes("savings") || name.includes("fund")) return "Even a small top-up helps over time.";
+      if (d <= windows[0]) return "A calm check-in now can help you stay on track.";
+    }
 
     if (item.category === "renewal") {
       if (name.includes("insurance")) {
@@ -325,15 +462,6 @@ window.addEventListener("unhandledrejection", (e) => {
     if (item.priority === "high" && d <= 30) return "High priority — worth a quick look soon.";
 
     return "All seems fine — just keeping it on your radar.";
-  }
-
-  function escapeHtml(s) {
-    return String(s ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
   }
 
   // =========================
@@ -431,7 +559,7 @@ window.addEventListener("unhandledrejection", (e) => {
   }
 
   // =========================
-  // MODAL
+  // MODAL (Life Admin items)
   // =========================
   let editingId = null;
 
@@ -476,10 +604,103 @@ window.addEventListener("unhandledrejection", (e) => {
   modalBackdrop?.addEventListener("click", closeModal);
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal?.classList.contains("is-open")) closeModal();
+    if (e.key === "Escape" && fundModal?.classList.contains("is-open")) closeFundModal();
   });
 
   itemForm?.recurrence?.addEventListener("change", () => {
     setRecurrenceUI(itemForm.recurrence.value);
+  });
+
+  // =========================
+  // MODAL (Funds)
+  // =========================
+  let editingFundId = null;
+
+  function openFundModal(mode, fund = null) {
+    editingFundId = mode === "edit" ? (fund?.id ?? null) : null;
+    if (fundModalTitle) fundModalTitle.textContent = mode === "edit" ? "Edit Fund" : "Add Fund";
+
+    fundForm?.reset();
+
+    if (fundForm) {
+      fundForm.id.value = fund?.id ?? "";
+      fundForm.name.value = fund?.name ?? "";
+      fundForm.priority.value = fund?.priority ?? "normal";
+      fundForm.target.value = fund?.target != null ? String(fund.target) : "";
+      fundForm.current.value = fund?.current != null ? String(fund.current) : "";
+      fundForm.monthlyGoal.value = fund?.monthlyGoal != null ? String(fund.monthlyGoal) : "";
+      fundForm.notes.value = fund?.notes ?? "";
+    }
+
+    fundModal?.setAttribute("aria-hidden", "false");
+    fundModal?.classList.add("is-open");
+    fundForm?.name?.focus?.();
+  }
+
+  function closeFundModal() {
+    fundModal?.setAttribute("aria-hidden", "true");
+    fundModal?.classList.remove("is-open");
+    editingFundId = null;
+  }
+
+  btnAddFund?.addEventListener("click", () => openFundModal("add"));
+  btnCloseFundModal?.addEventListener("click", closeFundModal);
+  btnCancelFund?.addEventListener("click", closeFundModal);
+  fundBackdrop?.addEventListener("click", closeFundModal);
+
+  // Save fund
+  fundForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = fundForm.name.value.trim();
+    if (!name) {
+      alert("Please enter a fund name.");
+      fundForm.name.focus();
+      return;
+    }
+
+    const priority = fundForm.priority.value;
+    const target = Number(fundForm.target.value || 0);
+    const current = Number(fundForm.current.value || 0);
+    const monthlyGoal = Number(fundForm.monthlyGoal.value || 0);
+    const notes = fundForm.notes.value.trim();
+
+    const store = loadStore();
+    const nowISO = new Date().toISOString();
+
+    if (editingFundId) {
+      const idx = store.money.funds.findIndex((f) => f.id === editingFundId);
+      if (idx === -1) {
+        alert("That fund couldn't be found.");
+        closeFundModal();
+        return;
+      }
+      store.money.funds[idx] = {
+        ...store.money.funds[idx],
+        name,
+        priority,
+        target: Number.isFinite(target) && target >= 0 ? target : 0,
+        current: Number.isFinite(current) && current >= 0 ? current : 0,
+        monthlyGoal: Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0,
+        notes,
+        updatedAtISO: nowISO,
+      };
+    } else {
+      const f = makeFund(name);
+      f.priority = priority;
+      f.target = Number.isFinite(target) && target >= 0 ? target : 0;
+      f.current = Number.isFinite(current) && current >= 0 ? current : 0;
+      f.monthlyGoal = Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0;
+      f.notes = notes;
+      f.createdAtISO = nowISO;
+      f.updatedAtISO = nowISO;
+      store.money.funds.push(f);
+    }
+
+    store.money.funds = normaliseFunds(store.money.funds);
+    saveStore(store);
+    renderMoney();
+    closeFundModal();
   });
 
   // =========================
@@ -503,7 +724,7 @@ window.addEventListener("unhandledrejection", (e) => {
   calmCheckbox?.addEventListener("change", () => {
     const next = !!calmCheckbox.checked;
     uiState.calmMode = next;
-    uiState.calmModeManual = next; // user override locks auto behaviour
+    uiState.calmModeManual = next;
     renderAdmin();
   });
 
@@ -532,7 +753,7 @@ window.addEventListener("unhandledrejection", (e) => {
   });
 
   // =========================
-  // ADD / EDIT SUBMIT
+  // ADD / EDIT SUBMIT (Life Admin)
   // =========================
   itemForm?.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -908,7 +1129,13 @@ window.addEventListener("unhandledrejection", (e) => {
 
     for (const a of alerts) {
       const li = document.createElement("li");
-      li.className = "list__item";
+
+      const strip =
+        a.badge.cls.includes("danger") ? "list__item--red" :
+        a.badge.cls.includes("warn") ? "list__item--amber" :
+        "list__item--green";
+
+      li.className = `list__item ${strip}`;
       li.innerHTML = `
         <div class="list__main">
           <div class="list__title">${escapeHtml(a.title)}</div>
@@ -922,6 +1149,158 @@ window.addEventListener("unhandledrejection", (e) => {
       listAlerts.appendChild(li);
     }
   }
+
+  // =========================
+  // MONEY RENDER (Funds)
+  // =========================
+  function fmtGBP(n) {
+    const x = Number(n ?? 0);
+    const safe = Number.isFinite(x) ? x : 0;
+    return "£" + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function fundProgress(f) {
+    const target = Number(f.target ?? 0);
+    const current = Number(f.current ?? 0);
+    if (!Number.isFinite(target) || target <= 0) return { pct: 0, label: `${fmtGBP(current)} / (no target)` };
+    const pct = Math.max(0, Math.min(100, (current / target) * 100));
+    return { pct, label: `${fmtGBP(current)} / ${fmtGBP(target)} (${Math.round(pct)}%)` };
+  }
+
+  function renderMoney() {
+    const store = loadStore();
+    const funds = store.money.funds ?? [];
+
+    if (badgeMoney) {
+      if (!funds.length) {
+        badgeMoney.className = "badge badge--neutral";
+        badgeMoney.textContent = "Empty";
+      } else {
+        const high = funds.filter((f) => f.priority === "high").length;
+        badgeMoney.className = high > 0 ? "badge badge--warn" : "badge badge--ok";
+        badgeMoney.textContent = `${funds.length} fund${funds.length === 1 ? "" : "s"}`;
+      }
+    }
+
+    if (moneySummary) {
+      const total = funds.reduce((acc, f) => acc + Number(f.current ?? 0), 0);
+      const totalTargets = funds.reduce((acc, f) => acc + Number(f.target ?? 0), 0);
+
+      moneySummary.innerHTML = `
+        <span class="money-chip">Total saved: <strong>${fmtGBP(total)}</strong></span>
+        <span class="money-chip">Total targets: <strong>${fmtGBP(totalTargets)}</strong></span>
+        <span class="money-chip">Funds: <strong>${funds.length}</strong></span>
+      `;
+    }
+
+    if (!listMoneyFunds) return;
+    listMoneyFunds.innerHTML = "";
+
+    if (!funds.length) {
+      emptyMoneyFunds?.removeAttribute("hidden");
+      return;
+    }
+    emptyMoneyFunds?.setAttribute("hidden", "true");
+
+    // Sort: high priority first, then name
+    const sorted = [...funds].sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+
+    for (const f of sorted) {
+      const prog = fundProgress(f);
+
+      const li = document.createElement("li");
+      li.className = "list__item list__item--neutral";
+
+      const monthly = Number(f.monthlyGoal ?? 0);
+      const monthlyText = monthly > 0 ? `Monthly goal: ${fmtGBP(monthly)}` : "Monthly goal: —";
+      const prioText = f.priority === "high" ? "High priority" : "Normal";
+
+      li.innerHTML = `
+        <div class="fund-row" style="width:100%;">
+          <div class="fund-top">
+            <div class="fund-meta">
+              <div class="fund-name">${escapeHtml(f.name)}</div>
+              <div class="fund-sub">${escapeHtml(prog.label)} • ${escapeHtml(monthlyText)} • ${escapeHtml(prioText)}</div>
+            </div>
+            <div class="fund-actions">
+              <button class="mini-btn" type="button" data-fund-action="deposit" data-id="${f.id}">Deposit</button>
+              <button class="mini-btn" type="button" data-fund-action="withdraw" data-id="${f.id}">Withdraw</button>
+              <button class="mini-btn" type="button" data-fund-action="edit" data-id="${f.id}">Edit</button>
+              <button class="mini-btn mini-btn--danger" type="button" data-fund-action="delete" data-id="${f.id}">Delete</button>
+            </div>
+          </div>
+
+          <div class="progress">
+            <div class="progress__bar" style="width:${prog.pct}%"></div>
+          </div>
+
+          ${f.notes ? `<div class="fund-sub">${escapeHtml(f.notes)}</div>` : ``}
+        </div>
+      `;
+
+      listMoneyFunds.appendChild(li);
+    }
+  }
+
+  // Fund actions (deposit/withdraw/edit/delete)
+  document.querySelector('[data-cat-card="money"]')?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-fund-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-fund-action");
+    const id = btn.getAttribute("data-id");
+    if (!action || !id) return;
+
+    const store = loadStore();
+    const idx = store.money.funds.findIndex((f) => f.id === id);
+    if (idx === -1) return;
+
+    const fund = store.money.funds[idx];
+
+    if (action === "edit") {
+      openFundModal("edit", fund);
+      return;
+    }
+
+    if (action === "delete") {
+      if (!confirm("Delete this fund?")) return;
+      store.money.funds.splice(idx, 1);
+      store.money.funds = normaliseFunds(store.money.funds);
+      saveStore(store);
+      renderMoney();
+      return;
+    }
+
+    if (action === "deposit" || action === "withdraw") {
+      const label = action === "deposit" ? "Deposit amount (£)" : "Withdraw amount (£)";
+      const raw = prompt(label, "");
+      if (raw === null) return;
+
+      const amt = Number(raw);
+      if (!Number.isFinite(amt) || amt <= 0) {
+        alert("Please enter a positive number.");
+        return;
+      }
+
+      const next = action === "deposit"
+        ? (Number(fund.current ?? 0) + amt)
+        : Math.max(0, (Number(fund.current ?? 0) - amt));
+
+      store.money.funds[idx] = {
+        ...fund,
+        current: next,
+        updatedAtISO: new Date().toISOString(),
+      };
+
+      store.money.funds = normaliseFunds(store.money.funds);
+      saveStore(store);
+      renderMoney();
+      return;
+    }
+  });
 
   // =========================
   // MAIN RENDER
@@ -950,6 +1329,7 @@ window.addEventListener("unhandledrejection", (e) => {
       account: visible.filter((i) => i.category === "account"),
       info: visible.filter((i) => i.category === "info"),
       vehicle: visible.filter((i) => i.category === "vehicle"),
+      money: visible.filter((i) => i.category === "money"),
     };
 
     renderList(listRenewals, emptyRenewals, groups.renewal);
@@ -957,20 +1337,26 @@ window.addEventListener("unhandledrejection", (e) => {
     renderList(listInfo, emptyInfo, groups.info);
     renderList(listVehicle, emptyVehicle, groups.vehicle);
 
+    // Money list is separate (funds), so we hide Life Admin "money items" usage in lists.
+    // (You can still create money reminders using Life Admin items if you want — later we can add a "Money reminders" sublist.)
+    renderMoney();
+
     // Calm Mode hides empty categories
     if (uiState.calmMode) {
       setCategoryCardVisibility("renewal", groups.renewal.length > 0);
       setCategoryCardVisibility("account", groups.account.length > 0);
       setCategoryCardVisibility("info", groups.info.length > 0);
       setCategoryCardVisibility("vehicle", groups.vehicle.length > 0);
+      setCategoryCardVisibility("money", true); // money panel should stay visible
     } else {
       setCategoryCardVisibility("renewal", true);
       setCategoryCardVisibility("account", true);
       setCategoryCardVisibility("info", true);
       setCategoryCardVisibility("vehicle", true);
+      setCategoryCardVisibility("money", true);
     }
 
-    // Badges based on all items (respect showArchived)
+    // Badges for Life Admin item categories
     const badgeItems = uiState.showArchived ? allItems : allItems.filter((i) => !i.archived);
     setCategoryBadge(badgeRenewals, badgeItems.filter((i) => i.category === "renewal"));
     setCategoryBadge(badgeAccounts, badgeItems.filter((i) => i.category === "account"));
@@ -979,11 +1365,10 @@ window.addEventListener("unhandledrejection", (e) => {
   }
 
   // =========================
-  // ACTIONS: edit/delete/archive/done
+  // ACTIONS: edit/delete/archive/done (Life Admin items)
   // =========================
   document.getElementById("view-admin")?.addEventListener("click", (e) => {
-    const target = e.target;
-    const btn = target.closest("button[data-action]");
+    const btn = e.target.closest("button[data-action]");
     if (!btn) return;
 
     const action = btn.getAttribute("data-action");
@@ -1057,23 +1442,23 @@ window.addEventListener("unhandledrejection", (e) => {
   });
 
   // =========================
-  // EXPORT
+  // EXPORT (entire store)
   // =========================
   document.getElementById("btnExport")?.addEventListener("click", () => {
-    const items = loadItems();
-    const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+    const store = loadStore();
+    const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "life-setup-life-admin.json";
+    a.download = "life-setup-store.json";
     a.click();
 
     URL.revokeObjectURL(url);
   });
 
   // =========================
-  // IMPORT
+  // IMPORT (store or legacy array)
   // =========================
   btnImport?.addEventListener("click", async () => {
     const input = document.createElement("input");
@@ -1087,23 +1472,32 @@ window.addEventListener("unhandledrejection", (e) => {
       try {
         const text = await file.text();
         const parsed = JSON.parse(text);
-        if (!Array.isArray(parsed)) throw new Error("JSON must be an array.");
 
-        const imported = normaliseItems(parsed);
-        if (!imported.length) {
-          alert("No valid items found in that file.");
+        // If it's an array, treat as legacy Life Admin items import
+        if (Array.isArray(parsed)) {
+          const imported = normaliseItems(parsed);
+          if (!imported.length) {
+            alert("No valid Life Admin items found in that file.");
+            return;
+          }
+
+          const items = loadItems();
+          const map = new Map(items.map((x) => [x.id, x]));
+          for (const it of imported) map.set(it.id, it);
+
+          saveItems(Array.from(map.values()));
+          renderAdmin();
+          alert(`Imported ${imported.length} item(s).`);
           return;
         }
 
-        const existing = loadItems();
-        const map = new Map(existing.map((x) => [x.id, x]));
-        for (const it of imported) map.set(it.id, it);
-
-        saveItems(Array.from(map.values()));
+        // Else treat as full store import
+        const store = normaliseStore(parsed);
+        saveStore(store);
         renderAdmin();
-        alert(`Imported ${imported.length} item(s).`);
+        alert("Imported Life Setup store.");
       } catch {
-        alert("Import failed. Make sure it's a Life Admin JSON export file.");
+        alert("Import failed. Make sure it's a valid Life Setup export file.");
       }
     });
 
@@ -1111,7 +1505,7 @@ window.addEventListener("unhandledrejection", (e) => {
   });
 
   // =========================
-  // SAMPLE DATA
+  // SAMPLE DATA (Life Admin items only)
   // =========================
   btnSampleData?.addEventListener("click", () => {
     if (!confirm("Add sample data? (You can delete it afterwards)")) return;
@@ -1205,7 +1599,7 @@ window.addEventListener("unhandledrejection", (e) => {
   // SETTINGS PLACEHOLDER
   // =========================
   document.getElementById("btnSettings")?.addEventListener("click", () => {
-    alert("Settings coming soon: templates, backups, notifications.");
+    alert("Settings coming soon: templates, backups, notifications, money preferences.");
   });
 
   // =========================
