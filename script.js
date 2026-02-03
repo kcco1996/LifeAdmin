@@ -2,7 +2,7 @@
   "use strict";
 
   // =========================
-  // ROUTER (Admin/Home/Skills)
+  // ROUTER: Admin / Home / Skills
   // =========================
   const navButtons = Array.from(document.querySelectorAll(".nav__item"));
   const views = {
@@ -11,47 +11,68 @@
     skills: document.getElementById("view-skills"),
   };
 
-  window.addEventListener("error", (e) => {
-  alert("JS Error: " + (e.message || "unknown"));
-});
-window.addEventListener("unhandledrejection", (e) => {
-  alert("Promise Error: " + (e.reason?.message || e.reason || "unknown"));
-});
-
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
   const btnMenu = document.getElementById("btnMenu");
   const sidebar = document.querySelector(".sidebar");
 
   const viewMeta = {
-    admin: { title: "Life Admin", subtitle: "Keep your real-world life organised with calm, smart nudges." },
-    home: { title: "Future Home", subtitle: "Plan furniture essentials first, then extras when you're ready." },
-    skills: { title: "Life Skills", subtitle: "Everyday living skills with progress you can actually see." },
+    admin: {
+      title: "Life Admin",
+      subtitle: "Keep your real-world life organised with calm, smart nudges.",
+    },
+    home: {
+      title: "Future Home",
+      subtitle: "Plan furniture essentials first, then extras when you're ready.",
+    },
+    skills: {
+      title: "Life Skills",
+      subtitle: "Everyday living skills with progress you can actually see.",
+    },
   };
 
   function setActiveView(viewKey) {
-    navButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.view === viewKey));
-    Object.keys(views).forEach((k) => views[k]?.classList.toggle("is-visible", k === viewKey));
-    if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
-    if (pageSubtitle) pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
+    // highlight nav buttons
+    navButtons.forEach((btn) =>
+      btn.classList.toggle("is-active", btn.dataset.view === viewKey)
+    );
+    // show/hide views
+    Object.keys(views).forEach((k) =>
+      views[k]?.classList.toggle("is-visible", k === viewKey)
+    );
+    // update title/subtitle
+    pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
+    pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
+    // close sidebar
     sidebar?.classList.remove("is-open");
   }
 
-  navButtons.forEach((btn) => btn.addEventListener("click", () => setActiveView(btn.dataset.view)));
+  // nav button clicks
+  navButtons.forEach((btn) =>
+    btn.addEventListener("click", () => setActiveView(btn.dataset.view))
+  );
+
+  // hamburger / menu toggle
   btnMenu?.addEventListener("click", () => sidebar?.classList.toggle("is-open"));
 
-  // =========================
-  // STORAGE
-  // =========================
-  const LS_KEY = "lifeSetup.lifeAdmin.items.v5";
+})();
 
-  function uid() {
-    return crypto?.randomUUID
+(() => {
+  "use strict";
+
+  // =========================
+  // STORAGE HELPERS
+  // =========================
+  const LS_KEY = "lifeSetup.lifeAdmin.items.v6";
+
+  // Generate a unique ID
+  const uid = () =>
+    crypto?.randomUUID
       ? crypto.randomUUID()
       : `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  }
 
-  function safeParseArray(raw) {
+  // Safely parse JSON array
+  const safeParseArray = (raw) => {
     try {
       if (!raw) return null;
       const parsed = JSON.parse(raw);
@@ -59,18 +80,20 @@ window.addEventListener("unhandledrejection", (e) => {
     } catch {
       return null;
     }
-  }
+  };
 
+  // Load items from localStorage and normalize
   function loadItems() {
     const raw = localStorage.getItem(LS_KEY);
-    const arr = safeParseArray(raw);
-    return normaliseItems(arr ?? []);
+    return normaliseItems(safeParseArray(raw) ?? []);
   }
 
+  // Save items to localStorage
   function saveItems(items) {
     localStorage.setItem(LS_KEY, JSON.stringify(items));
   }
 
+  // Normalize items with defaults, validation, recurrence
   function normaliseItems(arr) {
     const nowISO = new Date().toISOString();
 
@@ -80,107 +103,48 @@ window.addEventListener("unhandledrejection", (e) => {
         if (!name) return null;
 
         const item = {
-          id: (x?.id ?? uid()).toString(),
-          category: (x?.category ?? "renewal"),
+          id: x?.id ?? uid(),
+          category: ["renewal", "account", "vehicle", "info"].includes(x?.category)
+            ? x.category
+            : "renewal",
           name,
-          details: (x?.details ?? "").toString(),
+          details: x?.details?.toString() ?? "",
           dueDateISO: x?.dueDateISO ?? x?.dueDate ?? null,
-          reminderProfile: (x?.reminderProfile ?? "gentle"),
-          priority: (x?.priority ?? "normal"),
+          reminderProfile: ["gentle", "careful", "tight"].includes(x?.reminderProfile)
+            ? x.reminderProfile
+            : "gentle",
+          priority: ["normal", "high"].includes(x?.priority) ? x.priority : "normal",
           archived: Boolean(x?.archived ?? false),
-          recurrence: (x?.recurrence ?? "none"),
+          recurrence: ["none", "weekly", "monthly", "yearly", "custom"].includes(x?.recurrence)
+            ? x.recurrence
+            : "none",
           customDays: x?.customDays != null ? Number(x.customDays) : null,
-          createdAtISO: (x?.createdAtISO ?? nowISO).toString(),
-          updatedAtISO: (x?.updatedAtISO ?? nowISO).toString(),
+          createdAtISO: x?.createdAtISO ?? nowISO,
+          updatedAtISO: x?.updatedAtISO ?? nowISO,
           doneCount: Number.isFinite(Number(x?.doneCount)) ? Number(x.doneCount) : 0,
         };
 
-        if (!["renewal", "account", "vehicle", "info"].includes(item.category)) item.category = "renewal";
-        if (!["gentle", "careful", "tight"].includes(item.reminderProfile)) item.reminderProfile = "gentle";
-        if (!["normal", "high"].includes(item.priority)) item.priority = "normal";
-        if (!["none", "weekly", "monthly", "yearly", "custom"].includes(item.recurrence)) item.recurrence = "none";
-
-        if (item.dueDateISO && !/^\d{4}-\d{2}-\d{2}$/.test(String(item.dueDateISO))) {
+        // Validate dueDate format (YYYY-MM-DD)
+        if (item.dueDateISO && !/^\d{4}-\d{2}-\d{2}$/.test(item.dueDateISO))
           item.dueDateISO = null;
-        } else if (item.dueDateISO) {
-          item.dueDateISO = String(item.dueDateISO);
-        }
 
+        // Recurrence handling
         if (item.recurrence !== "custom") item.customDays = null;
-        if (item.recurrence === "custom") {
-          if (!Number.isFinite(item.customDays) || item.customDays <= 0) item.customDays = 30;
-        }
+        if (item.recurrence === "custom" && (!item.customDays || item.customDays <= 0))
+          item.customDays = 30;
 
         return item;
       })
       .filter(Boolean);
   }
 
-  // =========================
-  // DOM HOOKS
-  // =========================
-  const adminStats = document.getElementById("adminStats");
-  const listAlerts = document.getElementById("listAlerts");
-  const emptyAlerts = document.getElementById("emptyAlerts");
-  const badgeAlerts = document.getElementById("badgeAlerts");
+})();
 
-  const listRenewals = document.getElementById("listRenewals");
-  const listAccounts = document.getElementById("listAccounts");
-  const listInfo = document.getElementById("listInfo");
-  const listVehicle = document.getElementById("listVehicle");
-
-  const emptyRenewals = document.getElementById("emptyRenewals");
-  const emptyAccounts = document.getElementById("emptyAccounts");
-  const emptyInfo = document.getElementById("emptyInfo");
-  const emptyVehicle = document.getElementById("emptyVehicle");
-
-  const badgeRenewals = document.getElementById("badgeRenewals");
-  const badgeAccounts = document.getElementById("badgeAccounts");
-  const badgeInfo = document.getElementById("badgeInfo");
-  const badgeVehicle = document.getElementById("badgeVehicle");
-
-  const overallDot = document.getElementById("overallDot");
-  const statusText = document.getElementById("statusText");
-
-  // Controls
-  const searchInput = document.getElementById("adminSearch");
-  const showArchivedCheckbox = document.getElementById("chkArchived");
-  const focusWeekCheckbox = document.getElementById("chkFocusWeek");
-  const calmCheckbox = document.getElementById("chkCalmMode");
-  const sortSelect = document.getElementById("selSort");
-  const btnSampleData = document.getElementById("btnSampleData");
-  const btnImport = document.getElementById("btnImport");
-  const templateSelect = document.getElementById("selTemplate");
-  const filterButtons = Array.from(document.querySelectorAll("[data-admin-filter]"));
-
-  // Modal
-  const btnAdd = document.getElementById("btnAdd");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalBackdrop = modal?.querySelector(".modal__backdrop");
-  const btnCloseModal = document.getElementById("btnCloseModal");
-  const btnCancel = document.getElementById("btnCancel");
-  const itemForm = document.getElementById("itemForm");
-  const customDaysWrap = document.getElementById("customDaysWrap");
+(() => {
+  "use strict";
 
   // =========================
-  // AUTO CALM CONFIG
-  // =========================
-  const AUTO_CALM_ENABLED = true;
-  const AUTO_CALM_THRESHOLD = 3; // X = switch to Calm Mode when urgent > X
-
-  const uiState = {
-    filter: "all",
-    query: "",
-    showArchived: false,
-    sort: "dueSoonest",
-    focusWeek: false,
-    calmMode: false,
-    calmModeManual: null, // null = follow auto, true/false = user override
-  };
-
-  // =========================
-  // DATE + STATUS
+  // DATE UTILITIES
   // =========================
   function startOfToday() {
     const now = new Date();
@@ -227,6 +191,9 @@ window.addEventListener("unhandledrejection", (e) => {
     return `Due in ${d} day${d === 1 ? "" : "s"}`;
   }
 
+  // =========================
+  // RECURRENCE DATE HELPERS
+  // =========================
   function addDaysISO(dateISO, days) {
     const base = dateISO ? new Date(dateISO + "T00:00:00") : startOfToday();
     const d = new Date(base);
@@ -253,12 +220,12 @@ window.addEventListener("unhandledrejection", (e) => {
   }
 
   // =========================
-  // URGENCY + CALM MODE HELPERS
+  // URGENCY & CALM MODE HELPERS
   // =========================
   function isUrgentItem(item) {
     if (item.archived) return false;
     const s = statusFromDays(daysUntil(item.dueDateISO));
-    return s === "red" || s === "amber"; // urgent = red + amber
+    return s === "red" || s === "amber";
   }
 
   function urgentCount(items) {
@@ -266,7 +233,7 @@ window.addEventListener("unhandledrejection", (e) => {
   }
 
   function applyCalmMode(items) {
-    // Calm mode: hide greens + hide archived
+    // Calm mode: hide non-urgent and archived items
     return items.filter((i) => !i.archived && isUrgentItem(i));
   }
 
@@ -276,13 +243,18 @@ window.addEventListener("unhandledrejection", (e) => {
     card.hidden = !hasItems;
   }
 
+})();
+
+(() => {
+  "use strict";
+
   // =========================
   // NUDGES
   // =========================
   function profileWindows(profile) {
     if (profile === "careful") return [56, 28, 14, 7, 1];
     if (profile === "tight") return [21, 7, 1];
-    return [42, 21, 7, 1];
+    return [42, 21, 7, 1]; // gentle
   }
 
   function gentleNudge(item, d) {
@@ -335,6 +307,10 @@ window.addEventListener("unhandledrejection", (e) => {
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
   }
+})();
+
+(() => {
+  "use strict";
 
   // =========================
   // QUICK ADD TEMPLATE -> ITEM
@@ -357,82 +333,27 @@ window.addEventListener("unhandledrejection", (e) => {
 
     switch (templateKey) {
       case "carInsurance":
-        return {
-          ...base,
-          category: "renewal",
-          name: "Car insurance",
-          details: "Compare quotes • check auto-renew",
-          recurrence: "yearly",
-          priority: "high",
-          dueDateISO: addYearsISO(todayISO, 1),
-        };
+        return { ...base, category: "renewal", name: "Car insurance", details: "Compare quotes • check auto-renew", recurrence: "yearly", priority: "high", dueDateISO: addYearsISO(todayISO, 1) };
       case "mot":
-        return {
-          ...base,
-          category: "vehicle",
-          name: "MOT",
-          details: "Book early for a convenient date",
-          recurrence: "yearly",
-          priority: "high",
-          dueDateISO: addYearsISO(todayISO, 1),
-        };
+        return { ...base, category: "vehicle", name: "MOT", details: "Book early for a convenient date", recurrence: "yearly", priority: "high", dueDateISO: addYearsISO(todayISO, 1) };
       case "carService":
-        return {
-          ...base,
-          category: "vehicle",
-          name: "Car service",
-          details: "Full/Interim (note mileage)",
-          recurrence: "yearly",
-          priority: "normal",
-          dueDateISO: addYearsISO(todayISO, 1),
-        };
+        return { ...base, category: "vehicle", name: "Car service", details: "Full/Interim (note mileage)", recurrence: "yearly", priority: "normal", dueDateISO: addYearsISO(todayISO, 1) };
       case "passport":
-        return {
-          ...base,
-          category: "renewal",
-          name: "Passport expiry",
-          details: "Some countries require 6 months validity",
-          recurrence: "none",
-          priority: "normal",
-        };
+        return { ...base, category: "renewal", name: "Passport expiry", details: "Some countries require 6 months validity", recurrence: "none", priority: "normal" };
       case "travelInsurance":
-        return {
-          ...base,
-          category: "renewal",
-          name: "Travel insurance",
-          details: "Check cover for the trip dates",
-          recurrence: "none",
-          priority: "normal",
-        };
+        return { ...base, category: "renewal", name: "Travel insurance", details: "Check cover for the trip dates", recurrence: "none", priority: "normal" };
       case "phoneContract":
-        return {
-          ...base,
-          category: "account",
-          name: "Phone contract",
-          details: "Consider SIM-only options",
-          recurrence: "monthly",
-          priority: "normal",
-          dueDateISO: addMonthsISO(todayISO, 1),
-        };
+        return { ...base, category: "account", name: "Phone contract", details: "Consider SIM-only options", recurrence: "monthly", priority: "normal", dueDateISO: addMonthsISO(todayISO, 1) };
       case "subscriptionReview":
-        return {
-          ...base,
-          category: "account",
-          name: "Subscription review",
-          details: "Cancel anything unused",
-          recurrence: "custom",
-          customDays: 90,
-          priority: "normal",
-          dueDateISO: addDaysISO(todayISO, 90),
-        };
-      default:
-        return null;
+        return { ...base, category: "account", name: "Subscription review", details: "Cancel anything unused", recurrence: "custom", customDays: 90, priority: "normal", dueDateISO: addDaysISO(todayISO, 90) };
+      default: return null;
     }
   }
+})();
 
-  // =========================
-  // MODAL
-  // =========================
+(() => {
+  "use strict";
+
   let editingId = null;
 
   function setRecurrenceUI(value) {
@@ -481,6 +402,10 @@ window.addEventListener("unhandledrejection", (e) => {
   itemForm?.recurrence?.addEventListener("change", () => {
     setRecurrenceUI(itemForm.recurrence.value);
   });
+})();
+
+(() => {
+  "use strict";
 
   // =========================
   // CONTROLS
@@ -503,7 +428,7 @@ window.addEventListener("unhandledrejection", (e) => {
   calmCheckbox?.addEventListener("change", () => {
     const next = !!calmCheckbox.checked;
     uiState.calmMode = next;
-    uiState.calmModeManual = next; // user override locks auto behaviour
+    uiState.calmModeManual = next; // user override
     renderAdmin();
   });
 
@@ -530,10 +455,11 @@ window.addEventListener("unhandledrejection", (e) => {
       renderAdmin();
     });
   });
+})();
 
-  // =========================
-  // ADD / EDIT SUBMIT
-  // =========================
+(() => {
+  "use strict";
+
   itemForm?.addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -608,90 +534,89 @@ window.addEventListener("unhandledrejection", (e) => {
     renderAdmin();
     closeModal();
   });
+})();
 
-  // =========================
-  // FILTER + SORT
-  // =========================
-  function applyFilterAndSort(allItems) {
-    let items = [...allItems];
+(() => {
+  "use strict";
 
-    if (!uiState.showArchived) items = items.filter((i) => !i.archived);
-    if (uiState.filter !== "all") items = items.filter((i) => i.category === uiState.filter);
+  itemForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    if (uiState.query) {
-      const q = uiState.query;
-      items = items.filter((i) => (
-        i.name.toLowerCase().includes(q) ||
-        (i.details || "").toLowerCase().includes(q) ||
-        (i.dueDateISO || "").includes(q)
-      ));
+    const category = itemForm.category.value;
+    const name = itemForm.name.value.trim();
+    const dueDateISO = itemForm.dueDate.value ? itemForm.dueDate.value : null;
+    const details = itemForm.details.value.trim();
+    const reminderProfile = itemForm.reminderProfile.value;
+    const priority = itemForm.priority.value;
+    const recurrence = itemForm.recurrence.value;
+    const customDaysRaw = itemForm.customDays.value;
+
+    if (!name) {
+      alert("Please enter a name (e.g., Car insurance).");
+      itemForm.name.focus();
+      return;
     }
 
-    if (uiState.focusWeek) {
-      items = items.filter((i) => {
-        const d = daysUntil(i.dueDateISO);
-        if (d === null) return false;
-        return d < 0 || d <= 7;
+    let customDays = null;
+    if (recurrence === "custom") {
+      const n = Number(customDaysRaw);
+      if (!Number.isFinite(n) || n <= 0) {
+        alert("Custom days must be a positive number (e.g., 90).");
+        itemForm.customDays.focus();
+        return;
+      }
+      customDays = n;
+    }
+
+    const items = loadItems();
+    const nowISO = new Date().toISOString();
+
+    if (editingId) {
+      const idx = items.findIndex((x) => x.id === editingId);
+      if (idx === -1) {
+        alert("That item couldn't be found (it may have been deleted).");
+        closeModal();
+        return;
+      }
+
+      items[idx] = {
+        ...items[idx],
+        category,
+        name,
+        dueDateISO,
+        details,
+        reminderProfile,
+        priority,
+        recurrence,
+        customDays,
+        updatedAtISO: nowISO,
+      };
+    } else {
+      items.push({
+        id: uid(),
+        category,
+        name,
+        details,
+        dueDateISO,
+        reminderProfile,
+        priority,
+        archived: false,
+        recurrence,
+        customDays,
+        createdAtISO: nowISO,
+        updatedAtISO: nowISO,
+        doneCount: 0,
       });
     }
 
-    const byDueAsc = (a, b) => {
-      const da = daysUntil(a.dueDateISO);
-      const db = daysUntil(b.dueDateISO);
-      if (da === null && db === null) return 0;
-      if (da === null) return 1;
-      if (db === null) return -1;
-      return da - db;
-    };
+    saveItems(items);
+    renderAdmin();
+    closeModal();
+  });
+})();
 
-    switch (uiState.sort) {
-      case "dueLatest": items.sort((a, b) => -byDueAsc(a, b)); break;
-      case "createdOldest": items.sort((a, b) => a.createdAtISO.localeCompare(b.createdAtISO)); break;
-      case "createdNewest": items.sort((a, b) => b.createdAtISO.localeCompare(a.createdAtISO)); break;
-      case "nameZA": items.sort((a, b) => b.name.localeCompare(a.name)); break;
-      case "nameAZ": items.sort((a, b) => a.name.localeCompare(b.name)); break;
-      case "dueSoonest":
-      default: items.sort((a, b) => byDueAsc(a, b)); break;
-    }
-
-    // Secondary: high priority first
-    items.sort((a, b) => {
-      if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
-      return 0;
-    });
-
-    return items;
-  }
-
-  function computeOverallStatus(items) {
-    let worst = "green";
-    for (const it of items) {
-      if (it.archived) continue;
-      const s = statusFromDays(daysUntil(it.dueDateISO));
-      if (s === "red") return "red";
-      if (s === "amber") worst = "amber";
-    }
-    return worst;
-  }
-
-  function setOverallPill(status) {
-    if (!overallDot || !statusText) return;
-
-    overallDot.classList.remove("dot--green", "dot--amber", "dot--red");
-
-    if (status === "red") {
-      overallDot.classList.add("dot--red");
-      statusText.textContent = "Needs attention";
-      return;
-    }
-    if (status === "amber") {
-      overallDot.classList.add("dot--amber");
-      statusText.textContent = "Coming up";
-      return;
-    }
-    overallDot.classList.add("dot--green");
-    statusText.textContent = "All good";
-  }
+(() => {
+  "use strict";
 
   // =========================
   // STATS
@@ -756,8 +681,13 @@ window.addEventListener("unhandledrejection", (e) => {
     `;
   }
 
+})();
+
+(() => {
+  "use strict";
+
   // =========================
-  // BADGES
+  // BADGES & LIST
   // =========================
   function setCategoryBadge(el, itemsInCategory) {
     if (!el) return;
@@ -853,130 +783,112 @@ window.addEventListener("unhandledrejection", (e) => {
       listEl.appendChild(li);
     }
   }
+})();
+
+(() => {
+  "use strict";
 
   // =========================
-  // SMART ALERTS
+  // BADGES & LIST
   // =========================
-  function buildSmartAlerts(allItems) {
-    const items = allItems.filter((i) => !i.archived);
+  function setCategoryBadge(el, itemsInCategory) {
+    if (!el) return;
 
-    return items
-      .map((it) => {
-        const d = daysUntil(it.dueDateISO);
-        const s = statusFromDays(d);
-
-        const urgency =
-          (s === "red" ? 120 : s === "amber" ? 70 : 10) +
-          (it.priority === "high" ? 20 : 0) +
-          (d === null ? -10 : 0) +
-          (d !== null ? Math.max(0, 40 - Math.min(40, d)) : 0);
-
-        return {
-          id: it.id,
-          title: it.name,
-          dueText: fmtDueText(d),
-          badge: badgeFromStatus(s),
-          nudge: gentleNudge(it, d),
-          score: urgency,
-        };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 4);
-  }
-
-  function renderSmartAlerts(allItems) {
-    if (!listAlerts) return;
-
-    const alerts = buildSmartAlerts(allItems);
-    listAlerts.innerHTML = "";
-
-    if (!alerts.length) {
-      emptyAlerts?.removeAttribute("hidden");
-      if (badgeAlerts) {
-        badgeAlerts.className = "badge badge--ok";
-        badgeAlerts.textContent = "Clear";
-      }
+    if (!itemsInCategory.length) {
+      el.className = "badge badge--neutral";
+      el.textContent = "Empty";
       return;
     }
 
-    emptyAlerts?.setAttribute("hidden", "true");
+    const overdue = itemsInCategory.filter((i) => {
+      const d = daysUntil(i.dueDateISO);
+      return !i.archived && d !== null && d < 0;
+    }).length;
 
-    if (badgeAlerts) {
-      badgeAlerts.className = "badge badge--warn";
-      badgeAlerts.textContent = `${alerts.length} active`;
+    const dueSoon = itemsInCategory.filter((i) => {
+      const d = daysUntil(i.dueDateISO);
+      return !i.archived && d !== null && d >= 0 && d <= 30;
+    }).length;
+
+    if (overdue > 0) {
+      el.className = "badge badge--danger";
+      el.textContent = `${overdue} overdue`;
+      return;
+    }
+    if (dueSoon > 0) {
+      el.className = "badge badge--warn";
+      el.textContent = `${dueSoon} due soon`;
+      return;
     }
 
-    for (const a of alerts) {
+    const activeCount = itemsInCategory.filter((i) => !i.archived).length;
+    el.className = "badge badge--ok";
+    el.textContent = `${activeCount} saved`;
+  }
+
+  function recurrenceLabel(item) {
+    if (item.recurrence === "none") return "One-off";
+    if (item.recurrence === "weekly") return "Repeats weekly";
+    if (item.recurrence === "monthly") return "Repeats monthly";
+    if (item.recurrence === "yearly") return "Repeats yearly";
+    if (item.recurrence === "custom") return `Repeats every ${item.customDays ?? 30} days`;
+    return "One-off";
+  }
+
+  function renderList(listEl, emptyEl, items) {
+    if (!listEl) return;
+
+    listEl.innerHTML = "";
+
+    if (!items.length) {
+      emptyEl?.removeAttribute("hidden");
+      return;
+    }
+    emptyEl?.setAttribute("hidden", "true");
+
+    for (const item of items) {
+      const d = daysUntil(item.dueDateISO);
+      const status = statusFromDays(d);
+      const badge = item.archived ? { label: "Archived", cls: "badge--neutral" } : badgeFromStatus(status);
+
+      const metaParts = [];
+      metaParts.push(recurrenceLabel(item));
+      if (item.dueDateISO) metaParts.push(fmtDueText(d));
+      if (item.details?.trim()) metaParts.push(item.details.trim());
+      if (item.priority === "high") metaParts.push("High priority");
+      metaParts.push(`Done: ${item.doneCount}`);
+
       const li = document.createElement("li");
-      li.className = "list__item";
+      const stripClass =
+        item.archived ? "list__item--neutral" :
+        status === "red" ? "list__item--red" :
+        status === "amber" ? "list__item--amber" :
+        "list__item--green";
+
+      li.className = `list__item ${stripClass}${item.archived ? " is-archived" : ""}`;
       li.innerHTML = `
         <div class="list__main">
-          <div class="list__title">${escapeHtml(a.title)}</div>
-          <div class="list__meta">${escapeHtml(a.dueText)} • ${escapeHtml(a.nudge)}</div>
+          <div class="list__title">${escapeHtml(item.name)}</div>
+          <div class="list__meta">${escapeHtml(metaParts.join(" • "))}</div>
         </div>
+
         <div class="row-actions">
-          <button class="mini-btn" type="button" data-action="edit" data-id="${a.id}">Open</button>
-          <span class="badge ${a.badge.cls}">${a.badge.label}</span>
+          <button class="mini-btn" type="button" data-action="done" data-id="${item.id}">Mark done</button>
+          <button class="mini-btn" type="button" data-action="edit" data-id="${item.id}">Edit</button>
+          <button class="mini-btn mini-btn--danger" type="button" data-action="delete" data-id="${item.id}">Delete</button>
+          <button class="mini-btn" type="button" data-action="${item.archived ? "unarchive" : "archive"}" data-id="${item.id}">
+            ${item.archived ? "Unarchive" : "Archive"}
+          </button>
+          <span class="badge ${badge.cls}">${badge.label}</span>
         </div>
       `;
-      listAlerts.appendChild(li);
+      listEl.appendChild(li);
     }
   }
+})();
 
-  // =========================
-  // MAIN RENDER
-  // =========================
-  function renderAdmin() {
-    const allItems = loadItems();
-
-    // Auto calm mode (only if user hasn't manually overridden)
-    if (AUTO_CALM_ENABLED && uiState.calmModeManual === null) {
-      uiState.calmMode = urgentCount(allItems) > AUTO_CALM_THRESHOLD;
-      if (calmCheckbox) calmCheckbox.checked = uiState.calmMode;
-    }
-
-    setOverallPill(computeOverallStatus(allItems));
-    renderStats(allItems);
-    renderSmartAlerts(allItems);
-
-    let visible = applyFilterAndSort(allItems);
-
-    if (uiState.calmMode) {
-      visible = applyCalmMode(visible);
-    }
-
-    const groups = {
-      renewal: visible.filter((i) => i.category === "renewal"),
-      account: visible.filter((i) => i.category === "account"),
-      info: visible.filter((i) => i.category === "info"),
-      vehicle: visible.filter((i) => i.category === "vehicle"),
-    };
-
-    renderList(listRenewals, emptyRenewals, groups.renewal);
-    renderList(listAccounts, emptyAccounts, groups.account);
-    renderList(listInfo, emptyInfo, groups.info);
-    renderList(listVehicle, emptyVehicle, groups.vehicle);
-
-    // Calm Mode hides empty categories
-    if (uiState.calmMode) {
-      setCategoryCardVisibility("renewal", groups.renewal.length > 0);
-      setCategoryCardVisibility("account", groups.account.length > 0);
-      setCategoryCardVisibility("info", groups.info.length > 0);
-      setCategoryCardVisibility("vehicle", groups.vehicle.length > 0);
-    } else {
-      setCategoryCardVisibility("renewal", true);
-      setCategoryCardVisibility("account", true);
-      setCategoryCardVisibility("info", true);
-      setCategoryCardVisibility("vehicle", true);
-    }
-
-    // Badges based on all items (respect showArchived)
-    const badgeItems = uiState.showArchived ? allItems : allItems.filter((i) => !i.archived);
-    setCategoryBadge(badgeRenewals, badgeItems.filter((i) => i.category === "renewal"));
-    setCategoryBadge(badgeAccounts, badgeItems.filter((i) => i.category === "account"));
-    setCategoryBadge(badgeInfo, badgeItems.filter((i) => i.category === "info"));
-    setCategoryBadge(badgeVehicle, badgeItems.filter((i) => i.category === "vehicle"));
-  }
+(() => {
+  "use strict";
 
   // =========================
   // ACTIONS: edit/delete/archive/done
@@ -1039,7 +951,6 @@ window.addEventListener("unhandledrejection", (e) => {
       const todayISO = toISODate(startOfToday());
       const baseDue = item.dueDateISO ? item.dueDateISO : todayISO;
 
-      // If overdue, advance from today
       const d = daysUntil(item.dueDateISO);
       const effectiveBase = d !== null && d < 0 ? todayISO : baseDue;
 
@@ -1126,75 +1037,16 @@ window.addEventListener("unhandledrejection", (e) => {
     };
 
     const sample = [
-      {
-        category: "renewal",
-        name: "Car insurance",
-        dueDateISO: fmt(18),
-        details: "Compare quotes • check auto-renew",
-        reminderProfile: "gentle",
-        priority: "high",
-        recurrence: "yearly",
-        customDays: null,
-      },
-      {
-        category: "renewal",
-        name: "Passport expiry",
-        dueDateISO: fmt(160),
-        details: "Check travel validity rules",
-        reminderProfile: "careful",
-        priority: "normal",
-        recurrence: "none",
-        customDays: null,
-      },
-      {
-        category: "vehicle",
-        name: "MOT",
-        dueDateISO: fmt(11),
-        details: "Book a slot near work/home",
-        reminderProfile: "tight",
-        priority: "high",
-        recurrence: "yearly",
-        customDays: null,
-      },
-      {
-        category: "account",
-        name: "Phone contract",
-        dueDateISO: fmt(25),
-        details: "Consider SIM-only options",
-        reminderProfile: "gentle",
-        priority: "normal",
-        recurrence: "monthly",
-        customDays: null,
-      },
-      {
-        category: "info",
-        name: "Spare keys location",
-        dueDateISO: null,
-        details: "Top drawer in desk (non-sensitive)",
-        reminderProfile: "gentle",
-        priority: "normal",
-        recurrence: "none",
-        customDays: null,
-      },
+      { category: "renewal", name: "Car insurance", dueDateISO: fmt(18), details: "Compare quotes • check auto-renew", reminderProfile: "gentle", priority: "high", recurrence: "yearly", customDays: null },
+      { category: "renewal", name: "Passport expiry", dueDateISO: fmt(160), details: "Check travel validity rules", reminderProfile: "careful", priority: "normal", recurrence: "none", customDays: null },
+      { category: "vehicle", name: "MOT", dueDateISO: fmt(11), details: "Book a slot near work/home", reminderProfile: "tight", priority: "high", recurrence: "yearly", customDays: null },
+      { category: "account", name: "Phone contract", dueDateISO: fmt(25), details: "Consider SIM-only options", reminderProfile: "gentle", priority: "normal", recurrence: "monthly", customDays: null },
+      { category: "info", name: "Spare keys location", dueDateISO: null, details: "Top drawer in desk (non-sensitive)", reminderProfile: "gentle", priority: "normal", recurrence: "none", customDays: null },
     ];
 
     const items = loadItems();
     for (const s of sample) {
-      items.push({
-        id: uid(),
-        category: s.category,
-        name: s.name,
-        details: s.details,
-        dueDateISO: s.dueDateISO,
-        reminderProfile: s.reminderProfile,
-        priority: s.priority,
-        archived: false,
-        recurrence: s.recurrence,
-        customDays: s.customDays,
-        createdAtISO: nowISO,
-        updatedAtISO: nowISO,
-        doneCount: 0,
-      });
+      items.push({ ...s, id: uid(), archived: false, createdAtISO: nowISO, updatedAtISO: nowISO, doneCount: 0 });
     }
 
     saveItems(items);
@@ -1208,10 +1060,4 @@ window.addEventListener("unhandledrejection", (e) => {
     alert("Settings coming soon: templates, backups, notifications.");
   });
 
-  // =========================
-  // BOOT
-  // =========================
-  setActiveView("admin");
-  setRecurrenceUI(itemForm?.recurrence?.value || "none");
-  renderAdmin();
 })();
