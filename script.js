@@ -1,7 +1,8 @@
 (() => {
   "use strict";
-// =========================
-  // ROUTER: Admin / Home / Skills
+
+  // =========================
+  // ROUTER (Admin/Home/Skills)
   // =========================
   const navButtons = Array.from(document.querySelectorAll(".nav__item"));
   const views = {
@@ -10,54 +11,47 @@
     skills: document.getElementById("view-skills"),
   };
 
+  window.addEventListener("error", (e) => {
+  alert("JS Error: " + (e.message || "unknown"));
+});
+window.addEventListener("unhandledrejection", (e) => {
+  alert("Promise Error: " + (e.reason?.message || e.reason || "unknown"));
+});
+
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
   const btnMenu = document.getElementById("btnMenu");
   const sidebar = document.querySelector(".sidebar");
 
   const viewMeta = {
-    admin: {
-      title: "Life Admin",
-      subtitle: "Keep your real-world life organised with calm, smart nudges.",
-    },
-    home: {
-      title: "Future Home",
-      subtitle: "Plan furniture essentials first, then extras when you're ready.",
-    },
-    skills: {
-      title: "Life Skills",
-      subtitle: "Everyday living skills with progress you can actually see.",
-    },
+    admin: { title: "Life Admin", subtitle: "Keep your real-world life organised with calm, smart nudges." },
+    home: { title: "Future Home", subtitle: "Plan furniture essentials first, then extras when you're ready." },
+    skills: { title: "Life Skills", subtitle: "Everyday living skills with progress you can actually see." },
   };
 
   function setActiveView(viewKey) {
-    navButtons.forEach((btn) =>
-      btn.classList.toggle("is-active", btn.dataset.view === viewKey)
-    );
-    Object.keys(views).forEach((k) =>
-      views[k]?.classList.toggle("is-visible", k === viewKey)
-    );
-    pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
-    pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
+    navButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.view === viewKey));
+    Object.keys(views).forEach((k) => views[k]?.classList.toggle("is-visible", k === viewKey));
+    if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
+    if (pageSubtitle) pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
     sidebar?.classList.remove("is-open");
   }
 
-  navButtons.forEach((btn) =>
-    btn.addEventListener("click", () => setActiveView(btn.dataset.view))
-  );
+  navButtons.forEach((btn) => btn.addEventListener("click", () => setActiveView(btn.dataset.view)));
   btnMenu?.addEventListener("click", () => sidebar?.classList.toggle("is-open"));
 
   // =========================
   // STORAGE
   // =========================
-  const LS_KEY = "lifeSetup.lifeAdmin.items.v6";
+  const LS_KEY = "lifeSetup.lifeAdmin.items.v5";
 
-  const uid = () =>
-    crypto?.randomUUID
+  function uid() {
+    return crypto?.randomUUID
       ? crypto.randomUUID()
       : `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  }
 
-  const safeParseArray = (raw) => {
+  function safeParseArray(raw) {
     try {
       if (!raw) return null;
       const parsed = JSON.parse(raw);
@@ -65,11 +59,12 @@
     } catch {
       return null;
     }
-  };
+  }
 
   function loadItems() {
     const raw = localStorage.getItem(LS_KEY);
-    return normaliseItems(safeParseArray(raw) ?? []);
+    const arr = safeParseArray(raw);
+    return normaliseItems(arr ?? []);
   }
 
   function saveItems(items) {
@@ -78,36 +73,43 @@
 
   function normaliseItems(arr) {
     const nowISO = new Date().toISOString();
+
     return arr
       .map((x) => {
         const name = (x?.name ?? x?.title ?? "").toString().trim();
         if (!name) return null;
 
         const item = {
-          id: x?.id ?? uid(),
-          category: ["renewal", "account", "vehicle", "info"].includes(x?.category)
-            ? x.category
-            : "renewal",
+          id: (x?.id ?? uid()).toString(),
+          category: (x?.category ?? "renewal"),
           name,
-          details: x?.details?.toString() ?? "",
+          details: (x?.details ?? "").toString(),
           dueDateISO: x?.dueDateISO ?? x?.dueDate ?? null,
-          reminderProfile: ["gentle", "careful", "tight"].includes(x?.reminderProfile)
-            ? x.reminderProfile
-            : "gentle",
-          priority: ["normal", "high"].includes(x?.priority) ? x.priority : "normal",
+          reminderProfile: (x?.reminderProfile ?? "gentle"),
+          priority: (x?.priority ?? "normal"),
           archived: Boolean(x?.archived ?? false),
-          recurrence: ["none", "weekly", "monthly", "yearly", "custom"].includes(x?.recurrence)
-            ? x.recurrence
-            : "none",
+          recurrence: (x?.recurrence ?? "none"),
           customDays: x?.customDays != null ? Number(x.customDays) : null,
-          createdAtISO: x?.createdAtISO ?? nowISO,
-          updatedAtISO: x?.updatedAtISO ?? nowISO,
+          createdAtISO: (x?.createdAtISO ?? nowISO).toString(),
+          updatedAtISO: (x?.updatedAtISO ?? nowISO).toString(),
           doneCount: Number.isFinite(Number(x?.doneCount)) ? Number(x.doneCount) : 0,
         };
 
-        if (item.dueDateISO && !/^\d{4}-\d{2}-\d{2}$/.test(item.dueDateISO)) item.dueDateISO = null;
+        if (!["renewal", "account", "vehicle", "info"].includes(item.category)) item.category = "renewal";
+        if (!["gentle", "careful", "tight"].includes(item.reminderProfile)) item.reminderProfile = "gentle";
+        if (!["normal", "high"].includes(item.priority)) item.priority = "normal";
+        if (!["none", "weekly", "monthly", "yearly", "custom"].includes(item.recurrence)) item.recurrence = "none";
+
+        if (item.dueDateISO && !/^\d{4}-\d{2}-\d{2}$/.test(String(item.dueDateISO))) {
+          item.dueDateISO = null;
+        } else if (item.dueDateISO) {
+          item.dueDateISO = String(item.dueDateISO);
+        }
+
         if (item.recurrence !== "custom") item.customDays = null;
-        if (item.recurrence === "custom" && (!item.customDays || item.customDays <= 0)) item.customDays = 30;
+        if (item.recurrence === "custom") {
+          if (!Number.isFinite(item.customDays) || item.customDays <= 0) item.customDays = 30;
+        }
 
         return item;
       })
@@ -160,7 +162,6 @@
   const btnCancel = document.getElementById("btnCancel");
   const itemForm = document.getElementById("itemForm");
   const customDaysWrap = document.getElementById("customDaysWrap");
-  
 
   // =========================
   // AUTO CALM CONFIG
@@ -1211,6 +1212,6 @@
   // BOOT
   // =========================
   setActiveView("admin");
-  modalElements.customDays.style.display = "none";
+  setRecurrenceUI(itemForm?.recurrence?.value || "none");
   renderAdmin();
 })();
