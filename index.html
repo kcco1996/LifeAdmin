@@ -2,427 +2,393 @@
 <html lang="en">
 <head>
 
-  <script>
-  // iOS Home Screen web-clip sometimes drops the trailing slash and GitHub Pages can 404.
-  (function () {
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-    if (!isStandalone) return;
-
-    const p = location.pathname;
-    const isRepoRoot = p.endsWith("/LifeAdmin") && !p.endsWith("/LifeAdmin/");
-    if (isRepoRoot) location.replace(p + "/" + location.search + location.hash);
-  })();
-</script>
-
-    <!-- Icons -->
-<link rel="icon" href="assets/icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180x180.png">
-
-<!-- PWA -->
-<link rel="manifest" href="assets/icons/manifest.webmanifest">
-<meta name="theme-color" content="#ff8a1f">
-
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Life Admin</title>
+
+  <!-- Icons -->
+  <link rel="icon" href="assets/icons/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180x180.png">
+  <link rel="manifest" href="assets/icons/manifest.webmanifest">
+  <meta name="theme-color" content="#ff8a1f">
+
+  <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- iOS standalone fix -->
+  <script>
+    (function () {
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+      if (!isStandalone) return;
+      const p = location.pathname;
+      const isRepoRoot = p.endsWith("/LifeAdmin") && !p.endsWith("/LifeAdmin/");
+      if (isRepoRoot) location.replace(p + "/" + location.search + location.hash);
+    })();
+  </script>
 </head>
 
 <body>
-  <div class="app">
-    <!-- Sidebar -->
-    <aside class="sidebar" aria-label="Primary">
-      <div class="brand">
-        <div class="brand__mark" aria-hidden="true">🏠</div>
-        <div class="brand__text">
-          <div class="brand__name">Life Admin</div>
-          <div class="brand__tag">Admin • Home • Skills</div>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" aria-label="Primary">
+    <div class="brand">
+      <div class="brand__mark" aria-hidden="true">🏠</div>
+      <div class="brand__text">
+        <div class="brand__name">Life Admin</div>
+        <div class="brand__tag">Admin • Home • Skills</div>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Sections">
+      <button class="nav__item is-active" data-view="admin" type="button">
+        <span class="nav__icon" aria-hidden="true">🧾</span>
+        <span class="nav__label">Life Admin</span>
+      </button>
+      <button class="nav__item" data-view="home" type="button">
+        <span class="nav__icon" aria-hidden="true">🏡</span>
+        <span class="nav__label">Future Home</span>
+      </button>
+      <button class="nav__item" data-view="skills" type="button">
+        <span class="nav__icon" aria-hidden="true">🧠</span>
+        <span class="nav__label">Life Skills</span>
+      </button>
+    </nav>
+
+    <div class="sidebar__footer">
+      <button class="ghost-btn" type="button" id="btnSettings">
+        <span aria-hidden="true">⚙️</span> Settings
+      </button>
+      <button class="ghost-btn" type="button" id="btnExport">
+        <span aria-hidden="true">⬇️</span> Export
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="icon-btn" id="btnMenu" aria-label="Open menu" type="button">☰</button>
+        <div>
+          <h1 class="page-title" id="pageTitle">Life Admin</h1>
+          <p class="page-subtitle" id="pageSubtitle">
+            Keep your real-world life organised with calm, smart nudges.
+          </p>
         </div>
       </div>
 
-      <nav class="nav" aria-label="Sections">
-        <button class="nav__item is-active" data-view="admin" type="button">
-          <span class="nav__icon" aria-hidden="true">🧾</span>
-          <span class="nav__label">Life Admin</span>
-        </button>
-        <button class="nav__item" data-view="home" type="button">
-          <span class="nav__icon" aria-hidden="true">🏡</span>
-          <span class="nav__label">Future Home</span>
-        </button>
-        <button class="nav__item" data-view="skills" type="button">
-          <span class="nav__icon" aria-hidden="true">🧠</span>
-          <span class="nav__label">Life Skills</span>
-        </button>
-      </nav>
-
-      <div class="sidebar__footer">
-        <button class="ghost-btn" type="button" id="btnSettings">
-          <span aria-hidden="true">⚙️</span> Settings
-        </button>
-        <button class="ghost-btn" type="button" id="btnExport">
-          <span aria-hidden="true">⬇️</span> Export
-        </button>
+      <div class="topbar__right">
+        <div class="pill" id="overallStatus">
+          <span class="dot dot--green" id="overallDot" aria-hidden="true"></span>
+          <span id="statusText">All good</span>
+        </div>
+        <button class="primary-btn" type="button" id="btnAdd">+ Add</button>
       </div>
-    </aside>
+    </header>
 
-    <!-- Main -->
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar__left">
-          <button class="icon-btn" id="btnMenu" aria-label="Open menu" type="button">☰</button>
-
-          <div>
-            <h1 class="page-title" id="pageTitle">Life Admin</h1>
-            <p class="page-subtitle" id="pageSubtitle">
-              Keep your real-world life organised with calm, smart nudges.
-            </p>
-          </div>
-        </div>
-
-        <div class="topbar__right">
-          <div class="pill" id="overallStatus">
-            <span class="dot dot--green" id="overallDot" aria-hidden="true"></span>
-            <span id="statusText">All good</span>
-          </div>
-          <button class="primary-btn" type="button" id="btnAdd">+ Add</button>
-        </div>
-      </header>
-
-      <!-- Content -->
-      <section class="content">
-
-        <!-- VIEW: LIFE ADMIN -->
-        <div class="view is-visible" id="view-admin">
-
-          <!-- Life Admin: Controls Row -->
-          <div class="admin-controls">
-            <div class="admin-controls__left">
-              <div class="search">
-                <span class="search__icon" aria-hidden="true">🔎</span>
-                <input
-                  id="adminSearch"
-                  class="search__input"
-                  type="search"
-                  placeholder="Search life admin… (insurance, MOT, passport…)"
-                  autocomplete="off"
-                />
-              </div>
-
-              <div class="chips" role="tablist" aria-label="Life Admin filters">
-                <button class="chip is-active" type="button" data-admin-filter="all">All</button>
-                <button class="chip" type="button" data-admin-filter="renewal">Renewals</button>
-                <button class="chip" type="button" data-admin-filter="account">Accounts</button>
-                <button class="chip" type="button" data-admin-filter="vehicle">Vehicle</button>
-                <button class="chip" type="button" data-admin-filter="info">Info</button>
-              </div>
+    <section class="content">
+      <!-- VIEW: LIFE ADMIN -->
+      <div class="view is-visible" id="view-admin">
+        <!-- Admin Controls -->
+        <div class="admin-controls">
+          <div class="admin-controls__left">
+            <div class="search">
+              <span class="search__icon" aria-hidden="true">🔎</span>
+              <input id="adminSearch" class="search__input" type="search"
+                     placeholder="Search life admin… (insurance, MOT, passport…)" autocomplete="off"/>
             </div>
 
-            <div class="admin-controls__right">
-              <label class="toggle">
-                <input id="chkFocusWeek" type="checkbox" />
-                <span class="toggle__box" aria-hidden="true"></span>
-                <span class="toggle__label">This week</span>
-              </label>
-
-              <label class="toggle">
-                <input id="chkArchived" type="checkbox" />
-                <span class="toggle__box" aria-hidden="true"></span>
-                <span class="toggle__label">Show archived</span>
-              </label>
-
-              <label class="toggle">
-                <input id="chkCalmMode" type="checkbox" />
-                <span class="toggle__box" aria-hidden="true"></span>
-                <span class="toggle__label">Calm mode</span>
-              </label>
-
-              <div class="select">
-                <select id="selSort" aria-label="Sort">
-                  <option value="dueSoonest" selected>Due date (soonest)</option>
-                  <option value="dueLatest">Due date (latest)</option>
-                  <option value="createdNewest">Created (newest)</option>
-                  <option value="createdOldest">Created (oldest)</option>
-                  <option value="nameAZ">Name (A–Z)</option>
-                  <option value="nameZA">Name (Z–A)</option>
-                </select>
-              </div>
-
-              <div class="select">
-                <select id="selTemplate" aria-label="Quick add template">
-                  <option value="" selected>+ Quick add…</option>
-                  <option value="carInsurance">Car insurance</option>
-                  <option value="mot">MOT</option>
-                  <option value="carService">Car service</option>
-                  <option value="passport">Passport expiry</option>
-                  <option value="travelInsurance">Travel insurance</option>
-                  <option value="phoneContract">Phone contract</option>
-                  <option value="subscriptionReview">Subscription review</option>
-                </select>
-              </div>
-
-              <button class="ghost-btn ghost-btn--sm" type="button" id="btnSampleData">Add sample data</button>
-              <button class="ghost-btn ghost-btn--sm" type="button" id="btnImport">Import</button>
+            <div class="chips" role="tablist" aria-label="Life Admin filters">
+              <button class="chip is-active" type="button" data-admin-filter="all">All</button>
+              <button class="chip" type="button" data-admin-filter="renewal">Renewals</button>
+              <button class="chip" type="button" data-admin-filter="account">Accounts</button>
+              <button class="chip" type="button" data-admin-filter="vehicle">Vehicle</button>
+              <button class="chip" type="button" data-admin-filter="info">Info</button>
             </div>
           </div>
 
-          <!-- Stats (filled by JS) -->
-          <div class="grid grid--stats" id="adminStats"></div>
+          <div class="admin-controls__right">
+            <label class="toggle">
+              <input id="chkFocusWeek" type="checkbox"/>
+              <span class="toggle__box" aria-hidden="true"></span>
+              <span class="toggle__label">This week</span>
+            </label>
 
-          <!-- Alerts + Panels -->
-          <div class="grid grid--panels admin-panels">
+            <label class="toggle">
+              <input id="chkArchived" type="checkbox"/>
+              <span class="toggle__box" aria-hidden="true"></span>
+              <span class="toggle__label">Show archived</span>
+            </label>
 
-            <!-- Alerts (full width) -->
-            <article class="card admin-alerts">
-              <div class="card__header">
-                <h2 class="card__title">Smart Alerts</h2>
-                <span class="badge badge--neutral" id="badgeAlerts">—</span>
-              </div>
+            <label class="toggle">
+              <input id="chkCalmMode" type="checkbox"/>
+              <span class="toggle__box" aria-hidden="true"></span>
+              <span class="toggle__label">Calm mode</span>
+            </label>
 
-              <ul class="list" id="listAlerts"></ul>
+            <div class="select">
+              <select id="selSort" aria-label="Sort">
+                <option value="dueSoonest" selected>Due date (soonest)</option>
+                <option value="dueLatest">Due date (latest)</option>
+                <option value="createdNewest">Created (newest)</option>
+                <option value="createdOldest">Created (oldest)</option>
+                <option value="nameAZ">Name (A–Z)</option>
+                <option value="nameZA">Name (Z–A)</option>
+              </select>
+            </div>
 
-              <p class="muted muted--pad" id="emptyAlerts" hidden>
-                No alerts right now — you’re in a good place.
-              </p>
-            </article>
+            <div class="select">
+              <select id="selTemplate" aria-label="Quick add template">
+                <option value="" selected>+ Quick add…</option>
+                <option value="carInsurance">Car insurance</option>
+                <option value="mot">MOT</option>
+                <option value="carService">Car service</option>
+                <option value="passport">Passport expiry</option>
+                <option value="travelInsurance">Travel insurance</option>
+                <option value="phoneContract">Phone contract</option>
+                <option value="subscriptionReview">Subscription review</option>
+              </select>
+            </div>
 
-            <!-- Renewals -->
-            <article class="card" data-cat-card="renewal">
-              <div class="card__header">
-                <h2 class="card__title">Renewals &amp; Deadlines</h2>
-                <span class="badge badge--neutral" id="badgeRenewals">—</span>
-              </div>
-              <ul class="list" id="listRenewals"></ul>
-              <p class="muted muted--pad" id="emptyRenewals" hidden>
-                Nothing here yet. Add your first renewal to get gentle reminders.
-              </p>
-            </article>
-
-            <!-- Accounts -->
-            <article class="card" data-cat-card="account">
-              <div class="card__header">
-                <h2 class="card__title">Accounts &amp; Services</h2>
-                <span class="badge badge--neutral" id="badgeAccounts">—</span>
-              </div>
-              <ul class="list" id="listAccounts"></ul>
-              <p class="muted muted--pad" id="emptyAccounts" hidden>
-                Add things like phone contracts, subscriptions, utilities, etc.
-              </p>
-            </article>
-
-            <!-- Info -->
-            <article class="card" data-cat-card="info">
-              <div class="card__header">
-                <h2 class="card__title">Important Info (Quick Ref)</h2>
-                <span class="badge badge--neutral" id="badgeInfo">—</span>
-              </div>
-              <ul class="list" id="listInfo"></ul>
-              <p class="muted muted--pad" id="emptyInfo" hidden>
-                Non-sensitive notes like “passport stored in desk drawer”.
-              </p>
-            </article>
-
-            <!-- Vehicle -->
-            <article class="card" data-cat-card="vehicle">
-              <div class="card__header">
-                <h2 class="card__title">Vehicle</h2>
-                <span class="badge badge--neutral" id="badgeVehicle">—</span>
-              </div>
-              <ul class="list" id="listVehicle"></ul>
-              <p class="muted muted--pad" id="emptyVehicle" hidden>
-                Add MOT, service, tyre checks — anything you want reminders for.
-              </p>
-            </article>
-
+            <button class="ghost-btn ghost-btn--sm" type="button" id="btnSampleData">Add sample data</button>
+            <button class="ghost-btn ghost-btn--sm" type="button" id="btnImport">Import</button>
           </div>
         </div>
 
-        <!-- VIEW: FUTURE HOME (placeholder so router works) -->
-        <div class="view" id="view-home">
-          <div class="grid grid--rooms">
-            <button class="room-card" type="button">
-              <div class="room-card__title">Living room</div>
-              <div class="room-card__meta">Sofa • TV • Lighting</div>
-            </button>
-            <button class="room-card" type="button">
-              <div class="room-card__title">Kitchen</div>
-              <div class="room-card__meta">Basics • Storage • Appliances</div>
-            </button>
-            <button class="room-card" type="button">
-              <div class="room-card__title">Bedroom</div>
-              <div class="room-card__meta">Bed • Wardrobe • Bedding</div>
-            </button>
-          </div>
-          <article class="card">
+        <!-- Stats -->
+        <div class="grid grid--stats" id="adminStats"></div>
+
+        <!-- Panels -->
+        <div class="grid grid--panels admin-panels">
+          <article class="card admin-alerts">
             <div class="card__header">
-              <h2 class="card__title">Future Home</h2>
-              <span class="badge badge--neutral">Placeholder</span>
+              <h2 class="card__title">Smart Alerts</h2>
+              <span class="badge badge--neutral" id="badgeAlerts">—</span>
             </div>
-            <p class="muted">This view is ready for your next upgrades.</p>
+            <ul class="list" id="listAlerts"></ul>
+            <p class="muted muted--pad" id="emptyAlerts" hidden>No alerts right now — you’re in a good place.</p>
+          </article>
+
+          <article class="card" data-cat-card="renewal">
+            <div class="card__header">
+              <h2 class="card__title">Renewals &amp; Deadlines</h2>
+              <span class="badge badge--neutral" id="badgeRenewals">—</span>
+            </div>
+            <ul class="list" id="listRenewals"></ul>
+            <p class="muted muted--pad" id="emptyRenewals" hidden>Nothing here yet. Add your first renewal to get gentle reminders.</p>
+          </article>
+
+          <article class="card" data-cat-card="account">
+            <div class="card__header">
+              <h2 class="card__title">Accounts &amp; Services</h2>
+              <span class="badge badge--neutral" id="badgeAccounts">—</span>
+            </div>
+            <ul class="list" id="listAccounts"></ul>
+            <p class="muted muted--pad" id="emptyAccounts" hidden>Add things like phone contracts, subscriptions, utilities, etc.</p>
+          </article>
+
+          <article class="card" data-cat-card="info">
+            <div class="card__header">
+              <h2 class="card__title">Important Info (Quick Ref)</h2>
+              <span class="badge badge--neutral" id="badgeInfo">—</span>
+            </div>
+            <ul class="list" id="listInfo"></ul>
+            <p class="muted muted--pad" id="emptyInfo" hidden>Non-sensitive notes like “passport stored in desk drawer”.</p>
+          </article>
+
+          <article class="card" data-cat-card="vehicle">
+            <div class="card__header">
+              <h2 class="card__title">Vehicle</h2>
+              <span class="badge badge--neutral" id="badgeVehicle">—</span>
+            </div>
+            <ul class="list" id="listVehicle"></ul>
+            <p class="muted muted--pad" id="emptyVehicle" hidden>Add MOT, service, tyre checks — anything you want reminders for.</p>
+          </article>
+        </div>
+      </div>
+
+      <!-- Future Home and Life Skills views -->
+      <div class="view" id="view-home">
+        <div class="grid grid--rooms">
+          <button class="room-card" type="button">
+            <div class="room-card__title">Living room</div>
+            <div class="room-card__meta">Sofa • TV • Lighting</div>
+          </button>
+          <button class="room-card" type="button">
+            <div class="room-card__title">Kitchen</div>
+            <div class="room-card__meta">Basics • Storage • Appliances</div>
+          </button>
+          <button class="room-card" type="button">
+            <div class="room-card__title">Bedroom</div>
+            <div class="room-card__meta">Bed • Wardrobe • Bedding</div>
+          </button>
+        </div>
+        <article class="card">
+          <div class="card__header">
+            <h2 class="card__title">Future Home</h2>
+            <span class="badge badge--neutral">Placeholder</span>
+          </div>
+          <p class="muted">This view is ready for your next upgrades.</p>
+        </article>
+      </div>
+
+      <div class="view" id="view-skills">
+        <div class="grid grid--stats">
+          <article class="card card--stat">
+            <div class="card__label">Overall progress</div>
+            <div class="card__value">22 / 75</div>
+            <div class="card__hint">Skills you’re confident with.</div>
+          </article>
+          <article class="card card--stat">
+            <div class="card__label">Currently learning</div>
+            <div class="card__value">9</div>
+            <div class="card__hint">Small steps add up.</div>
+          </article>
+          <article class="card card--stat">
+            <div class="card__label">Everyday living</div>
+            <div class="card__value">Main</div>
+            <div class="card__hint">Cooking, cleaning, routines.</div>
+          </article>
+          <article class="card card--stat">
+            <div class="card__label">Adult responsibilities</div>
+            <div class="card__value">Included</div>
+            <div class="card__hint">Money, admin, car, home basics.</div>
           </article>
         </div>
 
-        <!-- VIEW: LIFE SKILLS -->
-        <div class="view" id="view-skills">
-          <div class="grid grid--stats">
-            <article class="card card--stat">
-              <div class="card__label">Overall progress</div>
-              <div class="card__value">22 / 75</div>
-              <div class="card__hint">Skills you’re confident with.</div>
-            </article>
-            <article class="card card--stat">
-              <div class="card__label">Currently learning</div>
-              <div class="card__value">9</div>
-              <div class="card__hint">Small steps add up.</div>
-            </article>
-            <article class="card card--stat">
-              <div class="card__label">Everyday living</div>
-              <div class="card__value">Main</div>
-              <div class="card__hint">Cooking, cleaning, routines.</div>
-            </article>
-            <article class="card card--stat">
-              <div class="card__label">Adult responsibilities</div>
-              <div class="card__value">Included</div>
-              <div class="card__hint">Money, admin, car, home basics.</div>
-            </article>
-          </div>
+        <div class="grid grid--panels">
+          <article class="card">
+            <div class="card__header">
+              <h2 class="card__title">Cooking</h2>
+              <span class="badge badge--ok">3 / 10</span>
+            </div>
+            <div class="progress"><div class="progress__bar" style="width:30%"></div></div>
+            <p class="muted">Build a few reliable meals and confidence grows fast.</p>
+          </article>
 
-          <div class="grid grid--panels">
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Cooking</h2>
-                <span class="badge badge--ok">3 / 10</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:30%"></div></div>
-              <p class="muted">Build a few reliable meals and confidence grows fast.</p>
-            </article>
+          <article class="card">
+            <div class="card__header">
+              <h2 class="card__title">Cleaning &amp; Laundry</h2>
+              <span class="badge badge--warn">2 / 8</span>
+            </div>
+            <div class="progress"><div class="progress__bar" style="width:25%"></div></div>
+            <p class="muted">Simple routines reduce overwhelm massively.</p>
+          </article>
 
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Cleaning &amp; Laundry</h2>
-                <span class="badge badge--warn">2 / 8</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:25%"></div></div>
-              <p class="muted">Simple routines reduce overwhelm massively.</p>
-            </article>
+          <article class="card">
+            <div class="card__header">
+              <h2 class="card__title">Money Skills</h2>
+              <span class="badge badge--neutral">5 / 12</span>
+            </div>
+            <div class="progress"><div class="progress__bar" style="width:42%"></div></div>
+            <p class="muted">Understand the basics, then automate what you can.</p>
+          </article>
 
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Money Skills</h2>
-                <span class="badge badge--neutral">5 / 12</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:42%"></div></div>
-              <p class="muted">Understand the basics, then automate what you can.</p>
-            </article>
-
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Car Basics</h2>
-                <span class="badge badge--ok">2 / 6</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:33%"></div></div>
-              <p class="muted">Perfect for football away days and travel weeks.</p>
-            </article>
-          </div>
+          <article class="card">
+            <div class="card__header">
+              <h2 class="card__title">Car Basics</h2>
+              <span class="badge badge--ok">2 / 6</span>
+            </div>
+            <div class="progress"><div class="progress__bar" style="width:33%"></div></div>
+            <p class="muted">Perfect for football away days and travel weeks.</p>
+          </article>
         </div>
+      </div>
+    </section>
+  </main>
+</div>
 
-      </section>
-    </main>
-  </div>
+<!-- Modal -->
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal__backdrop" data-close="true"></div>
+  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modalTitle">Add Life Admin Item</h2>
+      <button class="icon-btn icon-btn--sm" type="button" id="btnCloseModal" aria-label="Close">✕</button>
+    </div>
 
-  <!-- Modal (Life Admin Add/Edit) -->
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="modal__backdrop" data-close="true"></div>
+    <form id="itemForm" class="form" autocomplete="off">
+      <input type="hidden" name="id"/>
 
-    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal__header">
-        <h2 class="modal__title" id="modalTitle">Add Life Admin Item</h2>
-        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseModal" aria-label="Close">✕</button>
+      <div class="form__row">
+        <label class="field">
+          <span class="field__label">Category</span>
+          <select class="field__control" name="category" required>
+            <option value="renewal">Renewals &amp; Deadlines</option>
+            <option value="account">Accounts &amp; Services</option>
+            <option value="info">Important Info</option>
+            <option value="vehicle">Vehicle</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Name</span>
+          <input class="field__control" name="name" placeholder="e.g., Car insurance" required/>
+        </label>
       </div>
 
-      <form id="itemForm" class="form" autocomplete="off">
-        <input type="hidden" name="id" />
+      <div class="form__row">
+        <label class="field">
+          <span class="field__label">Due date (optional)</span>
+          <input class="field__control" type="date" name="dueDate"/>
+        </label>
 
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">Category</span>
-            <select class="field__control" name="category" required>
-              <option value="renewal">Renewals &amp; Deadlines</option>
-              <option value="account">Accounts &amp; Services</option>
-              <option value="info">Important Info</option>
-              <option value="vehicle">Vehicle</option>
-            </select>
-          </label>
+        <label class="field">
+          <span class="field__label">Provider / Notes (optional)</span>
+          <input class="field__control" name="details" placeholder="e.g., Admiral • auto-renew off"/>
+        </label>
+      </div>
 
-          <label class="field">
-            <span class="field__label">Name</span>
-            <input class="field__control" name="name" placeholder="e.g., Car insurance" required />
-          </label>
-        </div>
+      <div class="form__row">
+        <label class="field">
+          <span class="field__label">Reminder style</span>
+          <select class="field__control" name="reminderProfile" required>
+            <option value="gentle">Gentle (default)</option>
+            <option value="careful">Careful (more time)</option>
+            <option value="tight">Tight (closer reminders)</option>
+          </select>
+        </label>
 
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">Due date (optional)</span>
-            <input class="field__control" type="date" name="dueDate" />
-          </label>
+        <label class="field">
+          <span class="field__label">Priority</span>
+          <select class="field__control" name="priority" required>
+            <option value="normal">Normal</option>
+            <option value="high">High</option>
+          </select>
+        </label>
+      </div>
 
-          <label class="field">
-            <span class="field__label">Provider / Notes (optional)</span>
-            <input class="field__control" name="details" placeholder="e.g., Admiral • auto-renew off" />
-          </label>
-        </div>
+      <div class="form__row">
+        <label class="field">
+          <span class="field__label">Recurrence</span>
+          <select class="field__control" name="recurrence">
+            <option value="none">None</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="custom">Custom (days)</option>
+          </select>
+        </label>
 
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">Reminder style</span>
-            <select class="field__control" name="reminderProfile" required>
-              <option value="gentle">Gentle (default)</option>
-              <option value="careful">Careful (more time)</option>
-              <option value="tight">Tight (closer reminders)</option>
-            </select>
-          </label>
+        <label class="field" id="customDaysWrap" style="display:none;">
+          <span class="field__label">Custom days</span>
+          <input class="field__control" name="customDays" type="number" min="1" placeholder="e.g., 90"/>
+        </label>
+      </div>
 
-          <label class="field">
-            <span class="field__label">Priority</span>
-            <select class="field__control" name="priority" required>
-              <option value="normal">Normal</option>
-              <option value="high">High</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="form__row">
-          <label class="field">
-            <span class="field__label">Recurrence</span>
-            <select class="field__control" name="recurrence">
-              <option value="none">None</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-              <option value="custom">Custom (days)</option>
-            </select>
-          </label>
-
-          <label class="field" id="customDaysWrap" style="display:none;">
-            <span class="field__label">Custom days</span>
-            <input class="field__control" name="customDays" type="number" min="1" placeholder="e.g., 90" />
-          </label>
-        </div>
-
-        <div class="form__actions">
-          <button class="ghost-btn" type="button" id="btnCancel">Cancel</button>
-          <button class="primary-btn" type="submit">Save item</button>
-        </div>
-
-        <p class="muted muted--small">
-          Tip: “Mark done” will move one-off items into Archive, or advance the next due date for recurring items.
-        </p>
-      </form>
-
-    </div>
+      <div class="form__actions">
+        <button class="ghost-btn" type="button" id="btnCancel">Cancel</button>
+        <button class="primary-btn" type="submit">Save item</button>
+      </div>
+      <p class="muted muted--small">
+        Tip: “Mark done” will move one-off items into Archive, or advance the next due date for recurring items.
+      </p>
+    </form>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
