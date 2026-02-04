@@ -669,7 +669,6 @@ select:not(#modal select) option{
 #fundModal select.field__control{ color-scheme: light; }
 #fundModal select.field__control option{ background: #ffffff; color: #0b0d12; }
 
-
 /* Hidden cards fully disappear */
 [hidden]{ display:none !important; }
 
@@ -733,3 +732,30 @@ select:not(#modal select) option{
   justify-content:flex-end;
 }
 
+/* =========================
+   Part C: Tools modal helpers
+   ========================= */
+
+.money-summary{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.money-chip{
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+#toolsModal .card{
+  box-shadow: none;
+}
+
+#toolsModal .modal__dialog{
+  width: min(820px, calc(100% - 24px));
+}

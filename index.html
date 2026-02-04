@@ -86,6 +86,12 @@
             <span class="dot dot--green" id="overallDot" aria-hidden="true"></span>
             <span id="statusText">All good</span>
           </div>
+
+          <!-- Part C: Tools button (tidy) -->
+          <button class="ghost-btn ghost-btn--sm" type="button" id="btnTools">
+            <span aria-hidden="true">🧰</span> Tools
+          </button>
+
           <button class="primary-btn" type="button" id="btnAdd">+ Add</button>
         </div>
       </header>
@@ -389,6 +395,110 @@
 
       </section>
     </main>
+  </div>
+
+  <!-- Modal: Tools (Part C) -->
+  <div class="modal" id="toolsModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close-tools="true"></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="toolsTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="toolsTitle">Tools</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseTools" aria-label="Close">✕</button>
+      </div>
+
+      <div class="form">
+        <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
+
+          <!-- Export / Import -->
+          <article class="card" style="padding:12px;">
+            <div class="card__header">
+              <h3 class="card__title">Backup & Restore</h3>
+              <span class="badge badge--neutral">JSON</span>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-start; gap:10px;">
+              <button class="mini-btn" type="button" id="btnExportAll">Export everything</button>
+              <button class="mini-btn" type="button" id="btnImportAll">Import everything</button>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-start; gap:10px; margin-top:10px; flex-wrap:wrap;">
+              <button class="mini-btn" type="button" id="btnExportAdmin">Export Life Admin</button>
+              <button class="mini-btn" type="button" id="btnExportHome">Export Future Home</button>
+              <button class="mini-btn" type="button" id="btnExportSkills">Export Life Skills</button>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-start; gap:10px; margin-top:10px; flex-wrap:wrap;">
+              <button class="mini-btn" type="button" id="btnImportAdmin">Import Life Admin</button>
+              <button class="mini-btn" type="button" id="btnImportHome">Import Future Home</button>
+              <button class="mini-btn" type="button" id="btnImportSkills">Import Life Skills</button>
+            </div>
+
+            <p class="muted muted--pad">
+              Tip: “Export everything” is your full backup. Section exports are handy if you want to share or move just one part.
+            </p>
+          </article>
+
+          <!-- Home Templates -->
+          <article class="card" style="padding:12px;">
+            <div class="card__header">
+              <h3 class="card__title">Future Home Templates</h3>
+              <span class="badge badge--neutral">Bulk add</span>
+            </div>
+
+            <div class="form__row" style="grid-template-columns: 1fr 200px;">
+              <label class="field">
+                <span class="field__label">Room</span>
+                <select class="field__control" id="selTemplateRoom">
+                  <option value="bedroom">Bedroom</option>
+                  <option value="kitchen">Kitchen</option>
+                  <option value="living">Living Room</option>
+                  <option value="bathroom">Bathroom</option>
+                  <option value="office">Office</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Template</span>
+                <select class="field__control" id="selHomeTemplate">
+                  <option value="starter">Starter pack</option>
+                  <option value="fullEssentials">Full essentials</option>
+                  <option value="extrasBoost">Extras boost</option>
+                  <option value="workFromHome">Work-from-home upgrade</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-end;">
+              <button class="primary-btn" type="button" id="btnApplyHomeTemplate">Apply to room</button>
+            </div>
+
+            <p class="muted muted--pad">
+              This adds missing items only (no duplicates). Nothing is deleted.
+            </p>
+          </article>
+
+          <!-- Global Budget -->
+          <article class="card" style="padding:12px;">
+            <div class="card__header">
+              <h3 class="card__title">Global Home Budget</h3>
+              <span class="badge badge--ok" id="badgeGlobalBudget">—</span>
+            </div>
+
+            <div class="money-summary" id="globalBudgetSummary"></div>
+
+            <div class="row-actions" style="justify-content:flex-end;">
+              <button class="ghost-btn ghost-btn--sm" type="button" id="btnRecalcBudget">Recalculate</button>
+            </div>
+
+            <p class="muted muted--pad">
+              This totals all room items (essentials + extras) using the costs you set.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Modal (Money Fund Add/Edit) -->

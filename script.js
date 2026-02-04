@@ -11,6 +11,7 @@
     skills: document.getElementById("view-skills"),
   };
 
+  // Simple dev-friendly error surfacing (remove later if you want)
   window.addEventListener("error", (e) => {
     alert("JS Error: " + (e.message || "unknown"));
   });
@@ -44,9 +45,7 @@
   // IDS / HELPERS
   // =========================
   function uid() {
-    return crypto?.randomUUID
-      ? crypto.randomUUID()
-      : `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    return crypto?.randomUUID ? crypto.randomUUID() : `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   }
 
   function safeParseArray(raw) {
@@ -143,7 +142,6 @@
   const LS_LEGACY_LIFEADMIN = "lifeSetup.lifeAdmin.items.v5";
 
   function defaultRooms() {
-    // Template rooms + starter items
     const mk = (title, essentials, extras) => ({
       title,
       notes: "",
@@ -314,7 +312,6 @@
       ...(typeof s?.settings === "object" && s.settings ? s.settings : {}),
     };
 
-    // Home/skills
     base.home.rooms = s?.home?.rooms ?? base.home.rooms;
     base.skills.categories = s?.skills?.categories ?? base.skills.categories;
 
@@ -335,7 +332,6 @@
       }
     }
 
-    // MIGRATE legacy Life Admin
     const legacyRaw = localStorage.getItem(LS_LEGACY_LIFEADMIN);
     const legacyArr = safeParseArray(legacyRaw) ?? [];
 
@@ -345,7 +341,6 @@
     return store;
   }
 
-  // Keep existing Life Admin API the same
   function loadItems() {
     return loadStore().lifeAdmin.items;
   }
@@ -690,6 +685,7 @@
   btnCloseModal?.addEventListener("click", closeModal);
   btnCancel?.addEventListener("click", closeModal);
   modalBackdrop?.addEventListener("click", closeModal);
+
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal?.classList.contains("is-open")) closeModal();
     if (e.key === "Escape" && fundModal?.classList.contains("is-open")) closeFundModal();
@@ -1306,7 +1302,6 @@
     }
     emptyMoneyFunds?.setAttribute("hidden", "true");
 
-    // Sort: high priority first, then name
     const sorted = [...funds].sort((a, b) => {
       if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
       return String(a.name).localeCompare(String(b.name));
@@ -1349,7 +1344,6 @@
     }
   }
 
-  // Fund actions (deposit/withdraw/edit/delete)
   document.querySelector('[data-cat-card="money"]')?.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-fund-action]");
     if (!btn) return;
@@ -1403,7 +1397,6 @@
       store.money.funds = normaliseFunds(store.money.funds);
       saveStore(store);
       renderMoney();
-      return;
     }
   });
 
@@ -1412,7 +1405,6 @@
   // =========================
   function loadHome() {
     const store = loadStore();
-    // If older store had empty rooms, ensure templates exist
     if (!store.home?.rooms || Object.keys(store.home.rooms).length === 0) {
       store.home = { rooms: defaultRooms() };
       saveStore(store);
@@ -1513,7 +1505,6 @@
     const room = home.rooms[activeRoomKey];
     if (!room) return;
 
-    // Badges
     const c = roomCompletion(room);
     if (badgeEssentials) {
       badgeEssentials.className = c.essDone < c.essTotal ? "badge badge--warn" : "badge badge--ok";
@@ -1524,7 +1515,6 @@
       badgeExtras.textContent = `${c.exDone}/${c.exTotal}`;
     }
 
-    // Room completion badge
     if (roomBadge) {
       if (c.essTotal && c.essDone === c.essTotal) {
         roomBadge.className = "badge badge--ok";
@@ -1535,7 +1525,6 @@
       }
     }
 
-    // Budget summary
     const essCost = sumCost(room.essentials);
     const exCost = sumCost(room.extras);
     const total = essCost + exCost;
@@ -1553,7 +1542,6 @@
       roomBudgetBadge.textContent = total > 0 ? "Budgeted" : "No costs yet";
     }
 
-    // Render list helper
     const renderItems = (listEl, emptyEl, items, kind) => {
       if (!listEl) return;
       listEl.innerHTML = "";
@@ -1633,7 +1621,6 @@
     formAddExtra.reset();
   });
 
-  // Click actions (toggle/edit/delete)
   roomPanel?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-room-action]");
     if (!btn) return;
@@ -1772,11 +1759,8 @@
     }
 
     let visible = [...all];
-    if (skillsState.filter !== "all") {
-      visible = visible.filter((x) => x.category === skillsState.filter);
-    }
+    if (skillsState.filter !== "all") visible = visible.filter((x) => x.category === skillsState.filter);
 
-    // Sort: confident last so you see work first
     const order = { ns: 0, ip: 1, cf: 2 };
     visible.sort((a, b) => {
       if (order[a.level] !== order[b.level]) return order[a.level] - order[b.level];
@@ -1828,10 +1812,7 @@
     if (!name) return;
 
     const skills = loadSkills();
-
-    if (!skills.categories[category]) {
-      skills.categories[category] = { category, items: [] };
-    }
+    if (!skills.categories[category]) skills.categories[category] = { category, items: [] };
 
     skills.categories[category].items.push({
       id: uid(),
@@ -1846,7 +1827,6 @@
     renderSkills();
   });
 
-  // Filter chips
   skillsFilterChips?.addEventListener("click", (e) => {
     const chip = e.target.closest("[data-skill-filter]");
     if (!chip) return;
@@ -1863,7 +1843,6 @@
     renderSkills();
   });
 
-  // Actions
   skillsList?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-skill-action]");
     if (!btn) return;
@@ -1902,7 +1881,6 @@
       cat.items.splice(idx, 1);
       saveSkills(skills);
       renderSkills();
-      return;
     }
   });
 
@@ -1912,7 +1890,6 @@
   function renderAdmin() {
     const allItems = loadItems();
 
-    // Auto calm mode (only if user hasn't manually overridden)
     if (AUTO_CALM_ENABLED && uiState.calmModeManual === null) {
       uiState.calmMode = urgentCount(allItems) > AUTO_CALM_THRESHOLD;
       if (calmCheckbox) calmCheckbox.checked = uiState.calmMode;
@@ -1924,9 +1901,7 @@
 
     let visible = applyFilterAndSort(allItems);
 
-    if (uiState.calmMode) {
-      visible = applyCalmMode(visible);
-    }
+    if (uiState.calmMode) visible = applyCalmMode(visible);
 
     const groups = {
       renewal: visible.filter((i) => i.category === "renewal"),
@@ -1941,10 +1916,9 @@
     renderList(listInfo, emptyInfo, groups.info);
     renderList(listVehicle, emptyVehicle, groups.vehicle);
 
-    // Money list is separate (funds)
+    // Funds list (separate storage)
     renderMoney();
 
-    // Calm Mode hides empty categories
     if (uiState.calmMode) {
       setCategoryCardVisibility("renewal", groups.renewal.length > 0);
       setCategoryCardVisibility("account", groups.account.length > 0);
@@ -1959,7 +1933,6 @@
       setCategoryCardVisibility("money", true);
     }
 
-    // Badges for Life Admin item categories
     const badgeItems = uiState.showArchived ? allItems : allItems.filter((i) => !i.archived);
     setCategoryBadge(badgeRenewals, badgeItems.filter((i) => i.category === "renewal"));
     setCategoryBadge(badgeAccounts, badgeItems.filter((i) => i.category === "account"));
@@ -2027,7 +2000,6 @@
       const todayISO = toISODate(startOfToday());
       const baseDue = item.dueDateISO ? item.dueDateISO : todayISO;
 
-      // If overdue, advance from today
       const d = daysUntil(item.dueDateISO);
       const effectiveBase = d !== null && d < 0 ? todayISO : baseDue;
 
@@ -2076,7 +2048,6 @@
         const text = await file.text();
         const parsed = JSON.parse(text);
 
-        // If it's an array, treat as legacy Life Admin items import
         if (Array.isArray(parsed)) {
           const imported = normaliseItems(parsed);
           if (!imported.length) {
@@ -2094,11 +2065,9 @@
           return;
         }
 
-        // Else treat as full store import
         const store = normaliseStore(parsed);
         saveStore(store);
 
-        // Ensure templates exist post-import
         loadHome();
         loadSkills();
 
@@ -2219,11 +2188,9 @@
   setActiveView("admin");
   setRecurrenceUI(itemForm?.recurrence?.value || "none");
 
-  // Ensure templates exist
   loadHome();
   loadSkills();
 
-  // Initial renders
   renderAdmin();
   renderRoomsGrid();
   renderSkills();
