@@ -449,6 +449,15 @@
   const skillsEmpty = document.getElementById("skillsEmpty");
   const skillsCountBadge = document.getElementById("skillsCountBadge");
 
+    // =========================
+  // Part D: Next Steps hooks
+  // =========================
+  const badgeNextSteps = document.getElementById("badgeNextSteps");
+  const nextStepsToday = document.getElementById("nextStepsToday");
+  const nextStepsWeek = document.getElementById("nextStepsWeek");
+  const emptyNextToday = document.getElementById("emptyNextToday");
+  const emptyNextWeek = document.getElementById("emptyNextWeek");
+
   // =========================
   // AUTO CALM CONFIG
   // =========================
@@ -782,8 +791,9 @@
     }
 
     store.money.funds = normaliseFunds(store.money.funds);
-    saveStore(store);
+      saveStore(store);
     renderMoney();
+    renderNextSteps(); // ✅ keep dashboard in sync
     closeFundModal();
   });
 
@@ -1250,6 +1260,200 @@
     }
   }
 
+
+    // =========================
+  // Part D: Next Steps builder
+  // =========================
+  function buildNextSteps() {
+    const today = [];
+    const week = [];
+
+    // ---- LIFE ADMIN ----
+    const adminItems = loadItems().filter((i) => !i.archived);
+    for (const it of adminItems) {
+      const d = daysUntil(it.dueDateISO);
+      if (d === null) continue;
+
+      // Today: overdue or due within 1 day
+      if (d < 0 || d <= 1) {
+        today.push({
+          source: "admin",
+          id: it.id,
+          title: it.name,
+          meta: fmtDueText(d),
+          hint: gentleNudge(it, d),
+          tag: "Life Admin",
+          score: 200 + (it.priority === "high" ? 20 : 0) + (d < 0 ? 40 : 0),
+        });
+        continue;
+      }
+
+      // This week: due within 7 days, or high priority within 14
+      if (d <= 7 || (it.priority === "high" && d <= 14)) {
+        week.push({
+          source: "admin",
+          id: it.id,
+          title: it.name,
+          meta: fmtDueText(d),
+          hint: gentleNudge(it, d),
+          tag: "Life Admin",
+          score: 140 + (it.priority === "high" ? 20 : 0) + Math.max(0, 20 - d),
+        });
+      }
+    }
+
+    // ---- FUTURE HOME ----
+    // prioritise: essentials not done + essentials with £0 cost (budget clarity)
+    try {
+      const home = loadHome();
+      const rooms = home.rooms || {};
+
+      for (const rk of Object.keys(rooms)) {
+        const r = rooms[rk];
+        const title = r.title || rk;
+
+        const essentials = r.essentials || [];
+        for (const item of essentials) {
+          const nm = (item.name || "").trim();
+          if (!nm) continue;
+
+          const cost = Number(item.cost) || 0;
+          const done = !!item.done;
+
+          if (!done) {
+            if (cost <= 0) {
+              week.push({
+                source: "home",
+                id: item.id || uid(),
+                title: `${title}: estimate cost`,
+                meta: nm,
+                hint: "Adding a rough cost makes your move budget feel real (no need to be perfect).",
+                tag: "Future Home",
+                score: 90,
+              });
+            } else {
+              week.push({
+                source: "home",
+                id: item.id || uid(),
+                title: `${title}: plan this essential`,
+                meta: `${nm} • £${cost.toFixed(0)}`,
+                hint: "One small decision now = less overwhelm later.",
+                tag: "Future Home",
+                score: 95,
+              });
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // ---- LIFE SKILLS ----
+    // focus: “In progress” items
+    try {
+      const skills = loadSkills();
+      const cats = skills.categories || {};
+
+      for (const ck of Object.keys(cats)) {
+        const cat = cats[ck];
+        const catTitle = cat.category || ck; // YOUR structure uses `category`
+        const items = cat.items || [];
+
+        for (const it of items) {
+          const nm = (it.name || "").trim();
+          if (!nm) continue;
+
+          if (it.level === "ip") {
+            today.push({
+              source: "skills",
+              id: it.id || uid(),
+              title: `${catTitle}: practise`,
+              meta: nm,
+              hint: "Even one attempt counts — you can mark it as confident later.",
+              tag: "Life Skills",
+              score: 110,
+            });
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    const sortDesc = (a, b) => b.score - a.score;
+    today.sort(sortDesc);
+    week.sort(sortDesc);
+
+    return {
+      today: today.slice(0, 4),
+      week: week.slice(0, 6),
+    };
+  }
+
+  function renderNextSteps() {
+    if (!nextStepsToday || !nextStepsWeek) return;
+
+    const { today, week } = buildNextSteps();
+
+    // badge
+    if (badgeNextSteps) {
+      const total = today.length + week.length;
+      badgeNextSteps.className = total ? "badge badge--warn" : "badge badge--ok";
+      badgeNextSteps.textContent = total ? `${total} suggested` : "Clear";
+    }
+
+    // today list
+    nextStepsToday.innerHTML = "";
+    if (!today.length) emptyNextToday?.removeAttribute("hidden");
+    else emptyNextToday?.setAttribute("hidden", "true");
+
+    for (const t of today) {
+      const li = document.createElement("li");
+      li.className = "list__item list__item--amber";
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(t.title)}</div>
+          <div class="list__meta">${escapeHtml(t.meta)} • ${escapeHtml(t.hint)}</div>
+        </div>
+        <div class="row-actions">
+          ${
+            t.source === "admin"
+              ? `<button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${t.id}">Open</button>`
+              : `<button class="mini-btn" type="button" data-ns-action="go" data-view="${t.source === "home" ? "home" : "skills"}">Go</button>`
+          }
+          <span class="nextstep-tag">${escapeHtml(t.tag)}</span>
+        </div>
+      `;
+      nextStepsToday.appendChild(li);
+    }
+
+    // week list
+    nextStepsWeek.innerHTML = "";
+    if (!week.length) emptyNextWeek?.removeAttribute("hidden");
+    else emptyNextWeek?.setAttribute("hidden", "true");
+
+    for (const t of week) {
+      const li = document.createElement("li");
+      li.className = "list__item list__item--green";
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(t.title)}</div>
+          <div class="list__meta">${escapeHtml(t.meta)} • ${escapeHtml(t.hint)}</div>
+        </div>
+        <div class="row-actions">
+          ${
+            t.source === "admin"
+              ? `<button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${t.id}">Open</button>`
+              : `<button class="mini-btn" type="button" data-ns-action="go" data-view="${t.source === "home" ? "home" : "skills"}">Go</button>`
+          }
+          <span class="nextstep-tag">${escapeHtml(t.tag)}</span>
+        </div>
+      `;
+      nextStepsWeek.appendChild(li);
+    }
+  }
+
   // =========================
   // MONEY RENDER (Funds)
   // =========================
@@ -1369,6 +1573,7 @@
       store.money.funds = normaliseFunds(store.money.funds);
       saveStore(store);
       renderMoney();
+      renderNextSteps();
       return;
     }
 
@@ -1397,6 +1602,7 @@
       store.money.funds = normaliseFunds(store.money.funds);
       saveStore(store);
       renderMoney();
+      renderNextSteps();
     }
   });
 
@@ -1593,6 +1799,7 @@
     saveHome(home);
     renderRoomLists();
     renderRoomsGrid();
+    renderNextSteps(); // ✅
   }
 
   formAddEssential?.addEventListener("submit", (e) => {
@@ -1644,6 +1851,7 @@
       saveHome(home);
       renderRoomLists();
       renderRoomsGrid();
+      renderNextSteps();
       return;
     }
 
@@ -1653,6 +1861,7 @@
       saveHome(home);
       renderRoomLists();
       renderRoomsGrid();
+      renderNextSteps();
       return;
     }
 
@@ -1674,6 +1883,7 @@
       saveHome(home);
       renderRoomLists();
       renderRoomsGrid();
+      renderNextSteps();
     }
   });
 
@@ -1701,6 +1911,7 @@
 
     openRoom(activeRoomKey);
     renderRoomsGrid();
+    renderNextSteps(); // ✅
   });
 
   // =========================
@@ -1825,6 +2036,7 @@
     saveSkills(skills);
     formAddSkill.reset();
     renderSkills();
+   renderNextSteps(); // ✅
   });
 
   skillsFilterChips?.addEventListener("click", (e) => {
@@ -1841,6 +2053,7 @@
     );
 
     renderSkills();
+    renderNextSteps(); // ✅
   });
 
   skillsList?.addEventListener("click", (e) => {
@@ -1864,6 +2077,7 @@
       cat.items[idx].level = nextSkillLevel(cat.items[idx].level);
       saveSkills(skills);
       renderSkills();
+      renderNextSteps(); // ✅
       return;
     }
 
@@ -1873,6 +2087,7 @@
       cat.items[idx].name = next.trim() || cat.items[idx].name;
       saveSkills(skills);
       renderSkills();
+      renderNextSteps(); // ✅
       return;
     }
 
@@ -1881,6 +2096,7 @@
       cat.items.splice(idx, 1);
       saveSkills(skills);
       renderSkills();
+      renderNextSteps(); // ✅
     }
   });
 
@@ -1938,7 +2154,12 @@
     setCategoryBadge(badgeAccounts, badgeItems.filter((i) => i.category === "account"));
     setCategoryBadge(badgeInfo, badgeItems.filter((i) => i.category === "info"));
     setCategoryBadge(badgeVehicle, badgeItems.filter((i) => i.category === "vehicle"));
+
+       // ✅ Part D: keep Next Steps in sync
+    renderNextSteps();
   }
+
+  
 
   // =========================
   // ACTIONS: edit/delete/archive/done (Life Admin items)
@@ -2017,6 +2238,34 @@
   });
 
   // =========================
+  // Part D: Next Steps clicks
+  // =========================
+  document.getElementById("nextStepsWrap")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-ns-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-ns-action");
+    if (action === "go") {
+      const view = btn.getAttribute("data-view");
+      if (view) setActiveView(view);
+      return;
+    }
+
+    if (action === "openAdmin") {
+      const id = btn.getAttribute("data-id");
+      if (!id) return;
+
+      const items = loadItems();
+      const item = items.find((x) => x.id === id);
+      if (!item) return;
+
+      setActiveView("admin");
+      openModal("edit", item);
+    }
+  });
+
+
+  // =========================
   // EXPORT (entire store)
   // =========================
   document.getElementById("btnExport")?.addEventListener("click", () => {
@@ -2074,6 +2323,7 @@
         renderAdmin();
         renderRoomsGrid();
         renderSkills();
+        renderNextSteps(); // ✅
 
         alert("Imported Life Setup store.");
       } catch {
@@ -2194,4 +2444,5 @@
   renderAdmin();
   renderRoomsGrid();
   renderSkills();
+  renderNextSteps(); // ✅
 })();

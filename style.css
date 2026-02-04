@@ -759,3 +759,62 @@ select:not(#modal select) option{
 #toolsModal .modal__dialog{
   width: min(820px, calc(100% - 24px));
 }
+
+/* =========================
+   Part D: Next Steps styles
+   ========================= */
+
+/* Wrapper so the card area feels consistent */
+#nextStepsWrap{
+  display: grid;
+  gap: 14px;
+}
+
+/* If you place Today + Week side-by-side in a grid */
+.next-steps-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* On smaller screens stack */
+@media (max-width: 860px){
+  .next-steps-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tag pill used in your JS: <span class="nextstep-tag">Life Admin</span> */
+.nextstep-tag{
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.80);
+  white-space: nowrap;
+}
+
+/* Make Next Steps rows feel “actionable” */
+#nextStepsWrap .list__item{
+  background: rgba(0,0,0,0.10);
+}
+
+/* Slightly tighter meta line in next steps */
+#nextStepsWrap .list__meta{
+  line-height: 1.35;
+}
+
+/* Keep the “Open/Go” buttons aligned nicely in Next Steps */
+#nextStepsWrap .row-actions{
+  gap: 8px;
+}
+
+/* Optional: differentiate Today vs Week a bit more */
+#nextStepsWrap #nextStepsToday .list__item{
+  border-color: rgba(255,176,32,0.18);
+}
+
+#nextStepsWrap #nextStepsWeek .list__item{
+  border-color: rgba(56,217,150,0.18);
+}
