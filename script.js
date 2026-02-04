@@ -137,17 +137,69 @@
   }
 
   // =========================
-  // GLOBAL STORE + MIGRATION (PART A)
+  // GLOBAL STORE + MIGRATION (PART A/B)
   // =========================
   const LS_STORE_KEY = "lifeSetup.store.v1";
   const LS_LEGACY_LIFEADMIN = "lifeSetup.lifeAdmin.items.v5";
 
   function defaultRooms() {
-    return {}; // Part A: store scaffolding only (Home build comes in Part B)
+    // Template rooms + starter items
+    const mk = (title, essentials, extras) => ({
+      title,
+      notes: "",
+      essentials: essentials.map((n) => ({ id: uid(), name: n, cost: 0, done: false })),
+      extras: extras.map((n) => ({ id: uid(), name: n, cost: 0, done: false })),
+    });
+
+    return {
+      bedroom: mk(
+        "Bedroom",
+        ["Bed frame", "Mattress", "Pillow(s)", "Duvet", "Bedsheets", "Wardrobe / storage"],
+        ["Bedside table", "Lamp", "Mirror", "Rug", "Extra storage boxes"]
+      ),
+      kitchen: mk(
+        "Kitchen",
+        ["Plates/bowls", "Cutlery", "Mugs", "Cooking basics (knife/board)", "Bin", "Tea towels"],
+        ["Air fryer", "Blender", "Extra pans", "Nice glasses", "Organisers"]
+      ),
+      living: mk(
+        "Living Room",
+        ["Sofa", "TV stand", "Curtains/blinds", "Lighting", "Basic cleaning kit"],
+        ["Coffee table", "Rug", "Wall art", "Speaker", "Extra seating"]
+      ),
+      bathroom: mk(
+        "Bathroom",
+        ["Towels", "Toilet brush", "Shower curtain (if needed)", "Soap/shampoo", "Bath mat"],
+        ["Storage caddy", "Nice mirror", "Plants", "Extra shelves"]
+      ),
+      office: mk(
+        "Office",
+        ["Desk", "Chair", "Monitor (optional)", "Extension lead", "Basic stationery"],
+        ["Second monitor", "Desk lamp", "Cable management", "Whiteboard", "Printer"]
+      ),
+    };
   }
 
   function defaultSkills() {
-    return {}; // Part A: store scaffolding only (Skills build comes in Part B)
+    const mk = (category, names) => ({
+      category,
+      items: names.map((n) => ({
+        id: uid(),
+        name: n,
+        level: "ns",
+        notes: "",
+        createdAtISO: new Date().toISOString(),
+      })),
+    });
+
+    return {
+      Cooking: mk("Cooking", ["Make a hot breakfast", "Cook chicken safely", "Make rice properly"]),
+      Cleaning: mk("Cleaning", ["Clean a bathroom properly", "Dust + vacuum routine", "Clean a fridge"]),
+      Laundry: mk("Laundry", ["Sort colours", "Run a wash cycle", "Hang/air-dry properly"]),
+      "Personal Admin": mk("Personal Admin", ["Track bills & renewals", "Book appointments", "Keep documents organised"]),
+      Health: mk("Health", ["Basic meal planning", "Consistent sleep routine", "Short daily walk"]),
+      "Home Basics": mk("Home Basics", ["Change a lightbulb", "Stop a small leak (basics)", "Reset internet router"]),
+    };
   }
 
   function makeFund(name) {
@@ -184,14 +236,14 @@
 
         const item = {
           id: (x?.id ?? uid()).toString(),
-          category: (x?.category ?? "renewal"),
+          category: x?.category ?? "renewal",
           name,
           details: (x?.details ?? "").toString(),
           dueDateISO: x?.dueDateISO ?? x?.dueDate ?? null,
-          reminderProfile: (x?.reminderProfile ?? "gentle"),
-          priority: (x?.priority ?? "normal"),
+          reminderProfile: x?.reminderProfile ?? "gentle",
+          priority: x?.priority ?? "normal",
           archived: Boolean(x?.archived ?? false),
-          recurrence: (x?.recurrence ?? "none"),
+          recurrence: x?.recurrence ?? "none",
           customDays: x?.customDays != null ? Number(x.customDays) : null,
           createdAtISO: (x?.createdAtISO ?? nowISO).toString(),
           updatedAtISO: (x?.updatedAtISO ?? nowISO).toString(),
@@ -262,7 +314,7 @@
       ...(typeof s?.settings === "object" && s.settings ? s.settings : {}),
     };
 
-    // Part A: home/skills store placeholders
+    // Home/skills
     base.home.rooms = s?.home?.rooms ?? base.home.rooms;
     base.skills.categories = s?.skills?.categories ?? base.skills.categories;
 
@@ -365,6 +417,42 @@
   const btnCloseFundModal = document.getElementById("btnCloseFundModal");
   const btnCancelFund = document.getElementById("btnCancelFund");
   const fundForm = document.getElementById("fundForm");
+
+  // =========================
+  // DOM HOOKS (Home)
+  // =========================
+  const roomsGrid = document.getElementById("roomsGrid");
+  const roomPanel = document.getElementById("roomPanel");
+  const roomTitle = document.getElementById("roomTitle");
+  const roomBadge = document.getElementById("roomBadge");
+  const btnCloseRoom = document.getElementById("btnCloseRoom");
+
+  const listEssentials = document.getElementById("listEssentials");
+  const listExtras = document.getElementById("listExtras");
+  const emptyEssentials = document.getElementById("emptyEssentials");
+  const emptyExtras = document.getElementById("emptyExtras");
+  const badgeEssentials = document.getElementById("badgeEssentials");
+  const badgeExtras = document.getElementById("badgeExtras");
+
+  const formAddEssential = document.getElementById("formAddEssential");
+  const formAddExtra = document.getElementById("formAddExtra");
+
+  const roomNotes = document.getElementById("roomNotes");
+  const btnSaveRoomNotes = document.getElementById("btnSaveRoomNotes");
+  const btnResetRoom = document.getElementById("btnResetRoom");
+  const roomBudgetSummary = document.getElementById("roomBudgetSummary");
+  const roomBudgetBadge = document.getElementById("roomBudgetBadge");
+
+  // =========================
+  // DOM HOOKS (Skills)
+  // =========================
+  const skillsBadge = document.getElementById("skillsBadge");
+  const skillsSummary = document.getElementById("skillsSummary");
+  const formAddSkill = document.getElementById("formAddSkill");
+  const skillsFilterChips = document.getElementById("skillsFilterChips");
+  const skillsList = document.getElementById("skillsList");
+  const skillsEmpty = document.getElementById("skillsEmpty");
+  const skillsCountBadge = document.getElementById("skillsCountBadge");
 
   // =========================
   // AUTO CALM CONFIG
@@ -841,11 +929,12 @@
 
     if (uiState.query) {
       const q = uiState.query;
-      items = items.filter((i) => (
-        i.name.toLowerCase().includes(q) ||
-        (i.details || "").toLowerCase().includes(q) ||
-        (i.dueDateISO || "").includes(q)
-      ));
+      items = items.filter(
+        (i) =>
+          i.name.toLowerCase().includes(q) ||
+          (i.details || "").toLowerCase().includes(q) ||
+          (i.dueDateISO || "").includes(q)
+      );
     }
 
     if (uiState.focusWeek) {
@@ -866,13 +955,25 @@
     };
 
     switch (uiState.sort) {
-      case "dueLatest": items.sort((a, b) => -byDueAsc(a, b)); break;
-      case "createdOldest": items.sort((a, b) => a.createdAtISO.localeCompare(b.createdAtISO)); break;
-      case "createdNewest": items.sort((a, b) => b.createdAtISO.localeCompare(a.createdAtISO)); break;
-      case "nameZA": items.sort((a, b) => b.name.localeCompare(a.name)); break;
-      case "nameAZ": items.sort((a, b) => a.name.localeCompare(b.name)); break;
+      case "dueLatest":
+        items.sort((a, b) => -byDueAsc(a, b));
+        break;
+      case "createdOldest":
+        items.sort((a, b) => a.createdAtISO.localeCompare(b.createdAtISO));
+        break;
+      case "createdNewest":
+        items.sort((a, b) => b.createdAtISO.localeCompare(a.createdAtISO));
+        break;
+      case "nameZA":
+        items.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "nameAZ":
+        items.sort((a, b) => a.name.localeCompare(b.name));
+        break;
       case "dueSoonest":
-      default: items.sort((a, b) => byDueAsc(a, b)); break;
+      default:
+        items.sort((a, b) => byDueAsc(a, b));
+        break;
     }
 
     // Secondary: high priority first
@@ -1049,10 +1150,13 @@
 
       const li = document.createElement("li");
       const stripClass =
-        item.archived ? "list__item--neutral" :
-        status === "red" ? "list__item--red" :
-        status === "amber" ? "list__item--amber" :
-        "list__item--green";
+        item.archived
+          ? "list__item--neutral"
+          : status === "red"
+          ? "list__item--red"
+          : status === "amber"
+          ? "list__item--amber"
+          : "list__item--green";
 
       li.className = `list__item ${stripClass}${item.archived ? " is-archived" : ""}`;
       li.innerHTML = `
@@ -1285,9 +1389,10 @@
         return;
       }
 
-      const next = action === "deposit"
-        ? (Number(fund.current ?? 0) + amt)
-        : Math.max(0, (Number(fund.current ?? 0) - amt));
+      const next =
+        action === "deposit"
+          ? Number(fund.current ?? 0) + amt
+          : Math.max(0, Number(fund.current ?? 0) - amt);
 
       store.money.funds[idx] = {
         ...fund,
@@ -1298,6 +1403,505 @@
       store.money.funds = normaliseFunds(store.money.funds);
       saveStore(store);
       renderMoney();
+      return;
+    }
+  });
+
+  // =========================
+  // Home + Skills save/load
+  // =========================
+  function loadHome() {
+    const store = loadStore();
+    // If older store had empty rooms, ensure templates exist
+    if (!store.home?.rooms || Object.keys(store.home.rooms).length === 0) {
+      store.home = { rooms: defaultRooms() };
+      saveStore(store);
+    }
+    return store.home;
+  }
+
+  function saveHome(home) {
+    const store = loadStore();
+    store.home = home;
+    saveStore(store);
+  }
+
+  function loadSkills() {
+    const store = loadStore();
+    if (!store.skills?.categories || Object.keys(store.skills.categories).length === 0) {
+      store.skills = { categories: defaultSkills() };
+      saveStore(store);
+    }
+    return store.skills;
+  }
+
+  function saveSkills(skills) {
+    const store = loadStore();
+    store.skills = skills;
+    saveStore(store);
+  }
+
+  // =========================
+  // FUTURE HOME (Part B)
+  // =========================
+  let activeRoomKey = null;
+
+  function roomCompletion(room) {
+    const essTotal = room.essentials.length;
+    const essDone = room.essentials.filter((x) => x.done).length;
+    const exTotal = room.extras.length;
+    const exDone = room.extras.filter((x) => x.done).length;
+    return { essTotal, essDone, exTotal, exDone };
+  }
+
+  function sumCost(items) {
+    return items.reduce((acc, it) => acc + (Number(it.cost) || 0), 0);
+  }
+
+  function renderRoomsGrid() {
+    if (!roomsGrid) return;
+    const home = loadHome();
+    const rooms = home.rooms;
+
+    roomsGrid.innerHTML = "";
+
+    for (const key of Object.keys(rooms)) {
+      const room = rooms[key];
+      const c = roomCompletion(room);
+      const pct = c.essTotal ? Math.round((c.essDone / c.essTotal) * 100) : 0;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "room-card";
+      btn.dataset.roomKey = key;
+
+      btn.innerHTML = `
+        <div class="room-card__title">${escapeHtml(room.title)}</div>
+        <div class="room-card__meta">Essentials: ${c.essDone}/${c.essTotal} • Extras: ${c.exDone}/${c.exTotal}</div>
+        <div class="progress" style="margin-top:10px;">
+          <div class="progress__bar" style="width:${pct}%"></div>
+        </div>
+      `;
+
+      btn.addEventListener("click", () => openRoom(key));
+      roomsGrid.appendChild(btn);
+    }
+  }
+
+  function openRoom(roomKey) {
+    activeRoomKey = roomKey;
+    const home = loadHome();
+    const room = home.rooms[roomKey];
+    if (!room) return;
+
+    if (roomTitle) roomTitle.textContent = room.title;
+    if (roomPanel) roomPanel.hidden = false;
+    if (roomNotes) roomNotes.value = room.notes || "";
+
+    renderRoomLists();
+  }
+
+  function closeRoom() {
+    activeRoomKey = null;
+    if (roomPanel) roomPanel.hidden = true;
+  }
+
+  btnCloseRoom?.addEventListener("click", closeRoom);
+
+  function renderRoomLists() {
+    const home = loadHome();
+    const room = home.rooms[activeRoomKey];
+    if (!room) return;
+
+    // Badges
+    const c = roomCompletion(room);
+    if (badgeEssentials) {
+      badgeEssentials.className = c.essDone < c.essTotal ? "badge badge--warn" : "badge badge--ok";
+      badgeEssentials.textContent = `${c.essDone}/${c.essTotal}`;
+    }
+    if (badgeExtras) {
+      badgeExtras.className = "badge badge--neutral";
+      badgeExtras.textContent = `${c.exDone}/${c.exTotal}`;
+    }
+
+    // Room completion badge
+    if (roomBadge) {
+      if (c.essTotal && c.essDone === c.essTotal) {
+        roomBadge.className = "badge badge--ok";
+        roomBadge.textContent = "Essentials done";
+      } else {
+        roomBadge.className = "badge badge--warn";
+        roomBadge.textContent = "Essentials first";
+      }
+    }
+
+    // Budget summary
+    const essCost = sumCost(room.essentials);
+    const exCost = sumCost(room.extras);
+    const total = essCost + exCost;
+
+    if (roomBudgetSummary) {
+      roomBudgetSummary.innerHTML = `
+        <span class="money-chip">Essentials: <strong>£${essCost.toFixed(2)}</strong></span>
+        <span class="money-chip">Extras: <strong>£${exCost.toFixed(2)}</strong></span>
+        <span class="money-chip">Room total: <strong>£${total.toFixed(2)}</strong></span>
+      `;
+    }
+
+    if (roomBudgetBadge) {
+      roomBudgetBadge.className = total > 0 ? "badge badge--ok" : "badge badge--neutral";
+      roomBudgetBadge.textContent = total > 0 ? "Budgeted" : "No costs yet";
+    }
+
+    // Render list helper
+    const renderItems = (listEl, emptyEl, items, kind) => {
+      if (!listEl) return;
+      listEl.innerHTML = "";
+
+      if (!items.length) {
+        emptyEl?.removeAttribute("hidden");
+        return;
+      }
+      emptyEl?.setAttribute("hidden", "true");
+
+      for (const it of items) {
+        const li = document.createElement("li");
+        li.className = "list__item list__item--neutral";
+        const cost = Number(it.cost) || 0;
+
+        li.innerHTML = `
+          <div class="room-item">
+            <div class="room-item__left">
+              <button class="tick ${it.done ? "is-on" : ""}" type="button" data-room-action="toggle" data-kind="${kind}" data-id="${it.id}"></button>
+              <div style="min-width:0;">
+                <div class="room-item__title">${escapeHtml(it.name)}</div>
+                <div class="room-item__meta">${it.done ? "Done" : "Not done yet"}</div>
+              </div>
+            </div>
+
+            <div class="row-actions">
+              <span class="cost">£${cost.toFixed(2)}</span>
+              <button class="mini-btn" type="button" data-room-action="edit" data-kind="${kind}" data-id="${it.id}">Edit</button>
+              <button class="mini-btn mini-btn--danger" type="button" data-room-action="delete" data-kind="${kind}" data-id="${it.id}">Delete</button>
+            </div>
+          </div>
+        `;
+        listEl.appendChild(li);
+      }
+    };
+
+    renderItems(listEssentials, emptyEssentials, room.essentials, "essentials");
+    renderItems(listExtras, emptyExtras, room.extras, "extras");
+  }
+
+  function addRoomItem(kind, name, cost) {
+    const home = loadHome();
+    const room = home.rooms[activeRoomKey];
+    if (!room) return;
+
+    const item = { id: uid(), name, cost: Number(cost) || 0, done: false };
+    room[kind].push(item);
+
+    saveHome(home);
+    renderRoomLists();
+    renderRoomsGrid();
+  }
+
+  formAddEssential?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!activeRoomKey) return;
+
+    const name = formAddEssential.name.value.trim();
+    const cost = formAddEssential.cost.value;
+
+    if (!name) return;
+    addRoomItem("essentials", name, cost);
+
+    formAddEssential.reset();
+  });
+
+  formAddExtra?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!activeRoomKey) return;
+
+    const name = formAddExtra.name.value.trim();
+    const cost = formAddExtra.cost.value;
+
+    if (!name) return;
+    addRoomItem("extras", name, cost);
+
+    formAddExtra.reset();
+  });
+
+  // Click actions (toggle/edit/delete)
+  roomPanel?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-room-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-room-action");
+    const kind = btn.getAttribute("data-kind");
+    const id = btn.getAttribute("data-id");
+
+    if (!action || !kind || !id) return;
+
+    const home = loadHome();
+    const room = home.rooms[activeRoomKey];
+    if (!room) return;
+
+    const arr = room[kind];
+    const idx = arr.findIndex((x) => x.id === id);
+    if (idx === -1) return;
+
+    if (action === "toggle") {
+      arr[idx].done = !arr[idx].done;
+      saveHome(home);
+      renderRoomLists();
+      renderRoomsGrid();
+      return;
+    }
+
+    if (action === "delete") {
+      if (!confirm("Delete this item?")) return;
+      arr.splice(idx, 1);
+      saveHome(home);
+      renderRoomLists();
+      renderRoomsGrid();
+      return;
+    }
+
+    if (action === "edit") {
+      const current = arr[idx];
+      const newName = prompt("Item name:", current.name);
+      if (newName === null) return;
+
+      const newCostRaw = prompt("Cost (£):", String(Number(current.cost) || 0));
+      if (newCostRaw === null) return;
+
+      const newCost = Number(newCostRaw);
+      arr[idx] = {
+        ...current,
+        name: newName.trim() || current.name,
+        cost: Number.isFinite(newCost) && newCost >= 0 ? newCost : Number(current.cost) || 0,
+      };
+
+      saveHome(home);
+      renderRoomLists();
+      renderRoomsGrid();
+    }
+  });
+
+  btnSaveRoomNotes?.addEventListener("click", () => {
+    if (!activeRoomKey) return;
+    const home = loadHome();
+    const room = home.rooms[activeRoomKey];
+    if (!room) return;
+
+    room.notes = (roomNotes?.value ?? "").trim();
+    saveHome(home);
+
+    alert("Room notes saved.");
+  });
+
+  btnResetRoom?.addEventListener("click", () => {
+    if (!activeRoomKey) return;
+    if (!confirm("Reset this room back to its template? This will overwrite items + notes.")) return;
+
+    const templates = defaultRooms();
+    const home = loadHome();
+
+    home.rooms[activeRoomKey] = templates[activeRoomKey] ?? home.rooms[activeRoomKey];
+    saveHome(home);
+
+    openRoom(activeRoomKey);
+    renderRoomsGrid();
+  });
+
+  // =========================
+  // LIFE SKILLS (Part B)
+  // =========================
+  const skillsState = { filter: "all" };
+
+  function skillLevelLabel(level) {
+    if (level === "ns") return { text: "Not started", cls: "skill-pill skill-pill--ns" };
+    if (level === "ip") return { text: "In progress", cls: "skill-pill skill-pill--ip" };
+    return { text: "Confident", cls: "skill-pill skill-pill--cf" };
+  }
+
+  function nextSkillLevel(level) {
+    if (level === "ns") return "ip";
+    if (level === "ip") return "cf";
+    return "ns";
+  }
+
+  function flattenSkills(categoriesObj) {
+    const all = [];
+    for (const key of Object.keys(categoriesObj)) {
+      const cat = categoriesObj[key];
+      for (const it of cat.items ?? []) {
+        all.push({ ...it, category: key });
+      }
+    }
+    return all;
+  }
+
+  function renderSkills() {
+    const skills = loadSkills();
+    const categories = skills.categories;
+    const all = flattenSkills(categories);
+
+    const ns = all.filter((x) => x.level === "ns").length;
+    const ip = all.filter((x) => x.level === "ip").length;
+    const cf = all.filter((x) => x.level === "cf").length;
+
+    if (skillsBadge) {
+      skillsBadge.className = cf > 0 ? "badge badge--ok" : "badge badge--neutral";
+      skillsBadge.textContent = `${cf} confident`;
+    }
+
+    if (skillsCountBadge) {
+      skillsCountBadge.className = "badge badge--neutral";
+      skillsCountBadge.textContent = `${all.length} total`;
+    }
+
+    if (skillsSummary) {
+      skillsSummary.innerHTML = `
+        <span class="money-chip">Not started: <strong>${ns}</strong></span>
+        <span class="money-chip">In progress: <strong>${ip}</strong></span>
+        <span class="money-chip">Confident: <strong>${cf}</strong></span>
+      `;
+    }
+
+    let visible = [...all];
+    if (skillsState.filter !== "all") {
+      visible = visible.filter((x) => x.category === skillsState.filter);
+    }
+
+    // Sort: confident last so you see work first
+    const order = { ns: 0, ip: 1, cf: 2 };
+    visible.sort((a, b) => {
+      if (order[a.level] !== order[b.level]) return order[a.level] - order[b.level];
+      return a.name.localeCompare(b.name);
+    });
+
+    if (!skillsList) return;
+    skillsList.innerHTML = "";
+
+    if (!visible.length) {
+      skillsEmpty?.removeAttribute("hidden");
+      return;
+    }
+    skillsEmpty?.setAttribute("hidden", "true");
+
+    for (const s of visible) {
+      const pill = skillLevelLabel(s.level);
+
+      const li = document.createElement("li");
+      li.className = "list__item list__item--neutral";
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(s.name)}</div>
+          <div class="list__meta">${escapeHtml(s.category)}</div>
+        </div>
+
+        <div class="row-actions">
+          <button class="mini-btn" type="button" data-skill-action="toggle" data-id="${s.id}" data-category="${escapeHtml(s.category)}">
+            Update
+          </button>
+          <button class="mini-btn" type="button" data-skill-action="rename" data-id="${s.id}" data-category="${escapeHtml(s.category)}">
+            Rename
+          </button>
+          <button class="mini-btn mini-btn--danger" type="button" data-skill-action="delete" data-id="${s.id}" data-category="${escapeHtml(s.category)}">
+            Delete
+          </button>
+          <span class="${pill.cls}">${pill.text}</span>
+        </div>
+      `;
+      skillsList.appendChild(li);
+    }
+  }
+
+  formAddSkill?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const category = formAddSkill.category.value;
+    const name = formAddSkill.name.value.trim();
+    if (!name) return;
+
+    const skills = loadSkills();
+
+    if (!skills.categories[category]) {
+      skills.categories[category] = { category, items: [] };
+    }
+
+    skills.categories[category].items.push({
+      id: uid(),
+      name,
+      level: "ns",
+      notes: "",
+      createdAtISO: new Date().toISOString(),
+    });
+
+    saveSkills(skills);
+    formAddSkill.reset();
+    renderSkills();
+  });
+
+  // Filter chips
+  skillsFilterChips?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-skill-filter]");
+    if (!chip) return;
+
+    const key = chip.getAttribute("data-skill-filter");
+    if (!key) return;
+
+    skillsState.filter = key;
+
+    Array.from(skillsFilterChips.querySelectorAll(".chip")).forEach((c) =>
+      c.classList.toggle("is-active", c === chip)
+    );
+
+    renderSkills();
+  });
+
+  // Actions
+  skillsList?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-skill-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-skill-action");
+    const id = btn.getAttribute("data-id");
+    const category = btn.getAttribute("data-category");
+
+    if (!action || !id || !category) return;
+
+    const skills = loadSkills();
+    const cat = skills.categories[category];
+    if (!cat) return;
+
+    const idx = cat.items.findIndex((x) => x.id === id);
+    if (idx === -1) return;
+
+    if (action === "toggle") {
+      cat.items[idx].level = nextSkillLevel(cat.items[idx].level);
+      saveSkills(skills);
+      renderSkills();
+      return;
+    }
+
+    if (action === "rename") {
+      const next = prompt("Rename skill:", cat.items[idx].name);
+      if (next === null) return;
+      cat.items[idx].name = next.trim() || cat.items[idx].name;
+      saveSkills(skills);
+      renderSkills();
+      return;
+    }
+
+    if (action === "delete") {
+      if (!confirm("Delete this skill?")) return;
+      cat.items.splice(idx, 1);
+      saveSkills(skills);
+      renderSkills();
       return;
     }
   });
@@ -1337,8 +1941,7 @@
     renderList(listInfo, emptyInfo, groups.info);
     renderList(listVehicle, emptyVehicle, groups.vehicle);
 
-    // Money list is separate (funds), so we hide Life Admin "money items" usage in lists.
-    // (You can still create money reminders using Life Admin items if you want — later we can add a "Money reminders" sublist.)
+    // Money list is separate (funds)
     renderMoney();
 
     // Calm Mode hides empty categories
@@ -1347,7 +1950,7 @@
       setCategoryCardVisibility("account", groups.account.length > 0);
       setCategoryCardVisibility("info", groups.info.length > 0);
       setCategoryCardVisibility("vehicle", groups.vehicle.length > 0);
-      setCategoryCardVisibility("money", true); // money panel should stay visible
+      setCategoryCardVisibility("money", true);
     } else {
       setCategoryCardVisibility("renewal", true);
       setCategoryCardVisibility("account", true);
@@ -1494,7 +2097,15 @@
         // Else treat as full store import
         const store = normaliseStore(parsed);
         saveStore(store);
+
+        // Ensure templates exist post-import
+        loadHome();
+        loadSkills();
+
         renderAdmin();
+        renderRoomsGrid();
+        renderSkills();
+
         alert("Imported Life Setup store.");
       } catch {
         alert("Import failed. Make sure it's a valid Life Setup export file.");
@@ -1603,9 +2214,17 @@
   });
 
   // =========================
-  // BOOT
+  // BOOT (Part B)
   // =========================
   setActiveView("admin");
   setRecurrenceUI(itemForm?.recurrence?.value || "none");
+
+  // Ensure templates exist
+  loadHome();
+  loadSkills();
+
+  // Initial renders
   renderAdmin();
+  renderRoomsGrid();
+  renderSkills();
 })();

@@ -12,17 +12,17 @@
     const isRepoRoot = p.endsWith("/LifeAdmin") && !p.endsWith("/LifeAdmin/");
     if (isRepoRoot) location.replace(p + "/" + location.search + location.hash);
   })();
-</script>
+  </script>
 
-    <!-- Icons -->
-<link rel="icon" href="assets/icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180x180.png">
+  <!-- Icons -->
+  <link rel="icon" href="assets/icons/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180x180.png">
 
-<!-- PWA -->
-<link rel="manifest" href="assets/icons/manifest.webmanifest">
-<meta name="theme-color" content="#ff8a1f">
+  <!-- PWA -->
+  <link rel="manifest" href="assets/icons/manifest.webmanifest">
+  <meta name="theme-color" content="#ff8a1f">
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -236,185 +236,223 @@
               </p>
             </article>
 
+            <!-- Money -->
+            <article class="card" data-cat-card="money">
+              <div class="card__header">
+                <h2 class="card__title">Money &amp; Future Fund</h2>
+                <span class="badge badge--neutral" id="badgeMoney">—</span>
+              </div>
+
+              <div class="money-summary" id="moneySummary"></div>
+
+              <div class="money-actions">
+                <button class="mini-btn" type="button" id="btnAddFund">+ Add fund</button>
+              </div>
+
+              <ul class="list" id="listMoneyFunds"></ul>
+
+              <p class="muted muted--pad" id="emptyMoneyFunds" hidden>
+                No funds yet. Add one like “Emergency Fund” or “House Deposit”.
+              </p>
+            </article>
+
           </div>
         </div>
 
-        <!-- Money -->
-<article class="card" data-cat-card="money">
-  <div class="card__header">
-    <h2 class="card__title">Money &amp; Future Fund</h2>
-    <span class="badge badge--neutral" id="badgeMoney">—</span>
-  </div>
+        <!-- VIEW: FUTURE HOME -->
+        <section class="view" id="view-home">
+          <div class="content">
+            <div class="grid grid--rooms" id="roomsGrid"></div>
 
-  <div class="money-summary" id="moneySummary"></div>
+            <div class="card" id="roomPanel" hidden>
+              <div class="card__header">
+                <h2 class="card__title" id="roomTitle">Room</h2>
+                <div class="row-actions">
+                  <span class="badge badge--neutral" id="roomBadge">—</span>
+                  <button class="mini-btn" type="button" id="btnCloseRoom">Close</button>
+                </div>
+              </div>
 
-  <div class="money-actions">
-    <button class="mini-btn" type="button" id="btnAddFund">+ Add fund</button>
-  </div>
+              <p class="muted" id="roomHint">
+                Tick essentials first. Add extras later when you’re ready.
+              </p>
 
-  <ul class="list" id="listMoneyFunds"></ul>
+              <div class="grid grid--panels" style="margin-top:12px;">
+                <!-- Essentials -->
+                <article class="card" style="padding:12px;">
+                  <div class="card__header">
+                    <h3 class="card__title">Essentials</h3>
+                    <span class="badge badge--warn" id="badgeEssentials">—</span>
+                  </div>
 
-  <p class="muted muted--pad" id="emptyMoneyFunds" hidden>
-    No funds yet. Add one like “Emergency Fund” or “House Deposit”.
-  </p>
-</article>
+                  <form class="inline-add" id="formAddEssential">
+                    <input class="field__control" name="name" placeholder="Add essential item (e.g., Bed frame)" />
+                    <input class="field__control" name="cost" type="number" min="0" step="0.01" placeholder="£ cost" />
+                    <button class="mini-btn" type="submit">Add</button>
+                  </form>
 
-<!-- Modal (Money Fund Add/Edit) -->
-<div class="modal" id="fundModal" aria-hidden="true">
-  <div class="modal__backdrop" data-close="true"></div>
+                  <ul class="list" id="listEssentials"></ul>
+                  <p class="muted muted--pad" id="emptyEssentials" hidden>No essentials yet.</p>
+                </article>
 
-  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="fundModalTitle">
-    <div class="modal__header">
-      <h2 class="modal__title" id="fundModalTitle">Add Fund</h2>
-      <button class="icon-btn icon-btn--sm" type="button" id="btnCloseFundModal" aria-label="Close">✕</button>
-    </div>
+                <!-- Extras -->
+                <article class="card" style="padding:12px;">
+                  <div class="card__header">
+                    <h3 class="card__title">Extras</h3>
+                    <span class="badge badge--neutral" id="badgeExtras">—</span>
+                  </div>
 
-    <form id="fundForm" class="form" autocomplete="off">
-      <input type="hidden" name="id" />
+                  <form class="inline-add" id="formAddExtra">
+                    <input class="field__control" name="name" placeholder="Add extra item (e.g., Side table)" />
+                    <input class="field__control" name="cost" type="number" min="0" step="0.01" placeholder="£ cost" />
+                    <button class="mini-btn" type="submit">Add</button>
+                  </form>
 
-      <div class="form__row">
-        <label class="field">
-          <span class="field__label">Fund name</span>
-          <input class="field__control" name="name" placeholder="e.g., Emergency Fund" required />
-        </label>
+                  <ul class="list" id="listExtras"></ul>
+                  <p class="muted muted--pad" id="emptyExtras" hidden>No extras yet.</p>
+                </article>
+              </div>
 
-        <label class="field">
-          <span class="field__label">Priority</span>
-          <select class="field__control" name="priority" required>
-            <option value="normal">Normal</option>
-            <option value="high">High</option>
-          </select>
-        </label>
-      </div>
+              <!-- Notes + Budget -->
+              <article class="card" style="margin-top:14px;">
+                <div class="card__header">
+                  <h3 class="card__title">Notes & Budget</h3>
+                  <span class="badge badge--ok" id="roomBudgetBadge">—</span>
+                </div>
 
-      <div class="form__row">
-        <label class="field">
-          <span class="field__label">Target (£)</span>
-          <input class="field__control" name="target" type="number" min="0" step="0.01" placeholder="e.g., 5000" />
-        </label>
+                <div class="grid" style="gap:10px;">
+                  <div class="money-summary" id="roomBudgetSummary"></div>
 
-        <label class="field">
-          <span class="field__label">Current (£)</span>
-          <input class="field__control" name="current" type="number" min="0" step="0.01" placeholder="e.g., 1200" />
-        </label>
-      </div>
+                  <label class="field" style="margin-top:6px;">
+                    <span class="field__label">Room notes</span>
+                    <textarea class="field__control" id="roomNotes" rows="4" placeholder="Ideas, measurements, links, style notes…"></textarea>
+                  </label>
 
-      <div class="form__row">
-        <label class="field">
-          <span class="field__label">Monthly goal (£)</span>
-          <input class="field__control" name="monthlyGoal" type="number" min="0" step="0.01" placeholder="e.g., 150" />
-        </label>
-
-        <label class="field">
-          <span class="field__label">Notes (optional)</span>
-          <input class="field__control" name="notes" placeholder="e.g., keep 3–6 months buffer" />
-        </label>
-      </div>
-
-      <div class="form__actions">
-        <button class="ghost-btn" type="button" id="btnCancelFund">Cancel</button>
-        <button class="primary-btn" type="submit">Save fund</button>
-      </div>
-
-      <p class="muted muted--small">
-        Tip: You can deposit/withdraw from the fund list after saving.
-      </p>
-    </form>
-  </div>
-</div>
-
-
-        <!-- VIEW: FUTURE HOME (placeholder so router works) -->
-        <div class="view" id="view-home">
-          <div class="grid grid--rooms">
-            <button class="room-card" type="button">
-              <div class="room-card__title">Living room</div>
-              <div class="room-card__meta">Sofa • TV • Lighting</div>
-            </button>
-            <button class="room-card" type="button">
-              <div class="room-card__title">Kitchen</div>
-              <div class="room-card__meta">Basics • Storage • Appliances</div>
-            </button>
-            <button class="room-card" type="button">
-              <div class="room-card__title">Bedroom</div>
-              <div class="room-card__meta">Bed • Wardrobe • Bedding</div>
-            </button>
-          </div>
-          <article class="card">
-            <div class="card__header">
-              <h2 class="card__title">Future Home</h2>
-              <span class="badge badge--neutral">Placeholder</span>
+                  <div class="row-actions" style="justify-content:flex-end;">
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnResetRoom">Reset room to template</button>
+                    <button class="primary-btn" type="button" id="btnSaveRoomNotes">Save notes</button>
+                  </div>
+                </div>
+              </article>
             </div>
-            <p class="muted">This view is ready for your next upgrades.</p>
-          </article>
-        </div>
+          </div>
+        </section>
 
         <!-- VIEW: LIFE SKILLS -->
-        <div class="view" id="view-skills">
-          <div class="grid grid--stats">
-            <article class="card card--stat">
-              <div class="card__label">Overall progress</div>
-              <div class="card__value">22 / 75</div>
-              <div class="card__hint">Skills you’re confident with.</div>
-            </article>
-            <article class="card card--stat">
-              <div class="card__label">Currently learning</div>
-              <div class="card__value">9</div>
-              <div class="card__hint">Small steps add up.</div>
-            </article>
-            <article class="card card--stat">
-              <div class="card__label">Everyday living</div>
-              <div class="card__value">Main</div>
-              <div class="card__hint">Cooking, cleaning, routines.</div>
-            </article>
-            <article class="card card--stat">
-              <div class="card__label">Adult responsibilities</div>
-              <div class="card__value">Included</div>
-              <div class="card__hint">Money, admin, car, home basics.</div>
-            </article>
+        <section class="view" id="view-skills">
+          <div class="content">
+            <div class="grid grid--panels">
+              <article class="card">
+                <div class="card__header">
+                  <h2 class="card__title">Life Skills Progress</h2>
+                  <span class="badge badge--neutral" id="skillsBadge">—</span>
+                </div>
+
+                <div class="money-summary" id="skillsSummary"></div>
+
+                <form class="inline-add" id="formAddSkill">
+                  <select class="field__control" name="category">
+                    <option value="Cooking">Cooking</option>
+                    <option value="Cleaning">Cleaning</option>
+                    <option value="Laundry">Laundry</option>
+                    <option value="Personal Admin">Personal Admin</option>
+                    <option value="Health">Health</option>
+                    <option value="Home Basics">Home Basics</option>
+                  </select>
+                  <input class="field__control" name="name" placeholder="Add a skill (e.g., Cook pasta properly)" />
+                  <button class="mini-btn" type="submit">Add</button>
+                </form>
+
+                <div class="chips" id="skillsFilterChips" style="margin-top:10px;">
+                  <button class="chip is-active" type="button" data-skill-filter="all">All</button>
+                  <button class="chip" type="button" data-skill-filter="Cooking">Cooking</button>
+                  <button class="chip" type="button" data-skill-filter="Cleaning">Cleaning</button>
+                  <button class="chip" type="button" data-skill-filter="Laundry">Laundry</button>
+                  <button class="chip" type="button" data-skill-filter="Personal Admin">Personal Admin</button>
+                  <button class="chip" type="button" data-skill-filter="Health">Health</button>
+                  <button class="chip" type="button" data-skill-filter="Home Basics">Home Basics</button>
+                </div>
+              </article>
+
+              <article class="card">
+                <div class="card__header">
+                  <h2 class="card__title">Skills</h2>
+                  <span class="badge badge--neutral" id="skillsCountBadge">—</span>
+                </div>
+
+                <ul class="list" id="skillsList"></ul>
+                <p class="muted muted--pad" id="skillsEmpty" hidden>No skills yet — add one above.</p>
+              </article>
+            </div>
           </div>
-
-          <div class="grid grid--panels">
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Cooking</h2>
-                <span class="badge badge--ok">3 / 10</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:30%"></div></div>
-              <p class="muted">Build a few reliable meals and confidence grows fast.</p>
-            </article>
-
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Cleaning &amp; Laundry</h2>
-                <span class="badge badge--warn">2 / 8</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:25%"></div></div>
-              <p class="muted">Simple routines reduce overwhelm massively.</p>
-            </article>
-
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Money Skills</h2>
-                <span class="badge badge--neutral">5 / 12</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:42%"></div></div>
-              <p class="muted">Understand the basics, then automate what you can.</p>
-            </article>
-
-            <article class="card">
-              <div class="card__header">
-                <h2 class="card__title">Car Basics</h2>
-                <span class="badge badge--ok">2 / 6</span>
-              </div>
-              <div class="progress"><div class="progress__bar" style="width:33%"></div></div>
-              <p class="muted">Perfect for football away days and travel weeks.</p>
-            </article>
-          </div>
-        </div>
+        </section>
 
       </section>
     </main>
+  </div>
+
+  <!-- Modal (Money Fund Add/Edit) -->
+  <div class="modal" id="fundModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="true"></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="fundModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="fundModalTitle">Add Fund</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseFundModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="fundForm" class="form" autocomplete="off">
+        <input type="hidden" name="id" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Fund name</span>
+            <input class="field__control" name="name" placeholder="e.g., Emergency Fund" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Priority</span>
+            <select class="field__control" name="priority" required>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Target (£)</span>
+            <input class="field__control" name="target" type="number" min="0" step="0.01" placeholder="e.g., 5000" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Current (£)</span>
+            <input class="field__control" name="current" type="number" min="0" step="0.01" placeholder="e.g., 1200" />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Monthly goal (£)</span>
+            <input class="field__control" name="monthlyGoal" type="number" min="0" step="0.01" placeholder="e.g., 150" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input class="field__control" name="notes" placeholder="e.g., keep 3–6 months buffer" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelFund">Cancel</button>
+          <button class="primary-btn" type="submit">Save fund</button>
+        </div>
+
+        <p class="muted muted--small">
+          Tip: You can deposit/withdraw from the fund list after saving.
+        </p>
+      </form>
+    </div>
   </div>
 
   <!-- Modal (Life Admin Add/Edit) -->
@@ -438,7 +476,7 @@
               <option value="account">Accounts &amp; Services</option>
               <option value="info">Important Info</option>
               <option value="vehicle">Vehicle</option>
-              <option value="money">Money &amp; Future Fund</option> 
+              <option value="money">Money &amp; Future Fund</option>
             </select>
           </label>
 
