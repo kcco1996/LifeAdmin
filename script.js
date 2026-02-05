@@ -2375,6 +2375,7 @@ function hideRoomDetail() {
     if (!btn) return;
     const key = btn.getAttribute("data-room-key");
     if (!key) return;
+    console.log("Clicked room:", key);
     showRoomDetail(key);
   });
 

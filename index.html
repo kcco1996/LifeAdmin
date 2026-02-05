@@ -326,6 +326,53 @@
             <div class="grid grid--rooms" id="roomsGrid"></div>
           </div>
 
+          <!-- HOME GRID WRAP (stats + grid) -->
+<div id="homeGridWrap" class="home-grid-wrap">
+  <section id="homeStats" class="stats-grid"></section>
+
+  <section class="rooms-grid" id="roomsGrid"></section>
+</div>
+
+<!-- ROOM DETAIL (hidden until you click a room) -->
+<section id="roomDetail" class="room-detail" aria-hidden="true">
+  <div class="room-detail__top">
+    <button id="btnRoomBack" class="mini-btn" type="button">← Back</button>
+    <h2 id="roomTitle" style="margin:0;"></h2>
+  </div>
+
+  <div class="room-detail__controls">
+    <input id="homeSearch" class="input" placeholder="Search items..." />
+    <label class="check">
+      <input id="chkPlannedOnly" type="checkbox" />
+      Planned only
+    </label>
+  </div>
+
+  <div class="room-detail__notes">
+    <textarea id="homeRoomNotes" class="textarea" placeholder="Room notes..."></textarea>
+    <button id="btnSaveRoomNotes" class="mini-btn" type="button">Save notes</button>
+  </div>
+
+  <div class="room-detail__cols">
+    <div class="room-col">
+      <div class="room-col__head">
+        <h3>Essentials</h3>
+        <button id="btnAddEssential" class="mini-btn" type="button">+ Add</button>
+      </div>
+      <ul id="essentialsList" class="list"></ul>
+    </div>
+
+    <div class="room-col">
+      <div class="room-col__head">
+        <h3>Extras</h3>
+        <button id="btnAddExtra" class="mini-btn" type="button">+ Add</button>
+      </div>
+      <ul id="extrasList" class="list"></ul>
+    </div>
+  </div>
+</section>
+
+
           <!-- Room Detail Panel -->
           <article class="card" id="roomPanel" hidden>
             <div class="card__header">

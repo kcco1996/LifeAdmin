@@ -1275,3 +1275,19 @@ select:not(#modal select) option{
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+
+/* Grid wrapper hide */
+.is-hidden { display: none !important; }
+
+/* Room detail show/hide */
+#roomDetail { display: none; }
+#roomDetail.is-visible { display: block; }
+
+.room-detail__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .room-detail__cols { grid-template-columns: 1fr; }
+}
