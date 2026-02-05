@@ -38,7 +38,17 @@
     sidebar?.classList.remove("is-open");
   }
 
-  navButtons.forEach((btn) => btn.addEventListener("click", () => setActiveView(btn.dataset.view)));
+  navButtons.forEach((btn) =>
+  btn.addEventListener("click", () => {
+    const v = btn.dataset.view;
+    setActiveView(v);
+
+    // ✅ Force Home to refresh instantly when opened
+    if (v === "home") {
+      try { renderHome(); } catch {}
+    }
+  })
+);
   btnMenu?.addEventListener("click", () => sidebar?.classList.toggle("is-open"));
 
   // =========================
@@ -2176,6 +2186,13 @@
   const homeStats = document.getElementById("homeStats");
   const roomsGrid = document.getElementById("roomsGrid");
 
+  // ✅ Robust Home layout wrapper so grid/detail toggling always works
+const homeGridWrap =
+  document.getElementById("homeGridWrap") ||
+  roomsGrid?.closest(".home-grid-wrap") ||
+  roomsGrid?.parentElement ||
+  null;
+
   const roomDetail = document.getElementById("roomDetail");
   const btnRoomBack = document.getElementById("btnRoomBack");
   const roomTitleEl = document.getElementById("roomTitle");
@@ -2308,28 +2325,32 @@
     }
   }
 
-  function showRoomDetail(key) {
-    activeRoomKey = key;
-    const rooms = getHomeRooms();
-    const room = rooms[key];
-    if (!room) return;
-
-    // toggle views
-    roomsGrid?.closest(".home-grid-wrap")?.classList.add("is-hidden");
-    roomDetail?.classList.add("is-visible");
-
-    if (roomTitleEl) roomTitleEl.textContent = room.title || key;
-
-    if (homeRoomNotes) homeRoomNotes.value = room.notes || "";
-
-    renderRoomLists();
+function showRoomDetail(key) {
+  const rooms = getHomeRooms();
+  const room = rooms[key];
+  if (!room) {
+    toast("Room not found");
+    return;
   }
 
-  function hideRoomDetail() {
-    activeRoomKey = null;
-    roomsGrid?.closest(".home-grid-wrap")?.classList.remove("is-hidden");
-    roomDetail?.classList.remove("is-visible");
-  }
+  activeRoomKey = key;
+
+  // ✅ toggle views safely
+  if (homeGridWrap) homeGridWrap.classList.add("is-hidden");
+  roomDetail?.classList.add("is-visible");
+
+  if (roomTitleEl) roomTitleEl.textContent = room.title || key;
+  if (homeRoomNotes) homeRoomNotes.value = room.notes || "";
+
+  renderRoomLists();
+}
+
+function hideRoomDetail() {
+  activeRoomKey = null;
+
+  if (homeGridWrap) homeGridWrap.classList.remove("is-hidden");
+  roomDetail?.classList.remove("is-visible");
+}
 
   btnRoomBack?.addEventListener("click", hideRoomDetail);
 
@@ -2564,13 +2585,25 @@
     }
   });
 
-  function renderHome() {
-    renderHomeStats();
-    renderRoomsGrid();
+ function renderHome() {
+  renderHomeStats();
+  renderRoomsGrid();
 
-    // if in detail view, re-render lists safely
-    if (activeRoomKey) renderRoomLists();
+  // ✅ If detail is open but room key is invalid, exit detail view cleanly
+  if (activeRoomKey) {
+    const rooms = getHomeRooms();
+    if (!rooms[activeRoomKey]) {
+      hideRoomDetail();
+      return;
+    }
+    renderRoomLists();
+  } else {
+    // ensure correct view state
+    if (homeGridWrap) homeGridWrap.classList.remove("is-hidden");
+    roomDetail?.classList.remove("is-visible");
   }
+}
+
 
   // =========================
   // SKILLS (Life Skills)
