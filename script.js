@@ -1721,6 +1721,23 @@ function currencySymbol(code) {
   return "£";
 }
 
+// Money formatter (currency-aware)
+function fmtMoney(n) {
+  const store = loadStore();
+  const code = String(store.money?.currency ?? "GBP");
+
+  const sym = code === "EUR" ? "€" : code === "USD" ? "$" : "£";
+  const x = Number(n ?? 0);
+  const safe = Number.isFinite(x) ? x : 0;
+
+  return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Backwards compatibility: if older code calls fmtGBP, don't crash
+function fmtGBP(n) {
+  return fmtMoney(n);
+}
+
 
   function renderMoney() {
     const store = loadStore();
@@ -3538,6 +3555,23 @@ globalSearchResults?.addEventListener("click", (e) => {
     return;
   }
 });
+
+// Money formatter (currency-aware)
+function fmtMoney(n) {
+  const store = loadStore();
+  const code = String(store.money?.currency ?? "GBP");
+
+  const sym = code === "EUR" ? "€" : code === "USD" ? "$" : "£";
+  const x = Number(n ?? 0);
+  const safe = Number.isFinite(x) ? x : 0;
+
+  return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Backwards compatibility: if older code calls fmtGBP, don't crash
+function fmtGBP(n) {
+  return fmtMoney(n);
+}
 
 
     // Funds list (separate storage)
