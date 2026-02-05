@@ -2180,11 +2180,9 @@
     toast(store.settings.hideMoney ? "Money section hidden" : "Money section visible");
   });
 
-  // =========================
-  // HOME (Future Home)
-  // =========================
   const homeStats = document.getElementById("homeStats");
-  const roomsGrid = document.getElementById("roomsGrid");
+const roomsGrid = document.getElementById("roomsGrid");
+const roomDetail = document.getElementById("roomDetail"); // ✅ move up BEFORE findHomeGridWrap
 
 // ✅ Robust Home layout wrapper: must include roomsGrid, but MUST NOT include #roomDetail
 function findHomeGridWrap() {
@@ -2207,8 +2205,6 @@ function findHomeGridWrap() {
 
 const homeGridWrap = findHomeGridWrap();
 
-
-  const roomDetail = document.getElementById("roomDetail");
   const btnRoomBack = document.getElementById("btnRoomBack");
   const roomTitleEl = document.getElementById("roomTitle");
 
