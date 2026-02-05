@@ -57,13 +57,11 @@
           <span class="nav__label">Life Skills</span>
         </button>
 
-        <!-- ✅ Part G: Money section exists -->
         <button class="nav__item" data-view="money" type="button">
           <span class="nav__icon" aria-hidden="true">💷</span>
           <span class="nav__label">Money</span>
         </button>
 
-        <!-- ✅ Part L: Settings page exists -->
         <button class="nav__item" data-view="settings" type="button">
           <span class="nav__icon" aria-hidden="true">⚙️</span>
           <span class="nav__label">Settings</span>
@@ -87,7 +85,7 @@
           <button class="icon-btn" id="btnMenu" aria-label="Open menu" type="button">☰</button>
 
           <div>
-            <h1 class="page-title" id="pageTitle">Life Setup</h1>
+            <h1 class="page-title" id="pageTitle">Life Admin</h1>
             <p class="page-subtitle" id="pageSubtitle">
               Keep your real-world life organised with calm, smart nudges.
             </p>
@@ -95,7 +93,7 @@
         </div>
 
         <div class="topbar__right">
-          <!-- ✅ Part H: Global search bar in topbar (all sections) -->
+          <!-- Global search -->
           <div class="search" style="min-width:260px; position:relative;">
             <span class="search__icon" aria-hidden="true">🔎</span>
             <input
@@ -320,16 +318,13 @@
 
         <!-- VIEW: FUTURE HOME -->
         <div class="view" id="view-home">
+          <!-- ✅ Dynamic stats (JS writes into this) -->
+          <div id="homeStats" class="stats-grid"></div>
 
-          <!-- Top summary bar -->
-          <div class="money-summary" style="margin-bottom:12px;">
-            <span class="money-chip">Essentials planned: <strong id="homeSummaryEssentials">—</strong></span>
-            <span class="money-chip">Extras planned: <strong id="homeSummaryExtras">—</strong></span>
-            <span class="money-chip" id="homeSummaryCosts"></span>
+          <!-- ✅ Room Cards Grid -->
+          <div class="home-grid-wrap">
+            <div class="grid grid--rooms" id="roomsGrid"></div>
           </div>
-
-          <!-- Room Cards Grid -->
-          <div class="grid grid--rooms" id="roomsGrid"></div>
 
           <!-- Room Detail Panel -->
           <article class="card" id="roomPanel" hidden>
@@ -470,13 +465,11 @@
           </div>
         </div>
 
-        <!-- ✅ VIEW: MONEY (Part G) -->
+        <!-- VIEW: MONEY -->
         <div class="view" id="view-money">
-          <!-- Top summary cards -->
           <div class="grid grid--stats" id="moneyTopStats"></div>
 
           <div class="grid grid--panels">
-            <!-- Funds -->
             <article class="card">
               <div class="card__header">
                 <h2 class="card__title">Future Funds</h2>
@@ -493,7 +486,6 @@
               </p>
             </article>
 
-            <!-- Budgets -->
             <article class="card">
               <div class="card__header">
                 <h2 class="card__title">Budgets</h2>
@@ -512,7 +504,7 @@
           </div>
         </div>
 
-        <!-- ✅ VIEW: SETTINGS (Part L) -->
+        <!-- VIEW: SETTINGS -->
         <div class="view" id="view-settings">
           <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
             <article class="card" style="padding:12px;">
@@ -597,7 +589,7 @@
     </main>
   </div>
 
-  <!-- Hidden file input used by imports (single input reused by module import buttons) -->
+  <!-- Hidden file input used by imports -->
   <input id="fileImport" type="file" accept="application/json" hidden />
 
   <!-- Modal: Future Home Add/Edit Item -->
@@ -679,7 +671,6 @@
               <button class="mini-btn" type="button" id="btnImportAll">Import everything</button>
             </div>
 
-            <!-- ✅ Part K: module-level export/import -->
             <div class="row-actions" style="justify-content:flex-start; gap:10px; margin-top:10px; flex-wrap:wrap;">
               <button class="mini-btn" type="button" id="btnExportAdmin">Export Life Admin</button>
               <button class="mini-btn" type="button" id="btnExportHome">Export Future Home</button>
@@ -760,7 +751,7 @@
     </div>
   </div>
 
-  <!-- ✅ Modal (Money Fund Add/Edit) -->
+  <!-- Modal: Money Fund Add/Edit -->
   <div class="modal" id="fundModal" aria-hidden="true">
     <div class="modal__backdrop" data-close="true"></div>
 
@@ -801,7 +792,6 @@
         </div>
 
         <div class="form__row">
-          <!-- Optional target date per spec -->
           <label class="field">
             <span class="field__label">Target date (optional)</span>
             <input class="field__control" name="targetDate" type="date" />
@@ -832,7 +822,7 @@
     </div>
   </div>
 
-  <!-- ✅ Modal (Money Budget Add/Edit) -->
+  <!-- Modal: Money Budget Add/Edit -->
   <div class="modal" id="budgetModal" aria-hidden="true">
     <div class="modal__backdrop" data-close="true"></div>
 
@@ -881,7 +871,7 @@
     </div>
   </div>
 
-  <!-- Modal (Life Admin Add/Edit) -->
+  <!-- Modal: Life Admin Add/Edit -->
   <div class="modal" id="modal" aria-hidden="true">
     <div class="modal__backdrop" data-close="true"></div>
 
@@ -975,6 +965,5 @@
 
   <script src="script.js"></script>
   <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
-
 </body>
 </html>
