@@ -136,64 +136,63 @@
   }
 
   // =========================
-  // GLOBAL STORE + MIGRATION (PART A/B)
+  // GLOBAL STORE + MIGRATION
   // =========================
   const LS_STORE_KEY = "lifeSetup.store.v1";
   const LS_LEGACY_LIFEADMIN = "lifeSetup.lifeAdmin.items.v5";
 
   function defaultRooms() {
-  const mkItem = (name) => ({
-    id: uid(),
-    name,
-    planned: false,        // ✅ planned replaces done
-    priority: "normal",    // "high" | "normal"
-    cost: 0,
-    notes: "",
-    createdAtISO: new Date().toISOString(),
-    updatedAtISO: new Date().toISOString(),
-  });
+    const mkItem = (name) => ({
+      id: uid(),
+      name,
+      planned: false,
+      priority: "normal",
+      cost: 0,
+      notes: "",
+      createdAtISO: new Date().toISOString(),
+      updatedAtISO: new Date().toISOString(),
+    });
 
-  const mk = (title, essentials, extras) => ({
-    title,
-    notes: "",
-    essentials: essentials.map(mkItem),
-    extras: extras.map(mkItem),
-  });
+    const mk = (title, essentials, extras) => ({
+      title,
+      notes: "",
+      essentials: essentials.map(mkItem),
+      extras: extras.map(mkItem),
+    });
 
-  return {
-    bedroom: mk(
-      "Bedroom",
-      ["Bed frame", "Mattress", "Pillow(s)", "Duvet", "Bedsheets", "Wardrobe / storage"],
-      ["Bedside table", "Lamp", "Mirror", "Rug", "Extra storage boxes"]
-    ),
-    kitchen: mk(
-      "Kitchen",
-      ["Plates/bowls", "Cutlery", "Mugs", "Cooking basics (knife/board)", "Bin", "Tea towels"],
-      ["Air fryer", "Blender", "Extra pans", "Nice glasses", "Organisers"]
-    ),
-    living: mk(
-      "Living Room",
-      ["Sofa", "TV stand", "Curtains/blinds", "Lighting", "Basic cleaning kit"],
-      ["Coffee table", "Rug", "Wall art", "Speaker", "Extra seating"]
-    ),
-    bathroom: mk(
-      "Bathroom",
-      ["Towels", "Toilet brush", "Shower curtain (if needed)", "Soap/shampoo", "Bath mat"],
-      ["Storage caddy", "Nice mirror", "Plants", "Extra shelves"]
-    ),
-    office: mk(
-      "Home Office",
-      ["Desk", "Chair", "Monitor (optional)", "Extension lead", "Basic stationery"],
-      ["Second monitor", "Desk lamp", "Cable management", "Whiteboard", "Printer"]
-    ),
-    utility: mk(
-      "Storage/Utility",
-      ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
-      ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
-    ),
-  };
-}
-
+    return {
+      bedroom: mk(
+        "Bedroom",
+        ["Bed frame", "Mattress", "Pillow(s)", "Duvet", "Bedsheets", "Wardrobe / storage"],
+        ["Bedside table", "Lamp", "Mirror", "Rug", "Extra storage boxes"]
+      ),
+      kitchen: mk(
+        "Kitchen",
+        ["Plates/bowls", "Cutlery", "Mugs", "Cooking basics (knife/board)", "Bin", "Tea towels"],
+        ["Air fryer", "Blender", "Extra pans", "Nice glasses", "Organisers"]
+      ),
+      living: mk(
+        "Living Room",
+        ["Sofa", "TV stand", "Curtains/blinds", "Lighting", "Basic cleaning kit"],
+        ["Coffee table", "Rug", "Wall art", "Speaker", "Extra seating"]
+      ),
+      bathroom: mk(
+        "Bathroom",
+        ["Towels", "Toilet brush", "Shower curtain (if needed)", "Soap/shampoo", "Bath mat"],
+        ["Storage caddy", "Nice mirror", "Plants", "Extra shelves"]
+      ),
+      office: mk(
+        "Home Office",
+        ["Desk", "Chair", "Monitor (optional)", "Extension lead", "Basic stationery"],
+        ["Second monitor", "Desk lamp", "Cable management", "Whiteboard", "Printer"]
+      ),
+      utility: mk(
+        "Storage/Utility",
+        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+      ),
+    };
+  }
 
   function defaultSkills() {
     const mk = (category, names) => ({
@@ -204,6 +203,7 @@
         level: "ns",
         notes: "",
         createdAtISO: new Date().toISOString(),
+        updatedAtISO: new Date().toISOString(),
       })),
     });
 
@@ -231,131 +231,132 @@
     };
   }
 
- function makeBudget(name) {
-  return {
-    id: uid(),
-    name,
-    priority: "normal", // normal | high
-    monthlyLimit: 0,
-    notes: "",
-    createdAtISO: new Date().toISOString(),
-    updatedAtISO: new Date().toISOString(),
-  };
-}
+  function makeBudget(name) {
+    return {
+      id: uid(),
+      name,
+      priority: "normal",
+      monthlyLimit: 0,
+      notes: "",
+      createdAtISO: new Date().toISOString(),
+      updatedAtISO: new Date().toISOString(),
+    };
+  }
 
-function makeTxn({ type, label, amount, dateISO, fundId = null, budgetId = null }) {
-  return {
-    id: uid(),
-    type, // deposit | withdraw | spend | income
-    label: String(label ?? "").trim(),
-    amount: Number(amount ?? 0),
-    dateISO: String(dateISO ?? toISODate(startOfToday())),
-    fundId: fundId ? String(fundId) : null,
-    budgetId: budgetId ? String(budgetId) : null,
-    createdAtISO: new Date().toISOString(),
-  };
-}
+  function makeTxn({ type, label, amount, dateISO, fundId = null, budgetId = null }) {
+    return {
+      id: uid(),
+      type, // deposit | withdraw | spend | income
+      label: String(label ?? "").trim(),
+      amount: Number(amount ?? 0),
+      dateISO: String(dateISO ?? toISODate(startOfToday())),
+      fundId: fundId ? String(fundId) : null,
+      budgetId: budgetId ? String(budgetId) : null,
+      createdAtISO: new Date().toISOString(),
+    };
+  }
 
-function defaultStore() {
-  return {
-    version: 2,
-    lifeAdmin: { items: [] },
-    home: { rooms: defaultRooms() },
-    skills: { categories: defaultSkills() },
+  function defaultStore() {
+    return {
+      version: 2,
+      lifeAdmin: { items: [] },
+      home: { rooms: defaultRooms(), version: 2 },
+      skills: { categories: defaultSkills(), version: 2 },
 
-    money: {
-      currency: "GBP",
-      funds: [],
-      budgets: [],
-      txns: [], // transaction log for budgets + optional fund movements
-      paydayISO: null, // optional: next payday date
-    },
+      money: {
+        currency: "GBP",
+        funds: [],
+        budgets: [],
+        txns: [],
+        paydayISO: null,
+      },
 
-    settings: {
-      calmModeAuto: true,
-      calmThreshold: 3,
-      focusWeekDefault: false,
-      showArchivedDefault: false,
-      defaultSort: "dueSoonest",
-    },
-  };
-}
+      settings: {
+        calmModeAuto: true,
+        calmThreshold: 3,
+        focusWeekDefault: false,
+        showArchivedDefault: false,
+        defaultSort: "dueSoonest",
+        hideMoney: false,
+      },
+    };
+  }
 
-function normaliseBudgets(budgets) {
-  if (!Array.isArray(budgets)) return [];
-  const nowISO = new Date().toISOString();
+  function normaliseBudgets(budgets) {
+    if (!Array.isArray(budgets)) return [];
+    const nowISO = new Date().toISOString();
 
-  return budgets
-    .map((b) => {
-      const name = String(b?.name ?? "").trim();
-      if (!name) return null;
+    return budgets
+      .map((b) => {
+        const name = String(b?.name ?? "").trim();
+        if (!name) return null;
 
-      const monthlyLimit = Number(b?.monthlyLimit ?? 0);
+        const monthlyLimit = Number(b?.monthlyLimit ?? 0);
 
-      return {
-        id: String(b?.id ?? uid()),
-        name,
-        priority: ["normal", "high"].includes(b?.priority) ? b.priority : "normal",
-        monthlyLimit: Number.isFinite(monthlyLimit) && monthlyLimit >= 0 ? monthlyLimit : 0,
-        notes: String(b?.notes ?? ""),
-        createdAtISO: String(b?.createdAtISO ?? nowISO),
-        updatedAtISO: String(b?.updatedAtISO ?? nowISO),
-      };
-    })
-    .filter(Boolean);
-}
+        return {
+          id: String(b?.id ?? uid()),
+          name,
+          priority: ["normal", "high"].includes(b?.priority) ? b.priority : "normal",
+          monthlyLimit: Number.isFinite(monthlyLimit) && monthlyLimit >= 0 ? monthlyLimit : 0,
+          notes: String(b?.notes ?? ""),
+          createdAtISO: String(b?.createdAtISO ?? nowISO),
+          updatedAtISO: String(b?.updatedAtISO ?? nowISO),
+        };
+      })
+      .filter(Boolean);
+  }
 
-function normaliseTxns(txns) {
-  if (!Array.isArray(txns)) return [];
-  const today = toISODate(startOfToday());
+  function normaliseTxns(txns) {
+    if (!Array.isArray(txns)) return [];
+    const today = toISODate(startOfToday());
 
-  const okType = new Set(["deposit", "withdraw", "spend", "income"]);
-  return txns
-    .map((t) => {
-      const type = String(t?.type ?? "").trim();
-      if (!okType.has(type)) return null;
+    const okType = new Set(["deposit", "withdraw", "spend", "income"]);
+    return txns
+      .map((t) => {
+        const type = String(t?.type ?? "").trim();
+        if (!okType.has(type)) return null;
 
-      const amount = Number(t?.amount ?? 0);
-      const dateISO = String(t?.dateISO ?? today);
+        const amount = Number(t?.amount ?? 0);
+        const dateISO = String(t?.dateISO ?? today);
 
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) return null;
-      if (!Number.isFinite(amount) || amount <= 0) return null;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) return null;
+        if (!Number.isFinite(amount) || amount <= 0) return null;
 
-      const label = String(t?.label ?? "").trim();
-      if (!label) return null;
+        const label = String(t?.label ?? "").trim();
+        if (!label) return null;
 
-      return {
-        id: String(t?.id ?? uid()),
-        type,
-        label,
-        amount,
-        dateISO,
-        fundId: t?.fundId ? String(t.fundId) : null,
-        budgetId: t?.budgetId ? String(t.budgetId) : null,
-        createdAtISO: String(t?.createdAtISO ?? new Date().toISOString()),
-      };
-    })
-    .filter(Boolean);
-}
+        return {
+          id: String(t?.id ?? uid()),
+          type,
+          label,
+          amount,
+          dateISO,
+          fundId: t?.fundId ? String(t.fundId) : null,
+          budgetId: t?.budgetId ? String(t.budgetId) : null,
+          createdAtISO: String(t?.createdAtISO ?? new Date().toISOString()),
+        };
+      })
+      .filter(Boolean);
+  }
 
-function normaliseSettings(s) {
-  const base = defaultStore().settings;
-  const out = { ...base, ...(typeof s === "object" && s ? s : {}) };
+  function normaliseSettings(s) {
+    const base = defaultStore().settings;
+    const out = { ...base, ...(typeof s === "object" && s ? s : {}) };
 
-  out.calmModeAuto = !!out.calmModeAuto;
+    out.calmModeAuto = !!out.calmModeAuto;
+    out.hideMoney = !!out.hideMoney;
 
-  const th = Number(out.calmThreshold);
-  out.calmThreshold = Number.isFinite(th) && th >= 0 ? th : base.calmThreshold;
+    const th = Number(out.calmThreshold);
+    out.calmThreshold = Number.isFinite(th) && th >= 0 ? th : base.calmThreshold;
 
-  out.focusWeekDefault = !!out.focusWeekDefault;
-  out.showArchivedDefault = !!out.showArchivedDefault;
+    out.focusWeekDefault = !!out.focusWeekDefault;
+    out.showArchivedDefault = !!out.showArchivedDefault;
 
-  const allowedSort = new Set(["dueSoonest","dueLatest","createdOldest","createdNewest","nameAZ","nameZA"]);
-  out.defaultSort = allowedSort.has(out.defaultSort) ? out.defaultSort : base.defaultSort;
+    const allowedSort = new Set(["dueSoonest", "dueLatest", "createdOldest", "createdNewest", "nameAZ", "nameZA"]);
+    out.defaultSort = allowedSort.has(out.defaultSort) ? out.defaultSort : base.defaultSort;
 
-  return out;
-}
-
+    return out;
+  }
 
   function normaliseItems(arr) {
     const nowISO = new Date().toISOString();
@@ -430,34 +431,29 @@ function normaliseSettings(s) {
       .filter(Boolean);
   }
 
-function normaliseStore(s) {
-  const base = defaultStore();
+  function normaliseStore(s) {
+    const base = defaultStore();
 
-  // Life Admin
-  base.lifeAdmin.items = normaliseItems(Array.isArray(s?.lifeAdmin?.items) ? s.lifeAdmin.items : []);
+    base.lifeAdmin.items = normaliseItems(Array.isArray(s?.lifeAdmin?.items) ? s.lifeAdmin.items : []);
 
-  // Money
-  base.money = {
-    currency: String(s?.money?.currency ?? "GBP"),
-    funds: normaliseFunds(s?.money?.funds),
-    budgets: normaliseBudgets(s?.money?.budgets),
-    txns: normaliseTxns(s?.money?.txns),
-    paydayISO: (s?.money?.paydayISO && /^\d{4}-\d{2}-\d{2}$/.test(String(s.money.paydayISO))) ? String(s.money.paydayISO) : null,
-  };
+    base.money = {
+      currency: String(s?.money?.currency ?? "GBP"),
+      funds: normaliseFunds(s?.money?.funds),
+      budgets: normaliseBudgets(s?.money?.budgets),
+      txns: normaliseTxns(s?.money?.txns),
+      paydayISO: (s?.money?.paydayISO && /^\d{4}-\d{2}-\d{2}$/.test(String(s.money.paydayISO)))
+        ? String(s.money.paydayISO)
+        : null,
+    };
 
-  // Settings (wired)
-  base.settings = normaliseSettings(s?.settings);
+    base.settings = normaliseSettings(s?.settings);
 
-  // Home + Skills (keep your existing behaviour)
-  base.home.rooms = s?.home?.rooms ?? base.home.rooms;
-  base.skills.categories = s?.skills?.categories ?? base.skills.categories;
+    base.home.rooms = s?.home?.rooms ?? base.home.rooms;
+    base.skills.categories = s?.skills?.categories ?? base.skills.categories;
 
-  // Version bump
-  base.version = 2;
-
-  return base;
-}
-
+    base.version = 2;
+    return base;
+  }
 
   function saveStore(store) {
     localStorage.setItem(LS_STORE_KEY, JSON.stringify(store));
@@ -492,471 +488,589 @@ function normaliseStore(s) {
     saveStore(store);
   }
 
-  // =========================
-  // DOM HOOKS (Life Admin)
-  // =========================
-  const adminStats = document.getElementById("adminStats");
-  const listAlerts = document.getElementById("listAlerts");
-  const emptyAlerts = document.getElementById("emptyAlerts");
-  const badgeAlerts = document.getElementById("badgeAlerts");
+  function getSettings() {
+    return loadStore().settings || defaultStore().settings;
+  }
 
-  const listRenewals = document.getElementById("listRenewals");
-  const listAccounts = document.getElementById("listAccounts");
-  const listInfo = document.getElementById("listInfo");
-  const listVehicle = document.getElementById("listVehicle");
+  function applyDefaultUIFromSettings() {
+    const s = getSettings();
+    uiState.showArchived = !!s.showArchivedDefault;
+    uiState.focusWeek = !!s.focusWeekDefault;
+    uiState.sort = s.defaultSort || "dueSoonest";
 
-  const emptyRenewals = document.getElementById("emptyRenewals");
-  const emptyAccounts = document.getElementById("emptyAccounts");
-  const emptyInfo = document.getElementById("emptyInfo");
-  const emptyVehicle = document.getElementById("emptyVehicle");
-
-  const badgeRenewals = document.getElementById("badgeRenewals");
-  const badgeAccounts = document.getElementById("badgeAccounts");
-  const badgeInfo = document.getElementById("badgeInfo");
-  const badgeVehicle = document.getElementById("badgeVehicle");
-
-  const overallDot = document.getElementById("overallDot");
-  const statusText = document.getElementById("statusText");
-
-  // Money panel DOM
-  const badgeMoney = document.getElementById("badgeMoney");
-  const moneySummary = document.getElementById("moneySummary");
-  const btnAddFund = document.getElementById("btnAddFund");
-  const listMoneyFunds = document.getElementById("listMoneyFunds");
-  const emptyMoneyFunds = document.getElementById("emptyMoneyFunds");
-
-  // Controls
-  const searchInput = document.getElementById("adminSearch");
-  const showArchivedCheckbox = document.getElementById("chkArchived");
-  const focusWeekCheckbox = document.getElementById("chkFocusWeek");
-  const calmCheckbox = document.getElementById("chkCalmMode");
-  const sortSelect = document.getElementById("selSort");
-  const btnSampleData = document.getElementById("btnSampleData");
-  const btnImport = document.getElementById("btnImport");
-  const templateSelect = document.getElementById("selTemplate");
-  const filterButtons = Array.from(document.querySelectorAll("[data-admin-filter]"));
-
-  // Modal (Life Admin items)
-  const btnAdd = document.getElementById("btnAdd");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalBackdrop = modal?.querySelector(".modal__backdrop");
-  const btnCloseModal = document.getElementById("btnCloseModal");
-  const btnCancel = document.getElementById("btnCancel");
-  const itemForm = document.getElementById("itemForm");
-  const customDaysWrap = document.getElementById("customDaysWrap");
-
-  // Modal (Funds)
-  const fundModal = document.getElementById("fundModal");
-  const fundModalTitle = document.getElementById("fundModalTitle");
-  const fundBackdrop = fundModal?.querySelector(".modal__backdrop");
-  const btnCloseFundModal = document.getElementById("btnCloseFundModal");
-  const btnCancelFund = document.getElementById("btnCancelFund");
-  const fundForm = document.getElementById("fundForm");
+    if (showArchivedCheckbox) showArchivedCheckbox.checked = uiState.showArchived;
+    if (focusWeekCheckbox) focusWeekCheckbox.checked = uiState.focusWeek;
+    if (sortSelect) sortSelect.value = uiState.sort;
+  }
 
   // =========================
-  // DOM HOOKS (Home)
+  // MONEY FORMATTERS (KEEP ONCE)
   // =========================
-  const roomsGrid = document.getElementById("roomsGrid");
-  const roomPanel = document.getElementById("roomPanel");
-  const roomTitle = document.getElementById("roomTitle");
-  const roomBadge = document.getElementById("roomBadge");
-  const btnCloseRoom = document.getElementById("btnCloseRoom");
+  function currencySymbol(code) {
+    if (code === "EUR") return "€";
+    if (code === "USD") return "$";
+    return "£";
+  }
 
-  const listEssentials = document.getElementById("listEssentials");
-  const listExtras = document.getElementById("listExtras");
-  const emptyEssentials = document.getElementById("emptyEssentials");
-  const emptyExtras = document.getElementById("emptyExtras");
-  const badgeEssentials = document.getElementById("badgeEssentials");
-  const badgeExtras = document.getElementById("badgeExtras");
+  function fmtMoney(n) {
+    const store = loadStore();
+    const code = String(store.money?.currency ?? "GBP");
+    const sym = currencySymbol(code);
 
-  const formAddEssential = document.getElementById("formAddEssential");
-  const formAddExtra = document.getElementById("formAddExtra");
+    const x = Number(n ?? 0);
+    const safe = Number.isFinite(x) ? x : 0;
+    return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
 
-  const roomNotes = document.getElementById("roomNotes");
-  const btnSaveRoomNotes = document.getElementById("btnSaveRoomNotes");
-  const btnResetRoom = document.getElementById("btnResetRoom");
-  const roomBudgetSummary = document.getElementById("roomBudgetSummary");
-  const roomBudgetBadge = document.getElementById("roomBudgetBadge");
+  function fmtGBP(n) {
+    return fmtMoney(n);
+  }
 
-  // =========================
-  // DOM HOOKS (Skills)
-  // =========================
-  const skillsBadge = document.getElementById("skillsBadge");
-  const skillsSummary = document.getElementById("skillsSummary");
-  const formAddSkill = document.getElementById("formAddSkill");
-  const skillsFilterChips = document.getElementById("skillsFilterChips");
-  const skillsList = document.getElementById("skillsList");
-  const skillsEmpty = document.getElementById("skillsEmpty");
-  const skillsCountBadge = document.getElementById("skillsCountBadge");
+  function monthKeyFromISO(dateISO) {
+    return String(dateISO).slice(0, 7);
+  }
 
-    // =========================
-  // Part D: Next Steps hooks
-  // =========================
-  const badgeNextSteps = document.getElementById("badgeNextSteps");
-  const nextStepsToday = document.getElementById("nextStepsToday");
-  const nextStepsWeek = document.getElementById("nextStepsWeek");
-  const emptyNextToday = document.getElementById("emptyNextToday");
-  const emptyNextWeek = document.getElementById("emptyNextWeek");
+  function currentMonthKey() {
+    return monthKeyFromISO(toISODate(startOfToday()));
+  }
+
+  (() => {
+  "use strict";
 
   // =========================
-  // AUTO CALM CONFIG
+  // ROUTER (Admin/Home/Skills)
   // =========================
-  const AUTO_CALM_ENABLED = true;
-  const AUTO_CALM_THRESHOLD = 3;
-
-  const uiState = {
-    filter: "all",
-    query: "",
-    showArchived: false,
-    sort: "dueSoonest",
-    focusWeek: false,
-    calmMode: false,
-    calmModeManual: null,
+  const navButtons = Array.from(document.querySelectorAll(".nav__item"));
+  const views = {
+    admin: document.getElementById("view-admin"),
+    home: document.getElementById("view-home"),
+    skills: document.getElementById("view-skills"),
   };
 
-  function getSettings() {
-  return loadStore().settings || defaultStore().settings;
-}
+  // Simple dev-friendly error surfacing (remove later if you want)
+  window.addEventListener("error", (e) => {
+    alert("JS Error: " + (e.message || "unknown"));
+  });
+  window.addEventListener("unhandledrejection", (e) => {
+    alert("Promise Error: " + (e.reason?.message || e.reason || "unknown"));
+  });
 
-function applyDefaultUIFromSettings() {
-  const s = getSettings();
+  const pageTitle = document.getElementById("pageTitle");
+  const pageSubtitle = document.getElementById("pageSubtitle");
+  const btnMenu = document.getElementById("btnMenu");
+  const sidebar = document.querySelector(".sidebar");
 
-  // defaults for admin controls
-  uiState.showArchived = !!s.showArchivedDefault;
-  uiState.focusWeek = !!s.focusWeekDefault;
-  uiState.sort = s.defaultSort || "dueSoonest";
+  const viewMeta = {
+    admin: { title: "Life Admin", subtitle: "Keep your real-world life organised with calm, smart nudges." },
+    home: { title: "Future Home", subtitle: "Plan furniture essentials first, then extras when you're ready." },
+    skills: { title: "Life Skills", subtitle: "Everyday living skills with progress you can actually see." },
+  };
 
-  if (showArchivedCheckbox) showArchivedCheckbox.checked = uiState.showArchived;
-  if (focusWeekCheckbox) focusWeekCheckbox.checked = uiState.focusWeek;
-  if (sortSelect) sortSelect.value = uiState.sort;
-}
+  function setActiveView(viewKey) {
+    navButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.view === viewKey));
+    Object.keys(views).forEach((k) => views[k]?.classList.toggle("is-visible", k === viewKey));
+    if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
+    if (pageSubtitle) pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
+    sidebar?.classList.remove("is-open");
+  }
 
+  navButtons.forEach((btn) => btn.addEventListener("click", () => setActiveView(btn.dataset.view)));
+  btnMenu?.addEventListener("click", () => sidebar?.classList.toggle("is-open"));
 
   // =========================
-  // URGENCY + CALM MODE HELPERS
+  // IDS / HELPERS
   // =========================
-  function isUrgentItem(item) {
-    if (item.archived) return false;
-    const s = statusFromDays(daysUntil(item.dueDateISO));
-    return s === "red" || s === "amber";
+  function uid() {
+    return crypto?.randomUUID ? crypto.randomUUID() : `id_${Date.now()}_${Math.random().toString(16).slice(2)}`;
   }
 
-  function urgentCount(items) {
-    return items.filter(isUrgentItem).length;
-  }
-
-  function applyCalmMode(items) {
-    return items.filter((i) => !i.archived && isUrgentItem(i));
-  }
-
-  function setCategoryCardVisibility(categoryKey, hasItems) {
-    const card = document.querySelector(`[data-cat-card="${categoryKey}"]`);
-    if (!card) return;
-    card.hidden = !hasItems;
-  }
-
-  // =========================
-  // NUDGES
-  // =========================
-  function profileWindows(profile) {
-    if (profile === "careful") return [56, 28, 14, 7, 1];
-    if (profile === "tight") return [21, 7, 1];
-    return [42, 21, 7, 1];
-  }
-
-  function gentleNudge(item, d) {
-    const name = (item.name || "").toLowerCase();
-    const windows = profileWindows(item.reminderProfile);
-
-    if (item.archived) return "Archived — you can unarchive it any time.";
-
-    if (d === null) {
-      if (item.category === "info") return "Handy to keep this here so you don’t have to hunt for it later.";
-      if (item.category === "money") return "Worth keeping this saved so your money plan stays simple.";
-      return "Worth keeping this saved so it stays easy to manage.";
+  function safeParseArray(raw) {
+    try {
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
     }
+  }
 
-    if (d < 0) return "It might be worth sorting this soon, just to get it off your mind.";
-
-    if (item.category === "money") {
-      if (name.includes("budget")) return "A quick check-in can keep things feeling under control.";
-      if (name.includes("payday")) return "Might be a good time to plan transfers before money disappears.";
-      if (name.includes("savings") || name.includes("fund")) return "Even a small top-up helps over time.";
-      if (d <= windows[0]) return "A calm check-in now can help you stay on track.";
-    }
-
-    if (item.category === "renewal") {
-      if (name.includes("insurance")) {
-        if (d <= windows[0] && d > (windows[1] ?? 0)) return "Good time to start checking quotes calmly.";
-        if (d <= (windows[1] ?? windows[0]) && d > (windows[2] ?? 0)) return "You could shortlist a couple of quotes.";
-        if (d <= (windows[2] ?? windows[0]) && d > (windows[3] ?? 0)) return "Worth checking auto-renew settings.";
-        if (d <= (windows[windows.length - 1] ?? 1)) return "Gentle reminder to confirm you’re covered.";
-      }
-      if (name.includes("mot") && d <= 30) return "Might be a good time to book a slot so you get a convenient date.";
-      if (name.includes("passport") && d <= 180) return "Some countries require 6 months validity — worth checking.";
-      if (d <= windows[0]) return "A small plan now keeps it low-stress later.";
-    }
-
-    if (item.category === "vehicle") {
-      if (name.includes("tyre")) return "Quick tyre pressure check can prevent surprises.";
-      if (name.includes("oil")) return "A quick oil check now and then can help.";
-      if (d <= windows[0]) return "Small check-ins keep things running smoothly.";
-    }
-
-    if (item.category === "account") {
-      if (name.includes("phone")) return "If you’re near contract end, SIM-only can be worth a look.";
-      if (name.includes("subscription")) return "A quick review can save more than you’d expect.";
-      if (d <= windows[0]) return "A small review soon keeps it easy.";
-    }
-
-    if (item.priority === "high" && d <= 30) return "High priority — worth a quick look soon.";
-
-    return "All seems fine — just keeping it on your radar.";
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   // =========================
-  // QUICK ADD TEMPLATE -> ITEM
+  // DATE + STATUS
   // =========================
-  function templateToItem(templateKey) {
-    const todayISO = toISODate(startOfToday());
+  function startOfToday() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }
 
-    const base = {
-      id: "",
-      category: "renewal",
-      name: "",
-      details: "",
-      dueDateISO: null,
-      reminderProfile: "gentle",
+  function toISODate(dateObj) {
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const dd = String(dateObj.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function daysUntil(dateISO) {
+    if (!dateISO) return null;
+    const due = new Date(dateISO + "T00:00:00");
+    const diffMs = due.getTime() - startOfToday().getTime();
+    return Math.round(diffMs / (1000 * 60 * 60 * 24));
+  }
+
+  function statusFromDays(d) {
+    if (d === null) return "green";
+    if (d < 0) return "red";
+    if (d <= 14) return "red";
+    if (d <= 30) return "amber";
+    return "green";
+  }
+
+  function badgeFromStatus(status) {
+    if (status === "red") return { label: "Urgent", cls: "badge--danger" };
+    if (status === "amber") return { label: "Due soon", cls: "badge--warn" };
+    return { label: "On track", cls: "badge--ok" };
+  }
+
+  function fmtDueText(d) {
+    if (d === null) return "No due date";
+    if (d < 0) return `Overdue by ${Math.abs(d)} day${Math.abs(d) === 1 ? "" : "s"}`;
+    if (d === 0) return "Due today";
+    return `Due in ${d} day${d === 1 ? "" : "s"}`;
+  }
+
+  function addDaysISO(dateISO, days) {
+    const base = dateISO ? new Date(dateISO + "T00:00:00") : startOfToday();
+    const d = new Date(base);
+    d.setDate(d.getDate() + days);
+    return toISODate(d);
+  }
+
+  function addMonthsISO(dateISO, months) {
+    const base = dateISO ? new Date(dateISO + "T00:00:00") : startOfToday();
+    const d = new Date(base);
+    const day = d.getDate();
+    d.setMonth(d.getMonth() + months);
+    if (d.getDate() !== day) d.setDate(0);
+    return toISODate(d);
+  }
+
+  function addYearsISO(dateISO, years) {
+    const base = dateISO ? new Date(dateISO + "T00:00:00") : startOfToday();
+    const d = new Date(base);
+    const m = d.getMonth();
+    d.setFullYear(d.getFullYear() + years);
+    if (d.getMonth() !== m) d.setDate(0);
+    return toISODate(d);
+  }
+
+  // =========================
+  // GLOBAL STORE + MIGRATION
+  // =========================
+  const LS_STORE_KEY = "lifeSetup.store.v1";
+  const LS_LEGACY_LIFEADMIN = "lifeSetup.lifeAdmin.items.v5";
+
+  function defaultRooms() {
+    const mkItem = (name) => ({
+      id: uid(),
+      name,
+      planned: false,
       priority: "normal",
-      archived: false,
-      recurrence: "none",
-      customDays: null,
+      cost: 0,
+      notes: "",
+      createdAtISO: new Date().toISOString(),
+      updatedAtISO: new Date().toISOString(),
+    });
+
+    const mk = (title, essentials, extras) => ({
+      title,
+      notes: "",
+      essentials: essentials.map(mkItem),
+      extras: extras.map(mkItem),
+    });
+
+    return {
+      bedroom: mk(
+        "Bedroom",
+        ["Bed frame", "Mattress", "Pillow(s)", "Duvet", "Bedsheets", "Wardrobe / storage"],
+        ["Bedside table", "Lamp", "Mirror", "Rug", "Extra storage boxes"]
+      ),
+      kitchen: mk(
+        "Kitchen",
+        ["Plates/bowls", "Cutlery", "Mugs", "Cooking basics (knife/board)", "Bin", "Tea towels"],
+        ["Air fryer", "Blender", "Extra pans", "Nice glasses", "Organisers"]
+      ),
+      living: mk(
+        "Living Room",
+        ["Sofa", "TV stand", "Curtains/blinds", "Lighting", "Basic cleaning kit"],
+        ["Coffee table", "Rug", "Wall art", "Speaker", "Extra seating"]
+      ),
+      bathroom: mk(
+        "Bathroom",
+        ["Towels", "Toilet brush", "Shower curtain (if needed)", "Soap/shampoo", "Bath mat"],
+        ["Storage caddy", "Nice mirror", "Plants", "Extra shelves"]
+      ),
+      office: mk(
+        "Home Office",
+        ["Desk", "Chair", "Monitor (optional)", "Extension lead", "Basic stationery"],
+        ["Second monitor", "Desk lamp", "Cable management", "Whiteboard", "Printer"]
+      ),
+      utility: mk(
+        "Storage/Utility",
+        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+      ),
     };
-
-    switch (templateKey) {
-      case "carInsurance":
-        return {
-          ...base,
-          category: "renewal",
-          name: "Car insurance",
-          details: "Compare quotes • check auto-renew",
-          recurrence: "yearly",
-          priority: "high",
-          dueDateISO: addYearsISO(todayISO, 1),
-        };
-      case "mot":
-        return {
-          ...base,
-          category: "vehicle",
-          name: "MOT",
-          details: "Book early for a convenient date",
-          recurrence: "yearly",
-          priority: "high",
-          dueDateISO: addYearsISO(todayISO, 1),
-        };
-      case "carService":
-        return {
-          ...base,
-          category: "vehicle",
-          name: "Car service",
-          details: "Full/Interim (note mileage)",
-          recurrence: "yearly",
-          priority: "normal",
-          dueDateISO: addYearsISO(todayISO, 1),
-        };
-      case "passport":
-        return {
-          ...base,
-          category: "renewal",
-          name: "Passport expiry",
-          details: "Some countries require 6 months validity",
-          recurrence: "none",
-          priority: "normal",
-        };
-      case "travelInsurance":
-        return {
-          ...base,
-          category: "renewal",
-          name: "Travel insurance",
-          details: "Check cover for the trip dates",
-          recurrence: "none",
-          priority: "normal",
-        };
-      case "phoneContract":
-        return {
-          ...base,
-          category: "account",
-          name: "Phone contract",
-          details: "Consider SIM-only options",
-          recurrence: "monthly",
-          priority: "normal",
-          dueDateISO: addMonthsISO(todayISO, 1),
-        };
-      case "subscriptionReview":
-        return {
-          ...base,
-          category: "account",
-          name: "Subscription review",
-          details: "Cancel anything unused",
-          recurrence: "custom",
-          customDays: 90,
-          priority: "normal",
-          dueDateISO: addDaysISO(todayISO, 90),
-        };
-      default:
-        return null;
-    }
   }
 
-  // =========================
-  // MODAL (Life Admin items)
-  // =========================
-  let editingId = null;
+  function defaultSkills() {
+    const mk = (category, names) => ({
+      category,
+      items: names.map((n) => ({
+        id: uid(),
+        name: n,
+        level: "ns",
+        notes: "",
+        createdAtISO: new Date().toISOString(),
+        updatedAtISO: new Date().toISOString(),
+      })),
+    });
 
-  function setRecurrenceUI(value) {
-    if (!customDaysWrap) return;
-    customDaysWrap.style.display = value === "custom" ? "" : "none";
+    return {
+      Cooking: mk("Cooking", ["Make a hot breakfast", "Cook chicken safely", "Make rice properly"]),
+      Cleaning: mk("Cleaning", ["Clean a bathroom properly", "Dust + vacuum routine", "Clean a fridge"]),
+      Laundry: mk("Laundry", ["Sort colours", "Run a wash cycle", "Hang/air-dry properly"]),
+      "Personal Admin": mk("Personal Admin", ["Track bills & renewals", "Book appointments", "Keep documents organised"]),
+      Health: mk("Health", ["Basic meal planning", "Consistent sleep routine", "Short daily walk"]),
+      "Home Basics": mk("Home Basics", ["Change a lightbulb", "Stop a small leak (basics)", "Reset internet router"]),
+    };
   }
 
-  function openModal(mode, item = null) {
-    editingId = mode === "edit" ? (item?.id ?? null) : null;
-    if (modalTitle) modalTitle.textContent = mode === "edit" ? "Edit Life Admin Item" : "Add Life Admin Item";
-
-    itemForm?.reset();
-
-    if (itemForm) {
-      itemForm.id.value = item?.id ?? "";
-      itemForm.category.value = item?.category ?? "renewal";
-      itemForm.name.value = item?.name ?? "";
-      itemForm.dueDate.value = item?.dueDateISO ?? "";
-      itemForm.details.value = item?.details ?? "";
-      itemForm.reminderProfile.value = item?.reminderProfile ?? "gentle";
-      itemForm.priority.value = item?.priority ?? "normal";
-      itemForm.recurrence.value = item?.recurrence ?? "none";
-      itemForm.customDays.value = item?.customDays != null ? String(item.customDays) : "";
-      setRecurrenceUI(itemForm.recurrence.value);
-    }
-
-    modal?.setAttribute("aria-hidden", "false");
-    modal?.classList.add("is-open");
-    itemForm?.name?.focus?.();
+  function makeFund(name) {
+    return {
+      id: uid(),
+      name,
+      priority: "normal",
+      target: 0,
+      current: 0,
+      monthlyGoal: 0,
+      notes: "",
+      createdAtISO: new Date().toISOString(),
+      updatedAtISO: new Date().toISOString(),
+    };
   }
 
-  function closeModal() {
-    modal?.setAttribute("aria-hidden", "true");
-    modal?.classList.remove("is-open");
-    editingId = null;
+  function makeBudget(name) {
+    return {
+      id: uid(),
+      name,
+      priority: "normal",
+      monthlyLimit: 0,
+      notes: "",
+      createdAtISO: new Date().toISOString(),
+      updatedAtISO: new Date().toISOString(),
+    };
   }
 
-  btnAdd?.addEventListener("click", () => openModal("add"));
-  btnCloseModal?.addEventListener("click", closeModal);
-  btnCancel?.addEventListener("click", closeModal);
-  modalBackdrop?.addEventListener("click", closeModal);
-
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal?.classList.contains("is-open")) closeModal();
-    if (e.key === "Escape" && fundModal?.classList.contains("is-open")) closeFundModal();
-  });
-
-  itemForm?.recurrence?.addEventListener("change", () => {
-    setRecurrenceUI(itemForm.recurrence.value);
-  });
-
-  // =========================
-  // MODAL (Funds)
-  // =========================
-  let editingFundId = null;
-
-  function openFundModal(mode, fund = null) {
-    editingFundId = mode === "edit" ? (fund?.id ?? null) : null;
-    if (fundModalTitle) fundModalTitle.textContent = mode === "edit" ? "Edit Fund" : "Add Fund";
-
-    fundForm?.reset();
-
-    if (fundForm) {
-      fundForm.id.value = fund?.id ?? "";
-      fundForm.name.value = fund?.name ?? "";
-      fundForm.priority.value = fund?.priority ?? "normal";
-      fundForm.target.value = fund?.target != null ? String(fund.target) : "";
-      fundForm.current.value = fund?.current != null ? String(fund.current) : "";
-      fundForm.monthlyGoal.value = fund?.monthlyGoal != null ? String(fund.monthlyGoal) : "";
-      fundForm.notes.value = fund?.notes ?? "";
-    }
-
-    fundModal?.setAttribute("aria-hidden", "false");
-    fundModal?.classList.add("is-open");
-    fundForm?.name?.focus?.();
+  function makeTxn({ type, label, amount, dateISO, fundId = null, budgetId = null }) {
+    return {
+      id: uid(),
+      type, // deposit | withdraw | spend | income
+      label: String(label ?? "").trim(),
+      amount: Number(amount ?? 0),
+      dateISO: String(dateISO ?? toISODate(startOfToday())),
+      fundId: fundId ? String(fundId) : null,
+      budgetId: budgetId ? String(budgetId) : null,
+      createdAtISO: new Date().toISOString(),
+    };
   }
 
-  function closeFundModal() {
-    fundModal?.setAttribute("aria-hidden", "true");
-    fundModal?.classList.remove("is-open");
-    editingFundId = null;
+  function defaultStore() {
+    return {
+      version: 2,
+      lifeAdmin: { items: [] },
+      home: { rooms: defaultRooms(), version: 2 },
+      skills: { categories: defaultSkills(), version: 2 },
+
+      money: {
+        currency: "GBP",
+        funds: [],
+        budgets: [],
+        txns: [],
+        paydayISO: null,
+      },
+
+      settings: {
+        calmModeAuto: true,
+        calmThreshold: 3,
+        focusWeekDefault: false,
+        showArchivedDefault: false,
+        defaultSort: "dueSoonest",
+        hideMoney: false,
+      },
+    };
   }
 
-  btnAddFund?.addEventListener("click", () => openFundModal("add"));
-  btnCloseFundModal?.addEventListener("click", closeFundModal);
-  btnCancelFund?.addEventListener("click", closeFundModal);
-  fundBackdrop?.addEventListener("click", closeFundModal);
-
-  // Save fund
-  fundForm?.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const name = fundForm.name.value.trim();
-    if (!name) {
-      alert("Please enter a fund name.");
-      fundForm.name.focus();
-      return;
-    }
-
-    const priority = fundForm.priority.value;
-    const target = Number(fundForm.target.value || 0);
-    const current = Number(fundForm.current.value || 0);
-    const monthlyGoal = Number(fundForm.monthlyGoal.value || 0);
-    const notes = fundForm.notes.value.trim();
-
-    const store = loadStore();
+  function normaliseBudgets(budgets) {
+    if (!Array.isArray(budgets)) return [];
     const nowISO = new Date().toISOString();
 
-    if (editingFundId) {
-      const idx = store.money.funds.findIndex((f) => f.id === editingFundId);
-      if (idx === -1) {
-        alert("That fund couldn't be found.");
-        closeFundModal();
-        return;
+    return budgets
+      .map((b) => {
+        const name = String(b?.name ?? "").trim();
+        if (!name) return null;
+
+        const monthlyLimit = Number(b?.monthlyLimit ?? 0);
+
+        return {
+          id: String(b?.id ?? uid()),
+          name,
+          priority: ["normal", "high"].includes(b?.priority) ? b.priority : "normal",
+          monthlyLimit: Number.isFinite(monthlyLimit) && monthlyLimit >= 0 ? monthlyLimit : 0,
+          notes: String(b?.notes ?? ""),
+          createdAtISO: String(b?.createdAtISO ?? nowISO),
+          updatedAtISO: String(b?.updatedAtISO ?? nowISO),
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function normaliseTxns(txns) {
+    if (!Array.isArray(txns)) return [];
+    const today = toISODate(startOfToday());
+
+    const okType = new Set(["deposit", "withdraw", "spend", "income"]);
+    return txns
+      .map((t) => {
+        const type = String(t?.type ?? "").trim();
+        if (!okType.has(type)) return null;
+
+        const amount = Number(t?.amount ?? 0);
+        const dateISO = String(t?.dateISO ?? today);
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) return null;
+        if (!Number.isFinite(amount) || amount <= 0) return null;
+
+        const label = String(t?.label ?? "").trim();
+        if (!label) return null;
+
+        return {
+          id: String(t?.id ?? uid()),
+          type,
+          label,
+          amount,
+          dateISO,
+          fundId: t?.fundId ? String(t.fundId) : null,
+          budgetId: t?.budgetId ? String(t.budgetId) : null,
+          createdAtISO: String(t?.createdAtISO ?? new Date().toISOString()),
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function normaliseSettings(s) {
+    const base = defaultStore().settings;
+    const out = { ...base, ...(typeof s === "object" && s ? s : {}) };
+
+    out.calmModeAuto = !!out.calmModeAuto;
+    out.hideMoney = !!out.hideMoney;
+
+    const th = Number(out.calmThreshold);
+    out.calmThreshold = Number.isFinite(th) && th >= 0 ? th : base.calmThreshold;
+
+    out.focusWeekDefault = !!out.focusWeekDefault;
+    out.showArchivedDefault = !!out.showArchivedDefault;
+
+    const allowedSort = new Set(["dueSoonest", "dueLatest", "createdOldest", "createdNewest", "nameAZ", "nameZA"]);
+    out.defaultSort = allowedSort.has(out.defaultSort) ? out.defaultSort : base.defaultSort;
+
+    return out;
+  }
+
+  function normaliseItems(arr) {
+    const nowISO = new Date().toISOString();
+    return (arr ?? [])
+      .map((x) => {
+        const name = (x?.name ?? x?.title ?? "").toString().trim();
+        if (!name) return null;
+
+        const item = {
+          id: (x?.id ?? uid()).toString(),
+          category: x?.category ?? "renewal",
+          name,
+          details: (x?.details ?? "").toString(),
+          dueDateISO: x?.dueDateISO ?? x?.dueDate ?? null,
+          reminderProfile: x?.reminderProfile ?? "gentle",
+          priority: x?.priority ?? "normal",
+          archived: Boolean(x?.archived ?? false),
+          recurrence: x?.recurrence ?? "none",
+          customDays: x?.customDays != null ? Number(x.customDays) : null,
+          createdAtISO: (x?.createdAtISO ?? nowISO).toString(),
+          updatedAtISO: (x?.updatedAtISO ?? nowISO).toString(),
+          doneCount: Number.isFinite(Number(x?.doneCount)) ? Number(x.doneCount) : 0,
+        };
+
+        const allowedCats = ["renewal", "account", "vehicle", "info", "money"];
+        if (!allowedCats.includes(item.category)) item.category = "renewal";
+
+        if (!["gentle", "careful", "tight"].includes(item.reminderProfile)) item.reminderProfile = "gentle";
+        if (!["normal", "high"].includes(item.priority)) item.priority = "normal";
+        if (!["none", "weekly", "monthly", "yearly", "custom"].includes(item.recurrence)) item.recurrence = "none";
+
+        if (item.dueDateISO && !/^\d{4}-\d{2}-\d{2}$/.test(String(item.dueDateISO))) {
+          item.dueDateISO = null;
+        } else if (item.dueDateISO) {
+          item.dueDateISO = String(item.dueDateISO);
+        }
+
+        if (item.recurrence !== "custom") item.customDays = null;
+        if (item.recurrence === "custom") {
+          if (!Number.isFinite(item.customDays) || item.customDays <= 0) item.customDays = 30;
+        }
+
+        return item;
+      })
+      .filter(Boolean);
+  }
+
+  function normaliseFunds(funds) {
+    if (!Array.isArray(funds)) return [];
+    const nowISO = new Date().toISOString();
+    return funds
+      .map((f) => {
+        const name = String(f?.name ?? "").trim();
+        if (!name) return null;
+
+        const target = Number(f?.target ?? 0);
+        const current = Number(f?.current ?? 0);
+        const monthlyGoal = Number(f?.monthlyGoal ?? 0);
+
+        return {
+          id: String(f?.id ?? uid()),
+          name,
+          priority: ["normal", "high"].includes(f?.priority) ? f.priority : "normal",
+          target: Number.isFinite(target) && target >= 0 ? target : 0,
+          current: Number.isFinite(current) && current >= 0 ? current : 0,
+          monthlyGoal: Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0,
+          notes: String(f?.notes ?? ""),
+          createdAtISO: String(f?.createdAtISO ?? nowISO),
+          updatedAtISO: String(f?.updatedAtISO ?? nowISO),
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function normaliseStore(s) {
+    const base = defaultStore();
+
+    base.lifeAdmin.items = normaliseItems(Array.isArray(s?.lifeAdmin?.items) ? s.lifeAdmin.items : []);
+
+    base.money = {
+      currency: String(s?.money?.currency ?? "GBP"),
+      funds: normaliseFunds(s?.money?.funds),
+      budgets: normaliseBudgets(s?.money?.budgets),
+      txns: normaliseTxns(s?.money?.txns),
+      paydayISO: (s?.money?.paydayISO && /^\d{4}-\d{2}-\d{2}$/.test(String(s.money.paydayISO)))
+        ? String(s.money.paydayISO)
+        : null,
+    };
+
+    base.settings = normaliseSettings(s?.settings);
+
+    base.home.rooms = s?.home?.rooms ?? base.home.rooms;
+    base.skills.categories = s?.skills?.categories ?? base.skills.categories;
+
+    base.version = 2;
+    return base;
+  }
+
+  function saveStore(store) {
+    localStorage.setItem(LS_STORE_KEY, JSON.stringify(store));
+  }
+
+  function loadStore() {
+    const raw = localStorage.getItem(LS_STORE_KEY);
+    if (raw) {
+      try {
+        return normaliseStore(JSON.parse(raw));
+      } catch {
+        // fall through to migration
       }
-      store.money.funds[idx] = {
-        ...store.money.funds[idx],
-        name,
-        priority,
-        target: Number.isFinite(target) && target >= 0 ? target : 0,
-        current: Number.isFinite(current) && current >= 0 ? current : 0,
-        monthlyGoal: Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0,
-        notes,
-        updatedAtISO: nowISO,
-      };
-    } else {
-      const f = makeFund(name);
-      f.priority = priority;
-      f.target = Number.isFinite(target) && target >= 0 ? target : 0;
-      f.current = Number.isFinite(current) && current >= 0 ? current : 0;
-      f.monthlyGoal = Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0;
-      f.notes = notes;
-      f.createdAtISO = nowISO;
-      f.updatedAtISO = nowISO;
-      store.money.funds.push(f);
     }
 
-    store.money.funds = normaliseFunds(store.money.funds);
-      saveStore(store);
-    renderMoney();
-    renderNextSteps(); // ✅ keep dashboard in sync
-    closeFundModal();
-  });
+    const legacyRaw = localStorage.getItem(LS_LEGACY_LIFEADMIN);
+    const legacyArr = safeParseArray(legacyRaw) ?? [];
+
+    const store = defaultStore();
+    store.lifeAdmin.items = normaliseItems(legacyArr);
+    saveStore(store);
+    return store;
+  }
+
+  function loadItems() {
+    return loadStore().lifeAdmin.items;
+  }
+
+  function saveItems(items) {
+    const store = loadStore();
+    store.lifeAdmin.items = normaliseItems(items);
+    saveStore(store);
+  }
+
+  function getSettings() {
+    return loadStore().settings || defaultStore().settings;
+  }
+
+  function applyDefaultUIFromSettings() {
+    const s = getSettings();
+    uiState.showArchived = !!s.showArchivedDefault;
+    uiState.focusWeek = !!s.focusWeekDefault;
+    uiState.sort = s.defaultSort || "dueSoonest";
+
+    if (showArchivedCheckbox) showArchivedCheckbox.checked = uiState.showArchived;
+    if (focusWeekCheckbox) focusWeekCheckbox.checked = uiState.focusWeek;
+    if (sortSelect) sortSelect.value = uiState.sort;
+  }
 
   // =========================
+  // MONEY FORMATTERS (KEEP ONCE)
+  // =========================
+  function currencySymbol(code) {
+    if (code === "EUR") return "€";
+    if (code === "USD") return "$";
+    return "£";
+  }
+
+  function fmtMoney(n) {
+    const store = loadStore();
+    const code = String(store.money?.currency ?? "GBP");
+    const sym = currencySymbol(code);
+
+    const x = Number(n ?? 0);
+    const safe = Number.isFinite(x) ? x : 0;
+    return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function fmtGBP(n) {
+    return fmtMoney(n);
+  }
+
+  function monthKeyFromISO(dateISO) {
+    return String(dateISO).slice(0, 7);
+  }
+
+  function currentMonthKey() {
+    return monthKeyFromISO(toISODate(startOfToday()));
+  }
+
+    // =========================
   // CONTROLS
   // =========================
   searchInput?.addEventListener("input", () => {
@@ -989,10 +1103,8 @@ function applyDefaultUIFromSettings() {
   templateSelect?.addEventListener("change", () => {
     const key = templateSelect.value;
     if (!key) return;
-
     const item = templateToItem(key);
     if (item) openModal("add", item);
-
     templateSelect.value = "";
   });
 
@@ -1047,19 +1159,7 @@ function applyDefaultUIFromSettings() {
         closeModal();
         return;
       }
-
-      items[idx] = {
-        ...items[idx],
-        category,
-        name,
-        dueDateISO,
-        details,
-        reminderProfile,
-        priority,
-        recurrence,
-        customDays,
-        updatedAtISO: nowISO,
-      };
+      items[idx] = { ...items[idx], category, name, dueDateISO, details, reminderProfile, priority, recurrence, customDays, updatedAtISO: nowISO };
     } else {
       items.push({
         id: uid(),
@@ -1163,7 +1263,6 @@ function applyDefaultUIFromSettings() {
 
   function setOverallPill(status) {
     if (!overallDot || !statusText) return;
-
     overallDot.classList.remove("dot--green", "dot--amber", "dot--red");
 
     if (status === "red") {
@@ -1244,7 +1343,7 @@ function applyDefaultUIFromSettings() {
   }
 
   // =========================
-  // BADGES
+  // BADGES + LIST RENDER
   // =========================
   function setCategoryBadge(el, itemsInCategory) {
     if (!el) return;
@@ -1398,7 +1497,6 @@ function applyDefaultUIFromSettings() {
 
     for (const a of alerts) {
       const li = document.createElement("li");
-
       const strip =
         a.badge.cls.includes("danger") ? "list__item--red" :
         a.badge.cls.includes("warn") ? "list__item--amber" :
@@ -1419,9 +1517,8 @@ function applyDefaultUIFromSettings() {
     }
   }
 
-
-    // =========================
-  // Part D: Next Steps builder
+  // =========================
+  // NEXT STEPS (Part D)
   // =========================
   function buildNextSteps() {
     const today = [];
@@ -1433,7 +1530,6 @@ function applyDefaultUIFromSettings() {
       const d = daysUntil(it.dueDateISO);
       if (d === null) continue;
 
-      // Today: overdue or due within 1 day
       if (d < 0 || d <= 1) {
         today.push({
           source: "admin",
@@ -1447,7 +1543,6 @@ function applyDefaultUIFromSettings() {
         continue;
       }
 
-      // This week: due within 7 days, or high priority within 14
       if (d <= 7 || (it.priority === "high" && d <= 14)) {
         week.push({
           source: "admin",
@@ -1462,142 +1557,59 @@ function applyDefaultUIFromSettings() {
     }
 
     // ---- MONEY (Budgets + Payday) ----
-try {
-  const store = loadStore();
-  const budgets = store.money.budgets || [];
-  const mk = currentMonthKey();
-
-  // Overspend warnings + nearing limit
-  for (const b of budgets) {
-    const limit = Number(b.monthlyLimit || 0);
-    if (limit <= 0) continue;
-
-    const spent = (store.money.txns || [])
-      .filter(t => t.type === "spend" && t.budgetId === b.id && monthKeyFromISO(t.dateISO) === mk)
-      .reduce((acc, t) => acc + Number(t.amount || 0), 0);
-
-    if (spent > limit) {
-      today.push({
-        source: "admin",
-        id: uid(),
-        title: `Budget overspent: ${b.name}`,
-        meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
-        hint: "No panic — even one small adjustment helps (pause one optional spend).",
-        tag: "Money",
-        score: 220 + (b.priority === "high" ? 20 : 0),
-      });
-    } else if (spent > limit * 0.85) {
-      week.push({
-        source: "admin",
-        id: uid(),
-        title: `Budget nearly full: ${b.name}`,
-        meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
-        hint: "You’re close to the limit — worth keeping an eye on this week.",
-        tag: "Money",
-        score: 130 + (b.priority === "high" ? 10 : 0),
-      });
-    }
-  }
-
-  // Payday nudge (optional)
-  if (store.money.paydayISO) {
-    const d = daysUntil(store.money.paydayISO);
-    if (d !== null && d >= 0 && d <= 3) {
-      week.push({
-        source: "admin",
-        id: uid(),
-        title: "Payday coming up",
-        meta: fmtDueText(d),
-        hint: "Quick plan: bills → savings → fun money. Even a rough split helps.",
-        tag: "Money",
-        score: 125,
-      });
-    }
-  }
-} catch {
-  // ignore
-}
-
-
-// ---- FUTURE HOME ----
-// prioritise: essentials not planned + essentials with £0 cost (budget clarity)
-try {
-  const home = loadHome();
-  const rooms = home.rooms || {};
-
-  for (const rk of Object.keys(rooms)) {
-    const r = rooms[rk];
-    const title = r.title || rk;
-
-    const essentials = r.essentials || [];
-    for (const item of essentials) {
-      const nm = (item.name || "").trim();
-      if (!nm) continue;
-
-      const cost = Number(item.cost) || 0;
-      const planned = !!item.planned;
-
-      if (!planned) {
-        if (cost <= 0) {
-          week.push({
-            source: "home",
-            id: item.id || uid(),
-            title: `${title}: estimate cost`,
-            meta: nm,
-            hint: "Adding a rough cost makes your move budget feel real (no need to be perfect).",
-            tag: "Future Home",
-            score: 90,
-          });
-        } else {
-          week.push({
-            source: "home",
-            id: item.id || uid(),
-            title: `${title}: plan this essential`,
-            meta: `${nm} • £${cost.toFixed(0)}`,
-            hint: "One small decision now = less overwhelm later.",
-            tag: "Future Home",
-            score: 95,
-          });
-        }
-      }
-    }
-  }
-} catch {
-  // ignore
-}
-
-
-    // ---- LIFE SKILLS ----
-    // focus: “In progress” items
     try {
-      const skills = getSkills();
-      const cats = skills.categories || {};
+      const store = loadStore();
+      const budgets = store.money.budgets || [];
+      const mk = currentMonthKey();
 
-      for (const ck of Object.keys(cats)) {
-        const cat = cats[ck];
-        const catTitle = cat.category || ck; // YOUR structure uses `category`
-        const items = cat.items || [];
+      for (const b of budgets) {
+        const limit = Number(b.monthlyLimit || 0);
+        if (limit <= 0) continue;
 
-        for (const it of items) {
-          const nm = (it.name || "").trim();
-          if (!nm) continue;
+        const spent = (store.money.txns || [])
+          .filter(t => t.type === "spend" && t.budgetId === b.id && monthKeyFromISO(t.dateISO) === mk)
+          .reduce((acc, t) => acc + Number(t.amount || 0), 0);
 
-          if (it.level === "ip") {
-            today.push({
-              source: "skills",
-              id: it.id || uid(),
-              title: `${catTitle}: practise`,
-              meta: nm,
-              hint: "Even one attempt counts — you can mark it as confident later.",
-              tag: "Life Skills",
-              score: 110,
-            });
-          }
+        if (spent > limit) {
+          today.push({
+            source: "admin",
+            id: `overspend_${b.id}`,
+            title: `Budget overspent: ${b.name}`,
+            meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
+            hint: "No panic — even one small adjustment helps (pause one optional spend).",
+            tag: "Money",
+            score: 220 + (b.priority === "high" ? 20 : 0),
+          });
+        } else if (spent > limit * 0.85) {
+          week.push({
+            source: "admin",
+            id: `near_${b.id}`,
+            title: `Budget nearly full: ${b.name}`,
+            meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
+            hint: "You’re close to the limit — worth keeping an eye on this week.",
+            tag: "Money",
+            score: 130 + (b.priority === "high" ? 10 : 0),
+          });
         }
       }
-    } catch {
-      // ignore
-    }
+
+      if (store.money.paydayISO) {
+        const d = daysUntil(store.money.paydayISO);
+        if (d !== null && d >= 0 && d <= 3) {
+          week.push({
+            source: "admin",
+            id: "payday",
+            title: "Payday coming up",
+            meta: fmtDueText(d),
+            hint: "Quick plan: bills → savings → fun money. Even a rough split helps.",
+            tag: "Money",
+            score: 125,
+          });
+        }
+      }
+    } catch {}
+
+    // (Home + Skills next steps are in later sections; kept synced via renderNextSteps calls)
 
     const sortDesc = (a, b) => b.score - a.score;
     today.sort(sortDesc);
@@ -1614,14 +1626,12 @@ try {
 
     const { today, week } = buildNextSteps();
 
-    // badge
     if (badgeNextSteps) {
       const total = today.length + week.length;
       badgeNextSteps.className = total ? "badge badge--warn" : "badge badge--ok";
       badgeNextSteps.textContent = total ? `${total} suggested` : "Clear";
     }
 
-    // today list
     nextStepsToday.innerHTML = "";
     if (!today.length) emptyNextToday?.removeAttribute("hidden");
     else emptyNextToday?.setAttribute("hidden", "true");
@@ -1635,18 +1645,13 @@ try {
           <div class="list__meta">${escapeHtml(t.meta)} • ${escapeHtml(t.hint)}</div>
         </div>
         <div class="row-actions">
-          ${
-            t.source === "admin"
-              ? `<button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${t.id}">Open</button>`
-              : `<button class="mini-btn" type="button" data-ns-action="go" data-view="${t.source === "home" ? "home" : "skills"}">Go</button>`
-          }
+          <button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${escapeHtml(t.id)}">Open</button>
           <span class="nextstep-tag">${escapeHtml(t.tag)}</span>
         </div>
       `;
       nextStepsToday.appendChild(li);
     }
 
-    // week list
     nextStepsWeek.innerHTML = "";
     if (!week.length) emptyNextWeek?.removeAttribute("hidden");
     else emptyNextWeek?.setAttribute("hidden", "true");
@@ -1660,11 +1665,7 @@ try {
           <div class="list__meta">${escapeHtml(t.meta)} • ${escapeHtml(t.hint)}</div>
         </div>
         <div class="row-actions">
-          ${
-            t.source === "admin"
-              ? `<button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${t.id}">Open</button>`
-              : `<button class="mini-btn" type="button" data-ns-action="go" data-view="${t.source === "home" ? "home" : "skills"}">Go</button>`
-          }
+          <button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${escapeHtml(t.id)}">Open</button>
           <span class="nextstep-tag">${escapeHtml(t.tag)}</span>
         </div>
       `;
@@ -1673,27 +1674,8 @@ try {
   }
 
   // =========================
-  // MONEY RENDER (Funds)
+  // FUNDS (Money)
   // =========================
-function fmtMoney(n) {
-  const store = loadStore();
-  const code = String(store.money?.currency ?? "GBP");
-  const sym = currencySymbol(code);
-
-  const x = Number(n ?? 0);
-  const safe = Number.isFinite(x) ? x : 0;
-  return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-function monthKeyFromISO(dateISO) {
-  // YYYY-MM
-  return String(dateISO).slice(0, 7);
-}
-
-function currentMonthKey() {
-  return monthKeyFromISO(toISODate(startOfToday()));
-}
-
   function fundProgress(f) {
     const target = Number(f.target ?? 0);
     const current = Number(f.current ?? 0);
@@ -1703,41 +1685,17 @@ function currentMonthKey() {
   }
 
   function monthsToTarget(f) {
-  const target = Number(f.target ?? 0);
-  const current = Number(f.current ?? 0);
-  const monthly = Number(f.monthlyGoal ?? 0);
+    const target = Number(f.target ?? 0);
+    const current = Number(f.current ?? 0);
+    const monthly = Number(f.monthlyGoal ?? 0);
 
-  if (!Number.isFinite(target) || target <= 0) return null;
-  if (!Number.isFinite(monthly) || monthly <= 0) return null;
-  if (current >= target) return 0;
+    if (!Number.isFinite(target) || target <= 0) return null;
+    if (!Number.isFinite(monthly) || monthly <= 0) return null;
+    if (current >= target) return 0;
 
-  const remaining = Math.max(0, target - current);
-  return Math.ceil(remaining / monthly);
-}
-
-function currencySymbol(code) {
-  if (code === "EUR") return "€";
-  if (code === "USD") return "$";
-  return "£";
-}
-
-// Money formatter (currency-aware)
-function fmtMoney(n) {
-  const store = loadStore();
-  const code = String(store.money?.currency ?? "GBP");
-
-  const sym = code === "EUR" ? "€" : code === "USD" ? "$" : "£";
-  const x = Number(n ?? 0);
-  const safe = Number.isFinite(x) ? x : 0;
-
-  return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-// Backwards compatibility: if older code calls fmtGBP, don't crash
-function fmtGBP(n) {
-  return fmtMoney(n);
-}
-
+    const remaining = Math.max(0, target - current);
+    return Math.ceil(remaining / monthly);
+  }
 
   function renderMoney() {
     const store = loadStore();
@@ -1766,6 +1724,7 @@ function fmtGBP(n) {
     }
 
     if (!listMoneyFunds) return;
+
     listMoneyFunds.innerHTML = "";
 
     if (!funds.length) {
@@ -1781,25 +1740,22 @@ function fmtGBP(n) {
 
     for (const f of sorted) {
       const prog = fundProgress(f);
+      const monthly = Number(f.monthlyGoal ?? 0);
+      const monthlyText = monthly > 0 ? `Monthly goal: ${fmtMoney(monthly)}` : "Monthly goal: —";
+
+      const eta = monthsToTarget(f);
+      const etaText = eta === null ? "" : eta === 0 ? "Target reached 🎉" : `ETA: ~${eta} month${eta === 1 ? "" : "s"}`;
 
       const li = document.createElement("li");
       li.className = "list__item list__item--neutral";
-
-      const monthly = Number(f.monthlyGoal ?? 0);
-      const monthlyText = monthly > 0 ? `Monthly goal: ${fmtMoney(monthly)}` : "Monthly goal: —";
-const eta = monthsToTarget(f);
-const etaText = (eta === null) ? "" : (eta === 0 ? "Target reached 🎉" : `ETA: ~${eta} month${eta === 1 ? "" : "s"}`);
-
-      const prioText = f.priority === "high" ? "High priority" : "Normal";
-
       li.innerHTML = `
         <div class="fund-row" style="width:100%;">
           <div class="fund-top">
             <div class="fund-meta">
               <div class="fund-name">${escapeHtml(f.name)}</div>
               <div class="fund-sub">
-  ${escapeHtml(prog.label)} • ${escapeHtml(monthlyText)} • ${escapeHtml(prioText)}${etaText ? " • " + escapeHtml(etaText) : ""}
-</div>
+                ${escapeHtml(prog.label)} • ${escapeHtml(monthlyText)}${etaText ? " • " + escapeHtml(etaText) : ""}
+              </div>
             </div>
             <div class="fund-actions">
               <button class="mini-btn" type="button" data-fund-action="deposit" data-id="${f.id}">Deposit</button>
@@ -1816,12 +1772,68 @@ const etaText = (eta === null) ? "" : (eta === 0 ? "Target reached 🎉" : `ETA:
           ${f.notes ? `<div class="fund-sub">${escapeHtml(f.notes)}</div>` : ``}
         </div>
       `;
-
       listMoneyFunds.appendChild(li);
     }
   }
 
-  document.querySelector('[data-cat-card="money"]')?.addEventListener("click", (e) => {
+  // Fund save
+  fundForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = fundForm.name.value.trim();
+    if (!name) {
+      alert("Please enter a fund name.");
+      fundForm.name.focus();
+      return;
+    }
+
+    const priority = fundForm.priority.value;
+    const target = Number(fundForm.target.value || 0);
+    const current = Number(fundForm.current.value || 0);
+    const monthlyGoal = Number(fundForm.monthlyGoal.value || 0);
+    const notes = fundForm.notes.value.trim();
+
+    const store = loadStore();
+    const nowISO = new Date().toISOString();
+
+    if (editingFundId) {
+      const idx = store.money.funds.findIndex((f) => f.id === editingFundId);
+      if (idx === -1) {
+        alert("That fund couldn't be found.");
+        closeFundModal();
+        return;
+      }
+      store.money.funds[idx] = {
+        ...store.money.funds[idx],
+        name,
+        priority,
+        target: Number.isFinite(target) && target >= 0 ? target : 0,
+        current: Number.isFinite(current) && current >= 0 ? current : 0,
+        monthlyGoal: Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0,
+        notes,
+        updatedAtISO: nowISO,
+      };
+    } else {
+      const f = makeFund(name);
+      f.priority = priority;
+      f.target = Number.isFinite(target) && target >= 0 ? target : 0;
+      f.current = Number.isFinite(current) && current >= 0 ? current : 0;
+      f.monthlyGoal = Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0;
+      f.notes = notes;
+      f.createdAtISO = nowISO;
+      f.updatedAtISO = nowISO;
+      store.money.funds.push(f);
+    }
+
+    store.money.funds = normaliseFunds(store.money.funds);
+    saveStore(store);
+    renderMoney();
+    renderNextSteps();
+    closeFundModal();
+  });
+
+  // Fund actions (ONE listener on admin view)
+  document.getElementById("view-admin")?.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-fund-action]");
     if (!btn) return;
 
@@ -1835,10 +1847,7 @@ const etaText = (eta === null) ? "" : (eta === 0 ? "Target reached 🎉" : `ETA:
 
     const fund = store.money.funds[idx];
 
-    if (action === "edit") {
-      openFundModal("edit", fund);
-      return;
-    }
+    if (action === "edit") return openFundModal("edit", fund);
 
     if (action === "delete") {
       if (!confirm("Delete this fund?")) return;
@@ -1851,8 +1860,8 @@ const etaText = (eta === null) ? "" : (eta === 0 ? "Target reached 🎉" : `ETA:
     }
 
     if (action === "deposit" || action === "withdraw") {
-      const label = action === "deposit" ? "Deposit amount (£)" : "Withdraw amount (£)";
-      const raw = prompt(label, "");
+      const label = action === "deposit" ? "Deposit amount" : "Withdraw amount";
+      const raw = prompt(`${label} (${currencySymbol(store.money.currency)}):`, "");
       if (raw === null) return;
 
       const amt = Number(raw);
@@ -1866,1164 +1875,353 @@ const etaText = (eta === null) ? "" : (eta === 0 ? "Target reached 🎉" : `ETA:
           ? Number(fund.current ?? 0) + amt
           : Math.max(0, Number(fund.current ?? 0) - amt);
 
-      store.money.funds[idx] = {
-        ...fund,
-        current: next,
-        updatedAtISO: new Date().toISOString(),
-      };
-
+      store.money.funds[idx] = { ...fund, current: next, updatedAtISO: new Date().toISOString() };
       store.money.funds = normaliseFunds(store.money.funds);
       saveStore(store);
+
+      // Optional: log txn
+      store.money.txns.push(makeTxn({
+        type: action === "deposit" ? "deposit" : "withdraw",
+        label: `${action === "deposit" ? "Deposit" : "Withdraw"}: ${fund.name}`,
+        amount: amt,
+        dateISO: toISODate(startOfToday()),
+        fundId: fund.id,
+      }));
+      store.money.txns = normaliseTxns(store.money.txns);
+      saveStore(store);
+
       renderMoney();
+      renderMoneyTxns();
       renderNextSteps();
     }
   });
 
   // =========================
-  // Home + Skills save/load
+  // BUDGETS + TXNS (Money)
   // =========================
-  function normaliseHomeItem(it) {
-  const name = String(it?.name ?? "").trim();
-  if (!name) return null;
+  let editingBudgetId = null;
 
-  const nowISO = new Date().toISOString();
-
-  // ✅ migrate old shape: { done, cost } -> { planned, cost }
-  const planned =
-    typeof it?.planned === "boolean" ? it.planned :
-    typeof it?.done === "boolean" ? it.done :
-    false;
-
-  const priority = it?.priority === "high" ? "high" : "normal";
-
-  const costNum = Number(it?.cost ?? 0);
-  const cost = Number.isFinite(costNum) && costNum >= 0 ? costNum : 0;
-
-  return {
-    id: String(it?.id ?? uid()),
-    name,
-    planned: Boolean(planned),
-    priority,
-    cost,
-    notes: String(it?.notes ?? ""),
-    createdAtISO: String(it?.createdAtISO ?? nowISO),
-    updatedAtISO: String(it?.updatedAtISO ?? nowISO),
-  };
-}
-
-function normaliseRoom(room, fallbackTitle) {
-  const title = String(room?.title ?? fallbackTitle ?? "Room");
-
-  const essentialsRaw = Array.isArray(room?.essentials) ? room.essentials : [];
-  const extrasRaw = Array.isArray(room?.extras) ? room.extras : [];
-
-  const essentials = essentialsRaw.map(normaliseHomeItem).filter(Boolean);
-  const extras = extrasRaw.map(normaliseHomeItem).filter(Boolean);
-
-  return {
-    title,
-    notes: String(room?.notes ?? ""),
-    essentials,
-    extras,
-  };
-}
-
-// ✅ HOME now lives in the main store (versioned)
-function loadHome() {
-  const store = loadStore();
-
-  // ensure section exists + version
-  if (!store.home || typeof store.home !== "object") store.home = {};
-  if (!store.home.version) store.home.version = 2;
-
-  // ensure rooms exist
-  const templates = defaultRooms();
-  const existing = store.home.rooms && typeof store.home.rooms === "object" ? store.home.rooms : {};
-
-  const outRooms = {};
-  for (const key of Object.keys(templates)) {
-    outRooms[key] = normaliseRoom(existing[key], templates[key].title);
-    // if room missing completely, seed from template
-    if (!existing[key]) outRooms[key] = normaliseRoom(templates[key], templates[key].title);
+  function budgetSpendThisMonth(store, budgetId) {
+    const mk = currentMonthKey();
+    return (store.money.txns || [])
+      .filter(t => t.type === "spend" && t.budgetId === budgetId && monthKeyFromISO(t.dateISO) === mk)
+      .reduce((acc, t) => acc + Number(t.amount || 0), 0);
   }
 
-  store.home.rooms = outRooms;
-  store.home.version = 2;
-  saveStore(store);
+  function openBudgetModal(mode, budget = null) {
+    editingBudgetId = mode === "edit" ? (budget?.id ?? null) : null;
 
-  return store.home;
-}
+    // fallback prompts if modal not present
+    if (!budgetModal || !budgetForm) {
+      const name = prompt("Budget name (e.g., Food / Petrol):", budget?.name ?? "");
+      if (name === null) return;
 
-function saveHome(home) {
-  const store = loadStore();
-  store.home = home;
-  store.home.version = 2;
-  saveStore(store);
-}
+      const limitRaw = prompt("Monthly limit:", String(Number(budget?.monthlyLimit ?? 0)));
+      if (limitRaw === null) return;
 
+      const notes = prompt("Notes (optional):", budget?.notes ?? "");
+      if (notes === null) return;
 
-  // =========================
-// FUTURE HOME (Part E)
-// =========================
-let activeRoomKey = null;
+      const store = loadStore();
+      const nowISO = new Date().toISOString();
+      const monthlyLimit = Number(limitRaw);
 
-// Optional top summary bar hooks (safe if missing)
-const homeSummaryEss = document.getElementById("homeSummaryEssentials");
-const homeSummaryEx = document.getElementById("homeSummaryExtras");
-const homeSummaryCosts = document.getElementById("homeSummaryCosts");
+      if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+        alert("Monthly limit must be 0 or a positive number.");
+        return;
+      }
 
-// Room-level filters (safe if missing)
-const roomSearch = document.getElementById("roomSearch");
-const chkPlannedOnly = document.getElementById("chkPlannedOnly");
+      if (editingBudgetId) {
+        const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
+        if (idx === -1) return;
+        store.money.budgets[idx] = {
+          ...store.money.budgets[idx],
+          name: name.trim() || store.money.budgets[idx].name,
+          monthlyLimit,
+          notes: notes.trim(),
+          updatedAtISO: nowISO,
+        };
+      } else {
+        const b = makeBudget(name.trim() || "Budget");
+        b.monthlyLimit = monthlyLimit;
+        b.notes = notes.trim();
+        b.updatedAtISO = nowISO;
+        store.money.budgets.push(b);
+      }
 
-// Add/Edit modal hooks (safe if missing)
-const homeItemModal = document.getElementById("homeItemModal");
-const homeItemModalTitle = document.getElementById("homeItemModalTitle");
-const homeItemBackdrop = homeItemModal?.querySelector(".modal__backdrop");
-const btnCloseHomeItemModal = document.getElementById("btnCloseHomeItemModal");
-const btnCancelHomeItemModal = document.getElementById("btnCancelHomeItemModal");
-const homeItemForm = document.getElementById("homeItemForm");
-
-let editingHomeItem = { roomKey: null, kind: null, id: null };
-
-function homeRoomStats(room) {
-  const essTotal = room.essentials.length;
-  const essPlanned = room.essentials.filter((x) => x.planned).length;
-  const exTotal = room.extras.length;
-  const exPlanned = room.extras.filter((x) => x.planned).length;
-
-  const essCost = room.essentials.reduce((a, it) => a + (Number(it.cost) || 0), 0);
-  const exCost = room.extras.reduce((a, it) => a + (Number(it.cost) || 0), 0);
-
-  return { essTotal, essPlanned, exTotal, exPlanned, essCost, exCost, totalCost: essCost + exCost };
-}
-
-function homeTotals(home) {
-  const rooms = home.rooms || {};
-  let essTotal = 0, essPlanned = 0, exTotal = 0, exPlanned = 0;
-  let essCost = 0, exCost = 0;
-
-  for (const rk of Object.keys(rooms)) {
-    const st = homeRoomStats(rooms[rk]);
-    essTotal += st.essTotal;
-    essPlanned += st.essPlanned;
-    exTotal += st.exTotal;
-    exPlanned += st.exPlanned;
-    essCost += st.essCost;
-    exCost += st.exCost;
-  }
-
-  return { essTotal, essPlanned, exTotal, exPlanned, essCost, exCost, overallCost: essCost + exCost };
-}
-
-function renderHomeSummary() {
-  const home = loadHome();
-  const t = homeTotals(home);
-
-  if (homeSummaryEss) homeSummaryEss.textContent = `${t.essPlanned}/${t.essTotal}`;
-  if (homeSummaryEx) homeSummaryEx.textContent = `${t.exPlanned}/${t.exTotal}`;
-
-  if (homeSummaryCosts) {
-    homeSummaryCosts.innerHTML = `
-      <span class="money-chip">Essentials: <strong>${fmtGBP(t.essCost)}</strong></span>
-      <span class="money-chip">Extras: <strong>${fmtGBP(t.exCost)}</strong></span>
-      <span class="money-chip">Overall: <strong>${fmtGBP(t.overallCost)}</strong></span>
-    `;
-  }
-}
-
-function renderRoomsGrid() {
-  if (!roomsGrid) return;
-
-  const home = loadHome();
-  const rooms = home.rooms || {};
-
-  roomsGrid.innerHTML = "";
-
-  for (const key of Object.keys(rooms)) {
-    const room = rooms[key];
-    const st = homeRoomStats(room);
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "room-card";
-    btn.dataset.roomKey = key;
-
-    // Optional: room cost total
-    const roomCost = st.totalCost > 0 ? ` • ${fmtGBP(st.totalCost)}` : "";
-
-    btn.innerHTML = `
-      <div class="room-card__title">${escapeHtml(room.title)}</div>
-      <div class="room-card__meta">
-        Essentials: ${st.essPlanned}/${st.essTotal} • Extras: ${st.exPlanned}/${st.exTotal}${roomCost}
-      </div>
-    `;
-
-    btn.addEventListener("click", () => openRoom(key));
-    roomsGrid.appendChild(btn);
-  }
-
-  renderHomeSummary(); // ✅ top bar stays in sync
-}
-
-function openRoom(roomKey) {
-  activeRoomKey = roomKey;
-
-  const home = loadHome();
-  const room = home.rooms[roomKey];
-  if (!room) return;
-
-  if (roomTitle) roomTitle.textContent = room.title;
-  if (roomPanel) roomPanel.hidden = false;
-  if (roomNotes) roomNotes.value = room.notes || "";
-
-  // reset filters
-  if (roomSearch) roomSearch.value = "";
-  if (chkPlannedOnly) chkPlannedOnly.checked = false;
-
-  renderRoomLists();
-}
-
-function closeRoom() {
-  activeRoomKey = null;
-  if (roomPanel) roomPanel.hidden = true;
-}
-
-btnCloseRoom?.addEventListener("click", closeRoom);
-
-roomSearch?.addEventListener("input", renderRoomLists);
-chkPlannedOnly?.addEventListener("change", renderRoomLists);
-
-function applyRoomFilters(items) {
-  let out = [...items];
-
-  const q = (roomSearch?.value ?? "").trim().toLowerCase();
-  if (q) {
-    out = out.filter((it) =>
-      (it.name || "").toLowerCase().includes(q) ||
-      (it.notes || "").toLowerCase().includes(q)
-    );
-  }
-
-  if (chkPlannedOnly?.checked) out = out.filter((it) => !!it.planned);
-
-  return out;
-}
-
-function setHomeBadges(room) {
-  const st = homeRoomStats(room);
-
-  if (badgeEssentials) {
-    badgeEssentials.className = st.essPlanned < st.essTotal ? "badge badge--warn" : "badge badge--ok";
-    badgeEssentials.textContent = `${st.essPlanned}/${st.essTotal}`;
-  }
-  if (badgeExtras) {
-    badgeExtras.className = st.exPlanned ? "badge badge--ok" : "badge badge--neutral";
-    badgeExtras.textContent = `${st.exPlanned}/${st.exTotal}`;
-  }
-
-  if (roomBadge) {
-    roomBadge.className = st.essPlanned === st.essTotal && st.essTotal > 0 ? "badge badge--ok" : "badge badge--warn";
-    roomBadge.textContent = st.essPlanned === st.essTotal && st.essTotal > 0 ? "Essentials planned" : "Essentials first";
-  }
-
-  if (roomBudgetSummary) {
-    roomBudgetSummary.innerHTML = `
-      <span class="money-chip">Essentials: <strong>${fmtGBP(st.essCost)}</strong></span>
-      <span class="money-chip">Extras: <strong>${fmtGBP(st.exCost)}</strong></span>
-      <span class="money-chip">Room total: <strong>${fmtGBP(st.totalCost)}</strong></span>
-    `;
-  }
-
-  if (roomBudgetBadge) {
-    roomBudgetBadge.className = st.totalCost > 0 ? "badge badge--ok" : "badge badge--neutral";
-    roomBudgetBadge.textContent = st.totalCost > 0 ? "Budgeted" : "No costs yet";
-  }
-}
-
-function renderRoomLists() {
-  const home = loadHome();
-  const room = home.rooms[activeRoomKey];
-  if (!room) return;
-
-  setHomeBadges(room);
-
-  const renderItems = (listEl, emptyEl, rawItems, kind) => {
-    if (!listEl) return;
-    listEl.innerHTML = "";
-
-    const items = applyRoomFilters(rawItems);
-
-    if (!items.length) {
-      emptyEl?.removeAttribute("hidden");
+      store.money.budgets = normaliseBudgets(store.money.budgets);
+      saveStore(store);
+      renderBudgets();
+      renderMoneyTxns();
+      renderNextSteps();
       return;
     }
-    emptyEl?.setAttribute("hidden", "true");
 
-    for (const it of items) {
+    if (budgetModalTitle) budgetModalTitle.textContent = mode === "edit" ? "Edit Budget" : "Add Budget";
+    budgetForm.reset();
+
+    budgetForm.id.value = budget?.id ?? "";
+    budgetForm.name.value = budget?.name ?? "";
+    budgetForm.priority.value = budget?.priority ?? "normal";
+    budgetForm.monthlyLimit.value = budget?.monthlyLimit != null ? String(budget.monthlyLimit) : "";
+    budgetForm.notes.value = budget?.notes ?? "";
+
+    budgetModal.setAttribute("aria-hidden", "false");
+    budgetModal.classList.add("is-open");
+    budgetForm.name?.focus?.();
+  }
+
+  function closeBudgetModal() {
+    budgetModal?.setAttribute("aria-hidden", "true");
+    budgetModal?.classList.remove("is-open");
+    editingBudgetId = null;
+  }
+
+  btnAddBudget?.addEventListener("click", () => openBudgetModal("add"));
+  btnCloseBudgetModal?.addEventListener("click", closeBudgetModal);
+  btnCancelBudgetModal?.addEventListener("click", closeBudgetModal);
+  budgetBackdrop?.addEventListener("click", closeBudgetModal);
+
+  budgetForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = budgetForm.name.value.trim();
+    if (!name) {
+      alert("Please enter a budget name.");
+      budgetForm.name.focus();
+      return;
+    }
+
+    const priority = budgetForm.priority.value === "high" ? "high" : "normal";
+    const monthlyLimit = Number(budgetForm.monthlyLimit.value || 0);
+    if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+      alert("Monthly limit must be 0 or a positive number.");
+      budgetForm.monthlyLimit.focus();
+      return;
+    }
+
+    const notes = budgetForm.notes.value.trim();
+    const store = loadStore();
+    const nowISO = new Date().toISOString();
+
+    if (editingBudgetId) {
+      const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
+      if (idx === -1) {
+        alert("Budget not found.");
+        closeBudgetModal();
+        return;
+      }
+      store.money.budgets[idx] = { ...store.money.budgets[idx], name, priority, monthlyLimit, notes, updatedAtISO: nowISO };
+    } else {
+      const b = makeBudget(name);
+      b.priority = priority;
+      b.monthlyLimit = monthlyLimit;
+      b.notes = notes;
+      b.createdAtISO = nowISO;
+      b.updatedAtISO = nowISO;
+      store.money.budgets.push(b);
+    }
+
+    store.money.budgets = normaliseBudgets(store.money.budgets);
+    saveStore(store);
+
+    renderBudgets();
+    renderMoneyTxns();
+    renderNextSteps();
+    closeBudgetModal();
+  });
+
+  function addSpendPrompt(budgetId) {
+    const store = loadStore();
+    const budget = store.money.budgets.find(b => b.id === budgetId);
+    if (!budget) return;
+
+    const label = prompt(`Spend label for "${budget.name}" (e.g., Tesco / Fuel):`, "");
+    if (label === null) return;
+
+    const amtRaw = prompt("Amount:", "");
+    if (amtRaw === null) return;
+    const amt = Number(amtRaw);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      alert("Please enter a positive number.");
+      return;
+    }
+
+    const dateISO = (prompt("Date (YYYY-MM-DD) — leave blank for today:", "") || toISODate(startOfToday())).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) {
+      alert("Please use YYYY-MM-DD format.");
+      return;
+    }
+
+    store.money.txns.push(makeTxn({
+      type: "spend",
+      label: label.trim() || "Spend",
+      amount: amt,
+      dateISO,
+      budgetId,
+    }));
+
+    store.money.txns = normaliseTxns(store.money.txns);
+    saveStore(store);
+
+    renderBudgets();
+    renderMoneyTxns();
+    renderNextSteps();
+  }
+
+  function renderBudgets() {
+    const store = loadStore();
+    const budgets = store.money.budgets || [];
+
+    if (badgeBudgets) {
+      if (!budgets.length) {
+        badgeBudgets.className = "badge badge--neutral";
+        badgeBudgets.textContent = "Empty";
+      } else {
+        const overspent = budgets.filter(b => {
+          const spent = budgetSpendThisMonth(store, b.id);
+          return Number(b.monthlyLimit || 0) > 0 && spent > Number(b.monthlyLimit || 0);
+        }).length;
+
+        badgeBudgets.className = overspent ? "badge badge--danger" : "badge badge--ok";
+        badgeBudgets.textContent = `${budgets.length} budget${budgets.length === 1 ? "" : "s"}`;
+      }
+    }
+
+    if (!listBudgets) return;
+
+    listBudgets.innerHTML = "";
+
+    if (!budgets.length) {
+      emptyBudgets?.removeAttribute("hidden");
+      return;
+    }
+    emptyBudgets?.setAttribute("hidden", "true");
+
+    const sorted = [...budgets].sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+
+    for (const b of sorted) {
+      const spent = budgetSpendThisMonth(store, b.id);
+      const limit = Number(b.monthlyLimit || 0);
+      const pct = limit > 0 ? Math.max(0, Math.min(100, (spent / limit) * 100)) : 0;
+
+      const status =
+        limit <= 0 ? "badge--neutral" :
+        spent > limit ? "badge--danger" :
+        spent > (0.8 * limit) ? "badge--warn" :
+        "badge--ok";
+
       const li = document.createElement("li");
       li.className = "list__item list__item--neutral";
-
-      const cost = Number(it.cost) || 0;
-      const prioOn = it.priority === "high";
-
       li.innerHTML = `
-        <div class="room-item" style="width:100%;">
-          <div class="room-item__left">
-            <button class="tick ${it.planned ? "is-on" : ""}" type="button"
-              data-room-action="togglePlanned" data-kind="${kind}" data-id="${it.id}"></button>
-
-            <div style="min-width:0;">
-              <div class="room-item__title">${escapeHtml(it.name)}</div>
-              <div class="room-item__meta">
-                ${it.planned ? "Planned" : "Not planned"} •
-                <button class="mini-btn ${prioOn ? "mini-btn--warn" : ""}" type="button"
-                  data-room-action="togglePriority" data-kind="${kind}" data-id="${it.id}">
-                  ${prioOn ? "⭐ High" : "☆ Normal"}
-                </button>
-                ${it.notes?.trim() ? ` • ${escapeHtml(it.notes.trim())}` : ""}
+        <div class="fund-row" style="width:100%;">
+          <div class="fund-top">
+            <div class="fund-meta">
+              <div class="fund-name">${escapeHtml(b.name)}</div>
+              <div class="fund-sub">
+                This month: ${escapeHtml(fmtMoney(spent))} • Limit: ${escapeHtml(limit > 0 ? fmtMoney(limit) : "—")}
+                ${b.notes?.trim() ? ` • ${escapeHtml(b.notes.trim())}` : ""}
               </div>
+            </div>
+            <div class="fund-actions">
+              <button class="mini-btn" type="button" data-budget-action="spend" data-id="${b.id}">Add spend</button>
+              <button class="mini-btn" type="button" data-budget-action="edit" data-id="${b.id}">Edit</button>
+              <button class="mini-btn mini-btn--danger" type="button" data-budget-action="delete" data-id="${b.id}">Delete</button>
+              <span class="badge ${status}">${limit > 0 ? `${Math.round(pct)}%` : "No limit"}</span>
             </div>
           </div>
 
-          <div class="row-actions">
-            <span class="cost">${fmtGBP(cost)}</span>
-            <button class="mini-btn" type="button" data-room-action="edit" data-kind="${kind}" data-id="${it.id}">Edit</button>
-            <button class="mini-btn mini-btn--danger" type="button" data-room-action="delete" data-kind="${kind}" data-id="${it.id}">Delete</button>
-          </div>
+          ${limit > 0 ? `
+            <div class="progress">
+              <div class="progress__bar" style="width:${pct}%"></div>
+            </div>
+          ` : ``}
         </div>
       `;
-
-      listEl.appendChild(li);
-    }
-  };
-
-  renderItems(listEssentials, emptyEssentials, room.essentials, "essentials");
-  renderItems(listExtras, emptyExtras, room.extras, "extras");
-
-  renderHomeSummary();
-}
-
-function openHomeItemModal(mode, payload) {
-  // payload: { roomKey, kind, item? }
-  const { roomKey, kind, item } = payload;
-
-  editingHomeItem = { roomKey, kind, id: mode === "edit" ? item?.id : null };
-
-  // If you haven’t added the modal HTML yet, fallback to prompts
-  if (!homeItemModal || !homeItemForm) {
-    const nm = prompt("Item name:", item?.name ?? "");
-    if (nm === null) return;
-
-    const planned = confirm("Planned? OK = planned, Cancel = not planned");
-    const high = confirm("High priority? OK = High (⭐), Cancel = Normal");
-    const costRaw = prompt("Estimated cost (£):", String(Number(item?.cost ?? 0)));
-    if (costRaw === null) return;
-    const notes = prompt("Notes:", item?.notes ?? "");
-    if (notes === null) return;
-
-    upsertRoomItem(roomKey, kind, {
-      id: item?.id,
-      name: nm.trim() || item?.name || "Item",
-      planned,
-      priority: high ? "high" : "normal",
-      cost: Number(costRaw) || 0,
-      notes: notes.trim(),
-    });
-    return;
-  }
-
-  if (homeItemModalTitle) homeItemModalTitle.textContent = mode === "edit" ? "Edit item" : "Add item";
-  homeItemForm.reset();
-
-  // expected form fields: name, planned, priority, cost, notes, bucket(kind) optional
-  if (homeItemForm.name) homeItemForm.name.value = item?.name ?? "";
-  if (homeItemForm.planned) homeItemForm.planned.checked = !!item?.planned;
-  if (homeItemForm.priority) homeItemForm.priority.value = item?.priority ?? "normal";
-  if (homeItemForm.cost) homeItemForm.cost.value = item?.cost != null ? String(Number(item.cost) || 0) : "";
-  if (homeItemForm.notes) homeItemForm.notes.value = item?.notes ?? "";
-  if (homeItemForm.kind) homeItemForm.kind.value = kind; // optional hidden field
-
-  homeItemModal.setAttribute("aria-hidden", "false");
-  homeItemModal.classList.add("is-open");
-  homeItemForm.name?.focus?.();
-}
-
-function closeHomeItemModal() {
-  homeItemModal?.setAttribute("aria-hidden", "true");
-  homeItemModal?.classList.remove("is-open");
-  editingHomeItem = { roomKey: null, kind: null, id: null };
-}
-
-btnCloseHomeItemModal?.addEventListener("click", closeHomeItemModal);
-btnCancelHomeItemModal?.addEventListener("click", closeHomeItemModal);
-homeItemBackdrop?.addEventListener("click", closeHomeItemModal);
-
-homeItemForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const roomKey = editingHomeItem.roomKey;
-  const kind = editingHomeItem.kind;
-  if (!roomKey || !kind) return;
-
-  const name = String(homeItemForm.name?.value ?? "").trim();
-  if (!name) {
-    alert("Please enter a name.");
-    homeItemForm.name?.focus?.();
-    return;
-  }
-
-  const planned = !!homeItemForm.planned?.checked;
-  const priority = homeItemForm.priority?.value === "high" ? "high" : "normal";
-
-  const costNum = Number(homeItemForm.cost?.value ?? 0);
-  const cost = Number.isFinite(costNum) && costNum >= 0 ? costNum : 0;
-
-  const notes = String(homeItemForm.notes?.value ?? "").trim();
-
-  upsertRoomItem(roomKey, kind, {
-    id: editingHomeItem.id,
-    name,
-    planned,
-    priority,
-    cost,
-    notes,
-  });
-
-  closeHomeItemModal();
-});
-
-function upsertRoomItem(roomKey, kind, patch) {
-  const home = loadHome();
-  const room = home.rooms[roomKey];
-  if (!room) return;
-
-  const arr = kind === "extras" ? room.extras : room.essentials;
-  const nowISO = new Date().toISOString();
-
-  if (patch.id) {
-    const idx = arr.findIndex((x) => x.id === patch.id);
-    if (idx >= 0) {
-      arr[idx] = {
-        ...arr[idx],
-        ...patch,
-        updatedAtISO: nowISO,
-      };
-    }
-  } else {
-    arr.push({
-      id: uid(),
-      name: patch.name,
-      planned: !!patch.planned,
-      priority: patch.priority === "high" ? "high" : "normal",
-      cost: Number(patch.cost) || 0,
-      notes: patch.notes || "",
-      createdAtISO: nowISO,
-      updatedAtISO: nowISO,
-    });
-  }
-
-  saveHome(home);
-  renderRoomLists();
-  renderRoomsGrid();
-  renderNextSteps();
-}
-
-function addRoomItem(kind) {
-  if (!activeRoomKey) return;
-  openHomeItemModal("add", { roomKey: activeRoomKey, kind });
-}
-
-// ✅ your existing “Add essential/extra” forms can now open the modal
-formAddEssential?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  addRoomItem("essentials");
-  formAddEssential.reset();
-});
-
-formAddExtra?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  addRoomItem("extras");
-  formAddExtra.reset();
-});
-
-roomPanel?.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-room-action]");
-  if (!btn) return;
-
-  const action = btn.getAttribute("data-room-action");
-  const kind = btn.getAttribute("data-kind");
-  const id = btn.getAttribute("data-id");
-  if (!action || !kind || !id) return;
-
-  const home = loadHome();
-  const room = home.rooms[activeRoomKey];
-  if (!room) return;
-
-  const arr = kind === "extras" ? room.extras : room.essentials;
-  const idx = arr.findIndex((x) => x.id === id);
-  if (idx === -1) return;
-
-  const nowISO = new Date().toISOString();
-
-  if (action === "togglePlanned") {
-    arr[idx].planned = !arr[idx].planned;
-    arr[idx].updatedAtISO = nowISO;
-    saveHome(home);
-    renderRoomLists();
-    renderRoomsGrid();
-    renderNextSteps();
-    return;
-  }
-
-  if (action === "togglePriority") {
-    arr[idx].priority = arr[idx].priority === "high" ? "normal" : "high";
-    arr[idx].updatedAtISO = nowISO;
-    saveHome(home);
-    renderRoomLists();
-    renderRoomsGrid();
-    renderNextSteps();
-    return;
-  }
-
-  if (action === "delete") {
-    if (!confirm("Delete this item?")) return;
-    arr.splice(idx, 1);
-    saveHome(home);
-    renderRoomLists();
-    renderRoomsGrid();
-    renderNextSteps();
-    return;
-  }
-
-  if (action === "edit") {
-    openHomeItemModal("edit", { roomKey: activeRoomKey, kind, item: arr[idx] });
-  }
-});
-
-btnSaveRoomNotes?.addEventListener("click", () => {
-  if (!activeRoomKey) return;
-  const home = loadHome();
-  const room = home.rooms[activeRoomKey];
-  if (!room) return;
-
-  room.notes = (roomNotes?.value ?? "").trim();
-  saveHome(home);
-
-  alert("Room notes saved.");
-});
-
-btnResetRoom?.addEventListener("click", () => {
-  if (!activeRoomKey) return;
-  if (!confirm("Reset this room back to its template? This will overwrite items + notes.")) return;
-
-  const templates = defaultRooms();
-  const home = loadHome();
-
-  home.rooms[activeRoomKey] = normaliseRoom(templates[activeRoomKey], templates[activeRoomKey]?.title);
-  saveHome(home);
-
-  openRoom(activeRoomKey);
-  renderRoomsGrid();
-  renderNextSteps();
-});
-
-  // =========================
-// LIFE SKILLS (Part F)
-// =========================
-
-// ---- DOM hooks (safe if missing) ----
-const skillsCatsGrid = document.getElementById("skillsCatsGrid");              // category cards container
-const skillsCategoryPanel = document.getElementById("skillsCategoryPanel");    // detail view wrapper
-const skillsCategoryTitle = document.getElementById("skillsCategoryTitle");    // h2 title in detail
-const btnSkillsBack = document.getElementById("btnSkillsBack");                // back button
-const skillsCategoryList = document.getElementById("skillsCategoryList");      // ul list in detail
-const skillsCategoryEmpty = document.getElementById("skillsCategoryEmpty");    // empty hint in detail
-const btnAddSkillInCat = document.getElementById("btnAddSkillInCat");          // add skill button in detail
-
-// dashboard integration (safe if missing)
-const dashSkillsConfident = document.getElementById("dashSkillsConfident");    // number
-const dashSkillsLearning = document.getElementById("dashSkillsLearning");      // number
-
-// modal (optional – if missing we fallback to prompt)
-const skillsModal = document.getElementById("skillsModal");
-const skillsModalTitle = document.getElementById("skillsModalTitle");
-const skillsModalBackdrop = skillsModal?.querySelector(".modal__backdrop");
-const btnCloseSkillsModal = document.getElementById("btnCloseSkillsModal");
-const btnCancelSkillsModal = document.getElementById("btnCancelSkillsModal");
-const skillsForm = document.getElementById("skillsForm");
-
-// Budgets DOM (safe if missing)
-const badgeBudgets = document.getElementById("badgeBudgets");
-const listBudgets = document.getElementById("listBudgets");
-const emptyBudgets = document.getElementById("emptyBudgets");
-const btnAddBudget = document.getElementById("btnAddBudget");
-const btnAddSpend = document.getElementById("btnAddSpend"); // optional: global spend button
-const moneyTxnsList = document.getElementById("moneyTxnsList"); // optional
-const moneyTxnsEmpty = document.getElementById("moneyTxnsEmpty"); // optional
-
-// Budget modal (optional)
-const budgetModal = document.getElementById("budgetModal");
-const budgetModalTitle = document.getElementById("budgetModalTitle");
-const budgetBackdrop = budgetModal?.querySelector(".modal__backdrop");
-const btnCloseBudgetModal = document.getElementById("btnCloseBudgetModal");
-const btnCancelBudgetModal = document.getElementById("btnCancelBudgetModal");
-const budgetForm = document.getElementById("budgetForm");
-
-const globalSearchInput = document.getElementById("globalSearch");
-const globalSearchResults = document.getElementById("globalSearchResults");
-const globalSearchEmpty = document.getElementById("globalSearchEmpty");
-
-
-
-// ---- Part F state ----
-let activeSkillCategoryKey = null;
-let editingSkill = { categoryKey: null, id: null };
-
-// ---- defaults required by Part F ----
-function defaultLifeSkills() {
-  const mk = (category, names) => ({
-    category,
-    items: names.map((n) => ({
-      id: uid(),
-      name: n,
-      level: "ns",     // ns | ip | cf
-      notes: "",
-      createdAtISO: new Date().toISOString(),
-      updatedAtISO: new Date().toISOString(),
-    })),
-  });
-
-  return {
-    "Cooking": mk("Cooking", [
-      "Cook chicken safely",
-      "Make rice properly",
-      "Cook a hot breakfast",
-    ]),
-    "Cleaning & Laundry": mk("Cleaning & Laundry", [
-      "Clean a bathroom properly",
-      "Vacuum + dust routine",
-      "Run a wash cycle confidently",
-    ]),
-    "Home Routines": mk("Home Routines", [
-      "Weekly reset routine",
-      "Basic meal planning",
-      "Keep a simple cleaning schedule",
-    ]),
-    "Money Skills": mk("Money Skills", [
-      "Track bills & renewals",
-      "Set a monthly budget",
-      "Understand direct debits & standing orders",
-    ]),
-    "Life Admin Skills": mk("Life Admin Skills", [
-      "Book appointments",
-      "Keep documents organised",
-      "Handle important letters/emails calmly",
-    ]),
-    "Car Skills": mk("Car Skills", [
-      "Check tyre pressure",
-      "Top up screenwash",
-      "Understand MOT/service basics",
-    ]),
-    "Home Practical Skills": mk("Home Practical Skills", [
-      "Change a lightbulb",
-      "Reset internet router",
-      "Use a basic tool kit safely",
-    ]),
-  };
-}
-
-function ensureSkillsStore() {
-  const store = loadStore();
-
-  if (!store.skills || typeof store.skills !== "object") store.skills = {};
-  if (!store.skills.version) store.skills.version = 2;
-
-  // migrate/seed categories
-  if (!store.skills.categories || typeof store.skills.categories !== "object" || Object.keys(store.skills.categories).length === 0) {
-    store.skills.categories = defaultLifeSkills();
-    store.skills.version = 2;
-    saveStore(store);
-    return store.skills;
-  }
-
-  // ensure the core categories exist (don’t delete user ones)
-  const core = defaultLifeSkills();
-  for (const k of Object.keys(core)) {
-    if (!store.skills.categories[k]) store.skills.categories[k] = core[k];
-  }
-
-  store.skills.version = 2;
-  saveStore(store);
-  return store.skills;
-}
-
-function getSkills() {
-  return ensureSkillsStore();
-}
-
-function saveSkillsObj(skills) {
-  const store = loadStore();
-  store.skills = skills;
-  store.skills.version = 2;
-  saveStore(store);
-}
-
-function totalsFromSkills(skills) {
-  const cats = skills.categories || {};
-  let total = 0, ns = 0, ip = 0, cf = 0;
-
-  for (const ck of Object.keys(cats)) {
-    const items = cats[ck]?.items || [];
-    total += items.length;
-    ns += items.filter(x => x.level === "ns").length;
-    ip += items.filter(x => x.level === "ip").length;
-    cf += items.filter(x => x.level === "cf").length;
-  }
-  return { total, ns, ip, cf };
-}
-
-function categoryProgress(cat) {
-  const items = cat?.items || [];
-  const total = items.length;
-  const cf = items.filter(x => x.level === "cf").length;
-  const pct = total ? Math.round((cf / total) * 100) : 0;
-
-  // short hint (Part F)
-  let hint = "Start small — one skill at a time.";
-  if (pct >= 80) hint = "Nearly there — you’re basically sorted.";
-  else if (pct >= 40) hint = "Good progress — keep building.";
-  else if (pct >= 10) hint = "Nice start — keep going.";
-
-  return { total, cf, pct, hint };
-}
-
-function setSkillsDashboardStats() {
-  const skills = getSkills();
-  const t = totalsFromSkills(skills);
-
-  if (dashSkillsConfident) dashSkillsConfident.textContent = String(t.cf);
-  if (dashSkillsLearning) dashSkillsLearning.textContent = String(t.ip);
-}
-
-// ---- view helpers ----
-function openSkillsCategory(categoryKey) {
-  activeSkillCategoryKey = categoryKey;
-
-  if (skillsCategoryPanel) skillsCategoryPanel.hidden = false;
-  if (skillsCategoryTitle) skillsCategoryTitle.textContent = categoryKey;
-
-  renderSkillsCategoryDetail();
-}
-
-function closeSkillsCategory() {
-  activeSkillCategoryKey = null;
-  if (skillsCategoryPanel) skillsCategoryPanel.hidden = true;
-  renderSkillsCategories(); // return to grid
-}
-
-btnSkillsBack?.addEventListener("click", closeSkillsCategory);
-
-
-// ---- category cards page ----
-function renderSkillsCategories() {
-  const skills = getSkills();
-  const cats = skills.categories || {};
-
-  // if your HTML still uses the old elements, we bail safely
-  if (!skillsCatsGrid) {
-    // fallback: keep your old list if you haven’t updated HTML yet
-    setSkillsDashboardStats();
-    return;
-  }
-
-  skillsCatsGrid.innerHTML = "";
-
-  const keys = Object.keys(cats);
-
-  for (const k of keys) {
-    const cat = cats[k];
-    const p = categoryProgress(cat);
-
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "skill-cat-card";
-    card.innerHTML = `
-      <div class="skill-cat-card__top">
-        <div class="skill-cat-card__title">${escapeHtml(k)}</div>
-        <div class="skill-cat-card__count">${p.cf} / ${p.total} confident</div>
-      </div>
-      <div class="progress" aria-label="Category progress">
-        <div class="progress__bar" style="width:${p.pct}%"></div>
-      </div>
-      <div class="skill-cat-card__hint">${escapeHtml(p.hint)}</div>
-    `;
-    card.addEventListener("click", () => openSkillsCategory(k));
-    skillsCatsGrid.appendChild(card);
-  }
-
-  setSkillsDashboardStats();
-}
-
-function globalSearch(query) {
-  const q = String(query || "").trim().toLowerCase();
-  if (!q) return [];
-
-  const out = [];
-
-  // Life Admin
-  for (const it of loadItems()) {
-    if ((it.name || "").toLowerCase().includes(q) || (it.details || "").toLowerCase().includes(q)) {
-      out.push({ type: "Life Admin", view: "admin", label: it.name, meta: it.details || "", id: it.id });
+      listBudgets.appendChild(li);
     }
   }
 
-  // Home
-  try {
-    const home = loadHome();
-    for (const rk of Object.keys(home.rooms || {})) {
-      const r = home.rooms[rk];
-      const all = [...(r.essentials || []), ...(r.extras || [])];
-      for (const x of all) {
-        if ((x.name || "").toLowerCase().includes(q) || (x.notes || "").toLowerCase().includes(q)) {
-          out.push({ type: "Future Home", view: "home", label: `${r.title}: ${x.name}`, meta: x.notes || "", id: x.id });
-        }
-      }
-    }
-  } catch {}
+  document.getElementById("view-admin")?.addEventListener("click", (e) => {
+    const bbtn = e.target.closest("button[data-budget-action]");
+    if (!bbtn) return;
 
-  // Skills
-  try {
-    const skills = getSkills();
-    for (const ck of Object.keys(skills.categories || {})) {
-      const cat = skills.categories[ck];
-      for (const it of (cat.items || [])) {
-        if ((it.name || "").toLowerCase().includes(q) || (it.notes || "").toLowerCase().includes(q)) {
-          out.push({ type: "Life Skills", view: "skills", label: `${ck}: ${it.name}`, meta: it.notes || "", id: it.id });
-        }
-      }
-    }
-  } catch {}
+    const action = bbtn.getAttribute("data-budget-action");
+    const id = bbtn.getAttribute("data-id");
+    if (!action || !id) return;
 
-  // Money (Funds + Budgets)
-  try {
     const store = loadStore();
-    for (const f of (store.money.funds || [])) {
-      if ((f.name || "").toLowerCase().includes(q) || (f.notes || "").toLowerCase().includes(q)) {
-        out.push({ type: "Money", view: "admin", label: `Fund: ${f.name}`, meta: f.notes || "", id: f.id });
-      }
-    }
-    for (const b of (store.money.budgets || [])) {
-      if ((b.name || "").toLowerCase().includes(q) || (b.notes || "").toLowerCase().includes(q)) {
-        out.push({ type: "Money", view: "admin", label: `Budget: ${b.name}`, meta: b.notes || "", id: b.id });
-      }
-    }
-  } catch {}
-
-  return out.slice(0, 30);
-}
-
-function renderGlobalSearch() {
-  if (!globalSearchInput || !globalSearchResults) return;
-
-  const q = globalSearchInput.value || "";
-  const results = globalSearch(q);
-
-  globalSearchResults.innerHTML = "";
-
-  if (!results.length) {
-    globalSearchEmpty?.removeAttribute("hidden");
-    return;
-  }
-  globalSearchEmpty?.setAttribute("hidden", "true");
-
-  for (const r of results) {
-    const li = document.createElement("li");
-    li.className = "list__item list__item--neutral";
-    li.innerHTML = `
-      <div class="list__main">
-        <div class="list__title">${escapeHtml(r.label)}</div>
-        <div class="list__meta">${escapeHtml(r.type)} • ${escapeHtml(r.meta || "")}</div>
-      </div>
-      <div class="row-actions">
-        <button class="mini-btn" type="button" data-gs-go="${escapeHtml(r.view)}">Open</button>
-      </div>
-    `;
-    globalSearchResults.appendChild(li);
-  }
-}
-
-function applyPrivacyMode() {
-  const store = loadStore();
-  const hide = !!store.settings?.hideMoney;
-  document.body.classList.toggle("is-private", hide);
-}
-
-globalSearchInput?.addEventListener("input", renderGlobalSearch);
-globalSearchResults?.addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-gs-go]");
-  if (!btn) return;
-  const view = btn.getAttribute("data-gs-go");
-  if (view) setActiveView(view);
-});
-
-
-// ---- skill item controls ----
-function setSkillLevel(categoryKey, skillId, level) {
-  const skills = getSkills();
-  const cat = skills.categories?.[categoryKey];
-  if (!cat) return;
-
-  const idx = (cat.items || []).findIndex(x => x.id === skillId);
-  if (idx === -1) return;
-
-  cat.items[idx].level = level;
-  cat.items[idx].updatedAtISO = new Date().toISOString();
-
-  saveSkillsObj(skills);
-  renderSkillsCategories();
-  renderSkillsCategoryDetail();
-  renderNextSteps(); // keep your Next Steps synced
-}
-
-function deleteSkill(categoryKey, skillId) {
-  const skills = getSkills();
-  const cat = skills.categories?.[categoryKey];
-  if (!cat) return;
-
-  const idx = (cat.items || []).findIndex(x => x.id === skillId);
-  if (idx === -1) return;
-
-  cat.items.splice(idx, 1);
-  saveSkillsObj(skills);
-
-  renderSkillsCategories();
-  renderSkillsCategoryDetail();
-  renderNextSteps();
-}
-
-function upsertSkill(categoryKey, payload) {
-  const skills = getSkills();
-  if (!skills.categories[categoryKey]) {
-    skills.categories[categoryKey] = { category: categoryKey, items: [] };
-  }
-
-  const cat = skills.categories[categoryKey];
-  const nowISO = new Date().toISOString();
-
-  if (payload.id) {
-    const idx = cat.items.findIndex(x => x.id === payload.id);
+    const idx = store.money.budgets.findIndex(b => b.id === id);
     if (idx === -1) return;
 
-    cat.items[idx] = {
-      ...cat.items[idx],
-      name: payload.name,
-      level: payload.level,
-      notes: payload.notes,
-      updatedAtISO: nowISO,
-    };
-  } else {
-    cat.items.push({
-      id: uid(),
-      name: payload.name,
-      level: payload.level,
-      notes: payload.notes,
-      createdAtISO: nowISO,
-      updatedAtISO: nowISO,
-    });
-  }
+    const budget = store.money.budgets[idx];
 
-  saveSkillsObj(skills);
-  renderSkillsCategories();
-  renderSkillsCategoryDetail();
-  renderNextSteps();
-}
+    if (action === "edit") return openBudgetModal("edit", budget);
 
-// ---- modal (optional) ----
-function openSkillsModal(mode, categoryKey, item) {
-  editingSkill = { categoryKey, id: mode === "edit" ? item?.id : null };
+    if (action === "delete") {
+      if (!confirm("Delete this budget?")) return;
+      store.money.budgets.splice(idx, 1);
+      store.money.txns = (store.money.txns || []).filter(t => t.budgetId !== id);
+      store.money.budgets = normaliseBudgets(store.money.budgets);
+      store.money.txns = normaliseTxns(store.money.txns);
+      saveStore(store);
+      renderBudgets();
+      renderMoneyTxns();
+      renderNextSteps();
+      return;
+    }
 
-  // fallback prompts if modal HTML not present yet
-  if (!skillsModal || !skillsForm) {
-    const name = prompt(mode === "edit" ? "Edit skill name:" : "New skill name:", item?.name ?? "");
-    if (name === null) return;
-
-    const notes = prompt("Notes (optional):", item?.notes ?? "");
-    if (notes === null) return;
-
-    const level = item?.level ?? "ns";
-    upsertSkill(categoryKey, {
-      id: item?.id,
-      name: name.trim() || (item?.name ?? "Skill"),
-      level,
-      notes: notes.trim(),
-    });
-    return;
-  }
-
-  if (skillsModalTitle) skillsModalTitle.textContent = mode === "edit" ? "Edit Skill" : "Add Skill";
-  skillsForm.reset();
-
-  if (skillsForm.name) skillsForm.name.value = item?.name ?? "";
-  if (skillsForm.level) skillsForm.level.value = item?.level ?? "ns";
-  if (skillsForm.notes) skillsForm.notes.value = item?.notes ?? "";
-
-  skillsModal.setAttribute("aria-hidden", "false");
-  skillsModal.classList.add("is-open");
-  skillsForm.name?.focus?.();
-}
-
-function closeSkillsModal() {
-  skillsModal?.setAttribute("aria-hidden", "true");
-  skillsModal?.classList.remove("is-open");
-  editingSkill = { categoryKey: null, id: null };
-}
-
-btnCloseSkillsModal?.addEventListener("click", closeSkillsModal);
-btnCancelSkillsModal?.addEventListener("click", closeSkillsModal);
-skillsModalBackdrop?.addEventListener("click", closeSkillsModal);
-
-skillsForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const categoryKey = editingSkill.categoryKey;
-  if (!categoryKey) return;
-
-  const name = String(skillsForm.name?.value ?? "").trim();
-  if (!name) {
-    alert("Please enter a skill name.");
-    skillsForm.name?.focus?.();
-    return;
-  }
-
-  const level = (skillsForm.level?.value === "ip" || skillsForm.level?.value === "cf") ? skillsForm.level.value : "ns";
-  const notes = String(skillsForm.notes?.value ?? "").trim();
-
-  upsertSkill(categoryKey, {
-    id: editingSkill.id,
-    name,
-    level,
-    notes,
+    if (action === "spend") addSpendPrompt(id);
   });
 
-  closeSkillsModal();
-});
+  function renderMoneyTxns() {
+    if (!moneyTxnsList) return;
 
-btnAddSkillInCat?.addEventListener("click", () => {
-  if (!activeSkillCategoryKey) return;
-  openSkillsModal("add", activeSkillCategoryKey, null);
-});
+    const store = loadStore();
+    const txns = store.money.txns || [];
 
-// ---- detail view render ----
-function renderSkillsCategoryDetail() {
-  if (!activeSkillCategoryKey) return;
-  const skills = getSkills();
-  const cat = skills.categories?.[activeSkillCategoryKey];
-  if (!cat) return;
+    moneyTxnsList.innerHTML = "";
 
-  if (!skillsCategoryList) return;
-  skillsCategoryList.innerHTML = "";
+    if (!txns.length) {
+      moneyTxnsEmpty?.removeAttribute("hidden");
+      return;
+    }
+    moneyTxnsEmpty?.setAttribute("hidden", "true");
 
-  const items = [...(cat.items || [])].sort((a, b) => a.name.localeCompare(b.name));
-
-  if (!items.length) {
-    skillsCategoryEmpty?.removeAttribute("hidden");
-    return;
-  }
-  skillsCategoryEmpty?.setAttribute("hidden", "true");
-
-  for (const it of items) {
-    const li = document.createElement("li");
-    li.className = "skill-row";
-
-    li.innerHTML = `
-      <div class="skill-row__main">
-        <div class="skill-row__name">${escapeHtml(it.name)}</div>
-        ${it.notes?.trim() ? `<div class="skill-row__notes">${escapeHtml(it.notes.trim())}</div>` : ``}
-      </div>
-
-      <div class="skill-row__actions">
-        <div class="skill-status">
-          <button type="button" class="skill-status__btn ${it.level === "ns" ? "is-active is-ns" : ""}"
-            data-skill-set="ns" data-id="${it.id}">⬜</button>
-          <button type="button" class="skill-status__btn ${it.level === "ip" ? "is-active is-ip" : ""}"
-            data-skill-set="ip" data-id="${it.id}">🟨</button>
-          <button type="button" class="skill-status__btn ${it.level === "cf" ? "is-active is-cf" : ""}"
-            data-skill-set="cf" data-id="${it.id}">🟩</button>
+    const sorted = [...txns].sort((a, b) => (b.dateISO || "").localeCompare(a.dateISO || ""));
+    for (const t of sorted.slice(0, 12)) {
+      const li = document.createElement("li");
+      li.className = "list__item list__item--neutral";
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(t.label)}</div>
+          <div class="list__meta">${escapeHtml(t.dateISO)} • ${escapeHtml(t.type)} • ${escapeHtml(fmtMoney(t.amount))}</div>
         </div>
-
-        <button class="mini-btn" type="button" data-skill-action="edit" data-id="${it.id}">Edit</button>
-        <button class="mini-btn mini-btn--danger" type="button" data-skill-action="delete" data-id="${it.id}">Delete</button>
-      </div>
-    `;
-
-    skillsCategoryList.appendChild(li);
+      `;
+      moneyTxnsList.appendChild(li);
+    }
   }
-
-  setSkillsDashboardStats();
-}
-
-skillsCategoryList?.addEventListener("click", (e) => {
-  const setBtn = e.target.closest("button[data-skill-set]");
-  if (setBtn && activeSkillCategoryKey) {
-    const level = setBtn.getAttribute("data-skill-set");
-    const id = setBtn.getAttribute("data-id");
-    if (!id || !level) return;
-    setSkillLevel(activeSkillCategoryKey, id, level);
-    return;
-  }
-
-  const actionBtn = e.target.closest("button[data-skill-action]");
-  if (!actionBtn || !activeSkillCategoryKey) return;
-
-  const action = actionBtn.getAttribute("data-skill-action");
-  const id = actionBtn.getAttribute("data-id");
-  if (!action || !id) return;
-
-  const skills = getSkills();
-  const cat = skills.categories?.[activeSkillCategoryKey];
-  if (!cat) return;
-
-  const item = (cat.items || []).find(x => x.id === id);
-  if (!item) return;
-
-  if (action === "edit") {
-    openSkillsModal("edit", activeSkillCategoryKey, item);
-    return;
-  }
-
-  if (action === "delete") {
-    if (!confirm("Delete this skill?")) return;
-    deleteSkill(activeSkillCategoryKey, id);
-  }
-});
-
-// initial render entry point for Skills tab
-function renderSkills() {
-  // If detail panel open, update it too
-  renderSkillsCategories();
-  if (activeSkillCategoryKey) renderSkillsCategoryDetail();
-}
-
 
   // =========================
-  // MAIN RENDER
+  // MAIN ADMIN RENDER
   // =========================
   function renderAdmin() {
     const allItems = loadItems();
 
-const settings = getSettings();
-if (settings.calmModeAuto && uiState.calmModeManual === null) {
-  uiState.calmMode = urgentCount(allItems) > Number(settings.calmThreshold ?? 3);
-  if (calmCheckbox) calmCheckbox.checked = uiState.calmMode;
-}
-
+    const settings = getSettings();
+    if (settings.calmModeAuto && uiState.calmModeManual === null) {
+      uiState.calmMode = urgentCount(allItems) > Number(settings.calmThreshold ?? 3);
+      if (calmCheckbox) calmCheckbox.checked = uiState.calmMode;
+    }
 
     setOverallPill(computeOverallStatus(allItems));
     renderStats(allItems);
     renderSmartAlerts(allItems);
 
     let visible = applyFilterAndSort(allItems);
-
     if (uiState.calmMode) visible = applyCalmMode(visible);
 
     const groups = {
@@ -3031,7 +2229,6 @@ if (settings.calmModeAuto && uiState.calmModeManual === null) {
       account: visible.filter((i) => i.category === "account"),
       info: visible.filter((i) => i.category === "info"),
       vehicle: visible.filter((i) => i.category === "vehicle"),
-      money: visible.filter((i) => i.category === "money"),
     };
 
     renderList(listRenewals, emptyRenewals, groups.renewal);
@@ -3039,543 +2236,9 @@ if (settings.calmModeAuto && uiState.calmModeManual === null) {
     renderList(listInfo, emptyInfo, groups.info);
     renderList(listVehicle, emptyVehicle, groups.vehicle);
 
-    let editingBudgetId = null;
-
-function openBudgetModal(mode, budget = null) {
-  editingBudgetId = mode === "edit" ? (budget?.id ?? null) : null;
-
-  // fallback if modal not present
-  if (!budgetModal || !budgetForm) {
-    const name = prompt("Budget name (e.g., Food / Petrol):", budget?.name ?? "");
-    if (name === null) return;
-
-    const limitRaw = prompt("Monthly limit:", String(Number(budget?.monthlyLimit ?? 0)));
-    if (limitRaw === null) return;
-
-    const notes = prompt("Notes (optional):", budget?.notes ?? "");
-    if (notes === null) return;
-
-    const store = loadStore();
-    const nowISO = new Date().toISOString();
-
-    const monthlyLimit = Number(limitRaw);
-    if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
-      alert("Monthly limit must be 0 or a positive number.");
-      return;
-    }
-
-    if (editingBudgetId) {
-      const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
-      if (idx === -1) return;
-      store.money.budgets[idx] = {
-        ...store.money.budgets[idx],
-        name: name.trim() || store.money.budgets[idx].name,
-        monthlyLimit,
-        notes: notes.trim(),
-        updatedAtISO: nowISO,
-      };
-    } else {
-      const b = makeBudget(name.trim() || "Budget");
-      b.monthlyLimit = monthlyLimit;
-      b.notes = notes.trim();
-      b.updatedAtISO = nowISO;
-      store.money.budgets.push(b);
-    }
-
-    store.money.budgets = normaliseBudgets(store.money.budgets);
-    saveStore(store);
     renderBudgets();
-    renderNextSteps();
-    return;
-  }
-
-  if (budgetModalTitle) budgetModalTitle.textContent = mode === "edit" ? "Edit Budget" : "Add Budget";
-  budgetForm.reset();
-
-  budgetForm.id.value = budget?.id ?? "";
-  budgetForm.name.value = budget?.name ?? "";
-  budgetForm.priority.value = budget?.priority ?? "normal";
-  budgetForm.monthlyLimit.value = budget?.monthlyLimit != null ? String(budget.monthlyLimit) : "";
-  budgetForm.notes.value = budget?.notes ?? "";
-
-  budgetModal.setAttribute("aria-hidden", "false");
-  budgetModal.classList.add("is-open");
-  budgetForm.name?.focus?.();
-}
-
-function closeBudgetModal() {
-  budgetModal?.setAttribute("aria-hidden", "true");
-  budgetModal?.classList.remove("is-open");
-  editingBudgetId = null;
-}
-
-btnAddBudget?.addEventListener("click", () => openBudgetModal("add"));
-btnCloseBudgetModal?.addEventListener("click", closeBudgetModal);
-btnCancelBudgetModal?.addEventListener("click", closeBudgetModal);
-budgetBackdrop?.addEventListener("click", closeBudgetModal);
-
-budgetForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const name = budgetForm.name.value.trim();
-  if (!name) {
-    alert("Please enter a budget name.");
-    budgetForm.name.focus();
-    return;
-  }
-
-  const priority = budgetForm.priority.value === "high" ? "high" : "normal";
-  const monthlyLimit = Number(budgetForm.monthlyLimit.value || 0);
-  if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
-    alert("Monthly limit must be 0 or a positive number.");
-    budgetForm.monthlyLimit.focus();
-    return;
-  }
-
-  const notes = budgetForm.notes.value.trim();
-  const store = loadStore();
-  const nowISO = new Date().toISOString();
-
-  if (editingBudgetId) {
-    const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
-    if (idx === -1) {
-      alert("Budget not found.");
-      closeBudgetModal();
-      return;
-    }
-    store.money.budgets[idx] = {
-      ...store.money.budgets[idx],
-      name,
-      priority,
-      monthlyLimit,
-      notes,
-      updatedAtISO: nowISO,
-    };
-  } else {
-    const b = makeBudget(name);
-    b.priority = priority;
-    b.monthlyLimit = monthlyLimit;
-    b.notes = notes;
-    b.createdAtISO = nowISO;
-    b.updatedAtISO = nowISO;
-    store.money.budgets.push(b);
-  }
-
-  store.money.budgets = normaliseBudgets(store.money.budgets);
-  saveStore(store);
-
-  renderBudgets();
-  renderNextSteps();
-  closeBudgetModal();
-});
-
-function budgetSpendThisMonth(store, budgetId) {
-  const mk = currentMonthKey();
-  return (store.money.txns || [])
-    .filter(t => t.type === "spend" && t.budgetId === budgetId && monthKeyFromISO(t.dateISO) === mk)
-    .reduce((acc, t) => acc + Number(t.amount || 0), 0);
-}
-
-function addSpendPrompt(budgetId) {
-  const store = loadStore();
-  const budget = store.money.budgets.find(b => b.id === budgetId);
-  if (!budget) return;
-
-  const label = prompt(`Spend label for "${budget.name}" (e.g., Tesco / Fuel):`, "");
-  if (label === null) return;
-
-  const amtRaw = prompt("Amount:", "");
-  if (amtRaw === null) return;
-  const amt = Number(amtRaw);
-  if (!Number.isFinite(amt) || amt <= 0) {
-    alert("Please enter a positive number.");
-    return;
-  }
-
-  const dateISO = prompt("Date (YYYY-MM-DD) — leave blank for today:", "") || toISODate(startOfToday());
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) {
-    alert("Please use YYYY-MM-DD format.");
-    return;
-  }
-
-  store.money.txns.push(makeTxn({
-    type: "spend",
-    label: label.trim() || "Spend",
-    amount: amt,
-    dateISO,
-    budgetId: budgetId,
-  }));
-
-  store.money.txns = normaliseTxns(store.money.txns);
-  saveStore(store);
-
-  renderBudgets();
-  renderMoneyTxns();
-  renderNextSteps();
-}
-
-function renderBudgets() {
-  const store = loadStore();
-  const budgets = store.money.budgets || [];
-
-  if (badgeBudgets) {
-    if (!budgets.length) {
-      badgeBudgets.className = "badge badge--neutral";
-      badgeBudgets.textContent = "Empty";
-    } else {
-      const overspent = budgets.filter(b => {
-        const spent = budgetSpendThisMonth(store, b.id);
-        return Number(b.monthlyLimit || 0) > 0 && spent > Number(b.monthlyLimit || 0);
-      }).length;
-
-      badgeBudgets.className = overspent ? "badge badge--danger" : "badge badge--ok";
-      badgeBudgets.textContent = `${budgets.length} budget${budgets.length === 1 ? "" : "s"}`;
-    }
-  }
-
-  if (!listBudgets) return;
-
-  listBudgets.innerHTML = "";
-
-  if (!budgets.length) {
-    emptyBudgets?.removeAttribute("hidden");
-    return;
-  }
-  emptyBudgets?.setAttribute("hidden", "true");
-
-  const sorted = [...budgets].sort((a, b) => {
-    if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
-    return String(a.name).localeCompare(String(b.name));
-  });
-
-  for (const b of sorted) {
-    const spent = budgetSpendThisMonth(store, b.id);
-    const limit = Number(b.monthlyLimit || 0);
-    const pct = limit > 0 ? Math.max(0, Math.min(100, (spent / limit) * 100)) : 0;
-
-    const status =
-      limit <= 0 ? "badge--neutral" :
-      spent > limit ? "badge--danger" :
-      spent > (0.8 * limit) ? "badge--warn" :
-      "badge--ok";
-
-    const li = document.createElement("li");
-    li.className = "list__item list__item--neutral";
-    li.innerHTML = `
-      <div class="fund-row" style="width:100%;">
-        <div class="fund-top">
-          <div class="fund-meta">
-            <div class="fund-name">${escapeHtml(b.name)}</div>
-            <div class="fund-sub">
-              This month: ${escapeHtml(fmtMoney(spent))} • Limit: ${escapeHtml(limit > 0 ? fmtMoney(limit) : "—")}
-              ${b.notes?.trim() ? ` • ${escapeHtml(b.notes.trim())}` : ""}
-            </div>
-          </div>
-          <div class="fund-actions">
-            <button class="mini-btn" type="button" data-budget-action="spend" data-id="${b.id}">Add spend</button>
-            <button class="mini-btn" type="button" data-budget-action="edit" data-id="${b.id}">Edit</button>
-            <button class="mini-btn mini-btn--danger" type="button" data-budget-action="delete" data-id="${b.id}">Delete</button>
-            <span class="badge ${status}">${limit > 0 ? `${Math.round(pct)}%` : "No limit"}</span>
-          </div>
-        </div>
-
-        ${limit > 0 ? `
-          <div class="progress">
-            <div class="progress__bar" style="width:${pct}%"></div>
-          </div>
-        ` : ``}
-      </div>
-    `;
-    listBudgets.appendChild(li);
-  }
-}
-
-document.querySelector('[data-cat-card="money"]')?.addEventListener("click", (e) => {
-  const bbtn = e.target.closest("button[data-budget-action]");
-  if (!bbtn) return;
-
-  const action = bbtn.getAttribute("data-budget-action");
-  const id = bbtn.getAttribute("data-id");
-  if (!action || !id) return;
-
-  const store = loadStore();
-  const idx = store.money.budgets.findIndex(b => b.id === id);
-  if (idx === -1) return;
-
-  const budget = store.money.budgets[idx];
-
-  if (action === "edit") {
-    openBudgetModal("edit", budget);
-    return;
-  }
-  if (action === "delete") {
-    if (!confirm("Delete this budget?")) return;
-    store.money.budgets.splice(idx, 1);
-    // remove linked txns? keep them but orphaned is messy -> remove
-    store.money.txns = (store.money.txns || []).filter(t => t.budgetId !== id);
-    store.money.budgets = normaliseBudgets(store.money.budgets);
-    store.money.txns = normaliseTxns(store.money.txns);
-    saveStore(store);
-    renderBudgets();
-    renderMoneyTxns();
-    renderNextSteps();
-    return;
-  }
-  if (action === "spend") {
-    addSpendPrompt(id);
-  }
-});
-
-// Optional: render last txns (if you add UL in HTML)
-function renderMoneyTxns() {
-  if (!moneyTxnsList) return;
-
-  const store = loadStore();
-  const txns = store.money.txns || [];
-  moneyTxnsList.innerHTML = "";
-
-  if (!txns.length) {
-    moneyTxnsEmpty?.removeAttribute("hidden");
-    return;
-  }
-  moneyTxnsEmpty?.setAttribute("hidden", "true");
-
-  const sorted = [...txns].sort((a, b) => (b.dateISO || "").localeCompare(a.dateISO || ""));
-  for (const t of sorted.slice(0, 12)) {
-    const li = document.createElement("li");
-    li.className = "list__item list__item--neutral";
-    li.innerHTML = `
-      <div class="list__main">
-        <div class="list__title">${escapeHtml(t.label)}</div>
-        <div class="list__meta">${escapeHtml(t.dateISO)} • ${escapeHtml(t.type)} • ${escapeHtml(fmtMoney(t.amount))}</div>
-      </div>
-    `;
-    moneyTxnsList.appendChild(li);
-  }
-}
-
-// =========================
-// Part I: Global Search
-// =========================
-const globalSearchModal = document.getElementById("globalSearchModal");
-const globalSearchBackdrop = globalSearchModal?.querySelector(".modal__backdrop");
-const btnCloseGlobalSearch = document.getElementById("btnCloseGlobalSearch");
-const btnGlobalSearchDone = document.getElementById("btnGlobalSearchDone");
-const globalSearchInput = document.getElementById("globalSearchInput");
-const globalSearchResults = document.getElementById("globalSearchResults");
-const globalSearchEmpty = document.getElementById("globalSearchEmpty");
-
-// Add a button somewhere with id="btnGlobalSearch"
-const btnGlobalSearch = document.getElementById("btnGlobalSearch");
-
-function openGlobalSearch() {
-  globalSearchModal?.setAttribute("aria-hidden", "false");
-  globalSearchModal?.classList.add("is-open");
-  if (globalSearchInput) {
-    globalSearchInput.value = "";
-    globalSearchInput.focus();
-  }
-  renderGlobalSearchResults("");
-}
-
-function closeGlobalSearch() {
-  globalSearchModal?.setAttribute("aria-hidden", "true");
-  globalSearchModal?.classList.remove("is-open");
-}
-
-btnGlobalSearch?.addEventListener("click", openGlobalSearch);
-btnCloseGlobalSearch?.addEventListener("click", closeGlobalSearch);
-btnGlobalSearchDone?.addEventListener("click", closeGlobalSearch);
-globalSearchBackdrop?.addEventListener("click", closeGlobalSearch);
-
-globalSearchInput?.addEventListener("input", () => {
-  renderGlobalSearchResults(globalSearchInput.value || "");
-});
-
-function searchEverything(queryRaw) {
-  const q = String(queryRaw || "").trim().toLowerCase();
-  if (!q) return [];
-
-  const out = [];
-  const store = loadStore();
-
-  // Life Admin
-  const items = loadItems();
-  for (const it of items) {
-    const hay = `${it.name} ${it.details || ""} ${it.category}`.toLowerCase();
-    if (!hay.includes(q)) continue;
-    out.push({
-      type: "admin",
-      title: it.name,
-      meta: `Life Admin • ${it.category}${it.dueDateISO ? " • " + it.dueDateISO : ""}`,
-      id: it.id,
-      score: 90,
-    });
-  }
-
-  // Future Home
-  try {
-    const home = loadHome();
-    const rooms = home.rooms || {};
-    for (const rk of Object.keys(rooms)) {
-      const r = rooms[rk];
-      for (const kind of ["essentials", "extras"]) {
-        for (const it of (r[kind] || [])) {
-          const hay = `${r.title} ${kind} ${it.name} ${it.notes || ""}`.toLowerCase();
-          if (!hay.includes(q)) continue;
-          out.push({
-            type: "home",
-            title: it.name,
-            meta: `Future Home • ${r.title} • ${kind}`,
-            roomKey: rk,
-            kind,
-            id: it.id,
-            score: 70,
-          });
-        }
-      }
-    }
-  } catch {}
-
-  // Skills
-  try {
-    const skills = getSkills();
-    const cats = skills.categories || {};
-    for (const ck of Object.keys(cats)) {
-      const cat = cats[ck];
-      for (const it of (cat.items || [])) {
-        const hay = `${ck} ${it.name} ${it.notes || ""}`.toLowerCase();
-        if (!hay.includes(q)) continue;
-        out.push({
-          type: "skills",
-          title: it.name,
-          meta: `Life Skills • ${ck}`,
-          categoryKey: ck,
-          id: it.id,
-          score: 60,
-        });
-      }
-    }
-  } catch {}
-
-  // Money
-  const funds = store.money?.funds || [];
-  for (const f of funds) {
-    const hay = `${f.name} ${f.notes || ""}`.toLowerCase();
-    if (!hay.includes(q)) continue;
-    out.push({
-      type: "money",
-      title: f.name,
-      meta: `Money • Fund`,
-      id: f.id,
-      score: 80,
-    });
-  }
-
-  return out.sort((a, b) => b.score - a.score).slice(0, 20);
-}
-
-function renderGlobalSearchResults(queryRaw) {
-  if (!globalSearchResults) return;
-
-  const results = searchEverything(queryRaw);
-  globalSearchResults.innerHTML = "";
-
-  if (!results.length) {
-    globalSearchEmpty?.removeAttribute("hidden");
-    return;
-  }
-  globalSearchEmpty?.setAttribute("hidden", "true");
-
-  for (const r of results) {
-    const li = document.createElement("li");
-    li.className = "list__item list__item--neutral";
-
-    li.innerHTML = `
-      <div class="list__main">
-        <div class="list__title">${escapeHtml(r.title)}</div>
-        <div class="list__meta">${escapeHtml(r.meta)}</div>
-      </div>
-      <div class="row-actions">
-        <button class="mini-btn" type="button"
-          data-gs-open="${r.type}"
-          data-id="${escapeHtml(r.id)}"
-          data-roomkey="${escapeHtml(r.roomKey || "")}"
-          data-kind="${escapeHtml(r.kind || "")}"
-          data-cat="${escapeHtml(r.categoryKey || "")}">
-          Open
-        </button>
-      </div>
-    `;
-    globalSearchResults.appendChild(li);
-  }
-}
-
-globalSearchResults?.addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-gs-open]");
-  if (!btn) return;
-
-  const type = btn.getAttribute("data-gs-open");
-  const id = btn.getAttribute("data-id");
-
-  if (type === "admin") {
-    const item = loadItems().find((x) => x.id === id);
-    if (!item) return;
-    closeGlobalSearch();
-    setActiveView("admin");
-    openModal("edit", item);
-    return;
-  }
-
-  if (type === "money") {
-    const store = loadStore();
-    const fund = (store.money?.funds || []).find((f) => f.id === id);
-    if (!fund) return;
-    closeGlobalSearch();
-    setActiveView("admin");
-    openFundModal("edit", fund);
-    return;
-  }
-
-  if (type === "home") {
-    const roomKey = btn.getAttribute("data-roomkey");
-    if (!roomKey) return;
-    closeGlobalSearch();
-    setActiveView("home");
-    openRoom(roomKey);
-    return;
-  }
-
-  if (type === "skills") {
-    const cat = btn.getAttribute("data-cat");
-    if (!cat) return;
-    closeGlobalSearch();
-    setActiveView("skills");
-    openSkillsCategory(cat);
-    return;
-  }
-});
-
-// Money formatter (currency-aware)
-function fmtMoney(n) {
-  const store = loadStore();
-  const code = String(store.money?.currency ?? "GBP");
-
-  const sym = code === "EUR" ? "€" : code === "USD" ? "$" : "£";
-  const x = Number(n ?? 0);
-  const safe = Number.isFinite(x) ? x : 0;
-
-  return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-// Backwards compatibility: if older code calls fmtGBP, don't crash
-function fmtGBP(n) {
-  return fmtMoney(n);
-}
-
-
-    // Funds list (separate storage)
     renderMoney();
+    renderMoneyTxns();
 
     if (uiState.calmMode) {
       setCategoryCardVisibility("renewal", groups.renewal.length > 0);
@@ -3597,14 +2260,11 @@ function fmtGBP(n) {
     setCategoryBadge(badgeInfo, badgeItems.filter((i) => i.category === "info"));
     setCategoryBadge(badgeVehicle, badgeItems.filter((i) => i.category === "vehicle"));
 
-       // ✅ Part D: keep Next Steps in sync
     renderNextSteps();
   }
 
-  
-
   // =========================
-  // ACTIONS: edit/delete/archive/done (Life Admin items)
+  // ACTIONS: edit/delete/archive/done
   // =========================
   document.getElementById("view-admin")?.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-action]");
@@ -3627,10 +2287,7 @@ function fmtGBP(n) {
       return;
     }
 
-    if (action === "edit") {
-      openModal("edit", item);
-      return;
-    }
+    if (action === "edit") return openModal("edit", item);
 
     if (action === "archive") {
       item.archived = true;
@@ -3679,20 +2336,12 @@ function fmtGBP(n) {
     }
   });
 
-  // =========================
-  // Part D: Next Steps clicks
-  // =========================
+  // Next Steps click open
   document.getElementById("nextStepsWrap")?.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-ns-action]");
     if (!btn) return;
 
     const action = btn.getAttribute("data-ns-action");
-    if (action === "go") {
-      const view = btn.getAttribute("data-view");
-      if (view) setActiveView(view);
-      return;
-    }
-
     if (action === "openAdmin") {
       const id = btn.getAttribute("data-id");
       if (!id) return;
@@ -3706,184 +2355,108 @@ function fmtGBP(n) {
     }
   });
 
+    // =========================
+  // CONTROLS
   // =========================
-// Part L: Toast helper
-// =========================
-const toastWrap = document.getElementById("toastWrap");
-
-function toast(type, title, msg, ms = 2600) {
-  if (!toastWrap) return;
-
-  const el = document.createElement("div");
-  el.className = `toast toast--${type || "ok"}`;
-  el.innerHTML = `
-    <div class="toast__dot" aria-hidden="true"></div>
-    <div style="min-width:0;">
-      <p class="toast__title">${escapeHtml(title || "Done")}</p>
-      ${msg ? `<p class="toast__msg">${escapeHtml(msg)}</p>` : ""}
-    </div>
-  `;
-
-  toastWrap.appendChild(el);
-
-  setTimeout(() => {
-    el.remove();
-  }, ms);
-}
-
-
-
-  // =========================
-  // EXPORT (entire store)
-  // =========================
-  document.getElementById("btnExport")?.addEventListener("click", () => {
-    const store = loadStore();
-    const blob = new Blob([JSON.stringify(store, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "life-setup-store.json";
-    a.click();
-
-    URL.revokeObjectURL(url);
+  searchInput?.addEventListener("input", () => {
+    uiState.query = searchInput.value.trim().toLowerCase();
+    renderAdmin();
   });
 
-  // =========================
-  // IMPORT (store or legacy array)
-  // =========================
-  btnImport?.addEventListener("click", async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/json";
+  showArchivedCheckbox?.addEventListener("change", () => {
+    uiState.showArchived = !!showArchivedCheckbox.checked;
+    renderAdmin();
+  });
 
-    input.addEventListener("change", async () => {
-      const file = input.files?.[0];
-      if (!file) return;
+  focusWeekCheckbox?.addEventListener("change", () => {
+    uiState.focusWeek = !!focusWeekCheckbox.checked;
+    renderAdmin();
+  });
 
-      try {
-        const text = await file.text();
-        const parsed = JSON.parse(text);
+  calmCheckbox?.addEventListener("change", () => {
+    const next = !!calmCheckbox.checked;
+    uiState.calmMode = next;
+    uiState.calmModeManual = next;
+    renderAdmin();
+  });
 
-        if (Array.isArray(parsed)) {
-          const imported = normaliseItems(parsed);
-          if (!imported.length) {
-            alert("No valid Life Admin items found in that file.");
-            return;
-          }
+  sortSelect?.addEventListener("change", () => {
+    uiState.sort = sortSelect.value || "dueSoonest";
+    renderAdmin();
+  });
 
-          const items = loadItems();
-          const map = new Map(items.map((x) => [x.id, x]));
-          for (const it of imported) map.set(it.id, it);
+  templateSelect?.addEventListener("change", () => {
+    const key = templateSelect.value;
+    if (!key) return;
+    const item = templateToItem(key);
+    if (item) openModal("add", item);
+    templateSelect.value = "";
+  });
 
-          saveItems(Array.from(map.values()));
-          renderAdmin();
-          alert(`Imported ${imported.length} item(s).`);
-          return;
-        }
-
-        const store = normaliseStore(parsed);
-        saveStore(store);
-
-        loadHome();
-       getSkills();
-
-        renderAdmin();
-        renderRoomsGrid();
-        renderSkills();
-        renderNextSteps(); // ✅
-        applyPrivacyMode();
-
-        alert("Imported Life Setup store.");
-      } catch {
-        alert("Import failed. Make sure it's a valid Life Setup export file.");
-      }
+  filterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.getAttribute("data-admin-filter") || "all";
+      uiState.filter = key;
+      filterButtons.forEach((b) => b.classList.toggle("is-active", b === btn));
+      renderAdmin();
     });
-
-    input.click();
   });
 
   // =========================
-  // SAMPLE DATA (Life Admin items only)
+  // ADD / EDIT SUBMIT (Life Admin)
   // =========================
-  btnSampleData?.addEventListener("click", () => {
-    if (!confirm("Add sample data? (You can delete it afterwards)")) return;
+  itemForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    const nowISO = new Date().toISOString();
-    const today = startOfToday();
+    const category = itemForm.category.value;
+    const name = itemForm.name.value.trim();
+    const dueDateISO = itemForm.dueDate.value ? itemForm.dueDate.value : null;
+    const details = itemForm.details.value.trim();
+    const reminderProfile = itemForm.reminderProfile.value;
+    const priority = itemForm.priority.value;
+    const recurrence = itemForm.recurrence.value;
+    const customDaysRaw = itemForm.customDays.value;
 
-    const fmt = (add) => {
-      const d = new Date(today);
-      d.setDate(d.getDate() + add);
-      return toISODate(d);
-    };
+    if (!name) {
+      alert("Please enter a name (e.g., Car insurance).");
+      itemForm.name.focus();
+      return;
+    }
 
-    const sample = [
-      {
-        category: "renewal",
-        name: "Car insurance",
-        dueDateISO: fmt(18),
-        details: "Compare quotes • check auto-renew",
-        reminderProfile: "gentle",
-        priority: "high",
-        recurrence: "yearly",
-        customDays: null,
-      },
-      {
-        category: "renewal",
-        name: "Passport expiry",
-        dueDateISO: fmt(160),
-        details: "Check travel validity rules",
-        reminderProfile: "careful",
-        priority: "normal",
-        recurrence: "none",
-        customDays: null,
-      },
-      {
-        category: "vehicle",
-        name: "MOT",
-        dueDateISO: fmt(11),
-        details: "Book a slot near work/home",
-        reminderProfile: "tight",
-        priority: "high",
-        recurrence: "yearly",
-        customDays: null,
-      },
-      {
-        category: "account",
-        name: "Phone contract",
-        dueDateISO: fmt(25),
-        details: "Consider SIM-only options",
-        reminderProfile: "gentle",
-        priority: "normal",
-        recurrence: "monthly",
-        customDays: null,
-      },
-      {
-        category: "info",
-        name: "Spare keys location",
-        dueDateISO: null,
-        details: "Top drawer in desk (non-sensitive)",
-        reminderProfile: "gentle",
-        priority: "normal",
-        recurrence: "none",
-        customDays: null,
-      },
-    ];
+    let customDays = null;
+    if (recurrence === "custom") {
+      const n = Number(customDaysRaw);
+      if (!Number.isFinite(n) || n <= 0) {
+        alert("Custom days must be a positive number (e.g., 90).");
+        itemForm.customDays.focus();
+        return;
+      }
+      customDays = n;
+    }
 
     const items = loadItems();
-    for (const s of sample) {
+    const nowISO = new Date().toISOString();
+
+    if (editingId) {
+      const idx = items.findIndex((x) => x.id === editingId);
+      if (idx === -1) {
+        alert("That item couldn't be found (it may have been deleted).");
+        closeModal();
+        return;
+      }
+      items[idx] = { ...items[idx], category, name, dueDateISO, details, reminderProfile, priority, recurrence, customDays, updatedAtISO: nowISO };
+    } else {
       items.push({
         id: uid(),
-        category: s.category,
-        name: s.name,
-        details: s.details,
-        dueDateISO: s.dueDateISO,
-        reminderProfile: s.reminderProfile,
-        priority: s.priority,
+        category,
+        name,
+        details,
+        dueDateISO,
+        reminderProfile,
+        priority,
         archived: false,
-        recurrence: s.recurrence,
-        customDays: s.customDays,
+        recurrence,
+        customDays,
         createdAtISO: nowISO,
         updatedAtISO: nowISO,
         doneCount: 0,
@@ -3892,66 +2465,1421 @@ function toast(type, title, msg, ms = 2600) {
 
     saveItems(items);
     renderAdmin();
+    closeModal();
   });
 
   // =========================
-  // SETTINGS PLACEHOLDER
+  // FILTER + SORT
   // =========================
-  document.getElementById("btnSettings")?.addEventListener("click", () => {
-  const store = loadStore();
+  function applyFilterAndSort(allItems) {
+    let items = [...allItems];
 
-  const calmAuto = confirm("Enable Calm Mode auto-toggle? OK = yes, Cancel = no");
-  const thresholdRaw = prompt("Calm threshold (urgent items count):", String(store.settings.calmThreshold ?? 3));
-  if (thresholdRaw === null) return;
+    if (!uiState.showArchived) items = items.filter((i) => !i.archived);
+    if (uiState.filter !== "all") items = items.filter((i) => i.category === uiState.filter);
 
-  const th = Number(thresholdRaw);
-  if (!Number.isFinite(th) || th < 0) {
-    alert("Threshold must be 0 or a positive number.");
-    return;
+    if (uiState.query) {
+      const q = uiState.query;
+      items = items.filter(
+        (i) =>
+          i.name.toLowerCase().includes(q) ||
+          (i.details || "").toLowerCase().includes(q) ||
+          (i.dueDateISO || "").includes(q)
+      );
+    }
+
+    if (uiState.focusWeek) {
+      items = items.filter((i) => {
+        const d = daysUntil(i.dueDateISO);
+        if (d === null) return false;
+        return d < 0 || d <= 7;
+      });
+    }
+
+    const byDueAsc = (a, b) => {
+      const da = daysUntil(a.dueDateISO);
+      const db = daysUntil(b.dueDateISO);
+      if (da === null && db === null) return 0;
+      if (da === null) return 1;
+      if (db === null) return -1;
+      return da - db;
+    };
+
+    switch (uiState.sort) {
+      case "dueLatest":
+        items.sort((a, b) => -byDueAsc(a, b));
+        break;
+      case "createdOldest":
+        items.sort((a, b) => a.createdAtISO.localeCompare(b.createdAtISO));
+        break;
+      case "createdNewest":
+        items.sort((a, b) => b.createdAtISO.localeCompare(a.createdAtISO));
+        break;
+      case "nameZA":
+        items.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "nameAZ":
+        items.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "dueSoonest":
+      default:
+        items.sort((a, b) => byDueAsc(a, b));
+        break;
+    }
+
+    // Secondary: high priority first
+    items.sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
+      return 0;
+    });
+
+    return items;
   }
 
-  const currency = prompt("Currency code (GBP / USD / EUR):", String(store.money.currency ?? "GBP"));
-  if (currency === null) return;
+  function computeOverallStatus(items) {
+    let worst = "green";
+    for (const it of items) {
+      if (it.archived) continue;
+      const s = statusFromDays(daysUntil(it.dueDateISO));
+      if (s === "red") return "red";
+      if (s === "amber") worst = "amber";
+    }
+    return worst;
+  }
 
-  store.settings.calmModeAuto = calmAuto;
-  store.settings.calmThreshold = th;
-  store.money.currency = String(currency).toUpperCase().trim() || "GBP";
+  function setOverallPill(status) {
+    if (!overallDot || !statusText) return;
+    overallDot.classList.remove("dot--green", "dot--amber", "dot--red");
 
-  store.settings = normaliseSettings(store.settings);
-  saveStore(store);
-
-  renderAdmin();
-  renderRoomsGrid();
-  renderHomeSummary();
-  renderBudgets();
-  renderMoney();
-  renderMoneyTxns();
-  renderNextSteps();
-  applyPrivacyMode();
-
-  toast("ok", "Saved", "Your settings have been updated.");
-});
-
+    if (status === "red") {
+      overallDot.classList.add("dot--red");
+      statusText.textContent = "Needs attention";
+      return;
+    }
+    if (status === "amber") {
+      overallDot.classList.add("dot--amber");
+      statusText.textContent = "Coming up";
+      return;
+    }
+    overallDot.classList.add("dot--green");
+    statusText.textContent = "All good";
+  }
 
   // =========================
-  // BOOT (Part B)
+  // STATS
   // =========================
-  setActiveView("admin");
-setRecurrenceUI(itemForm?.recurrence?.value || "none");
+  function getNextNudgeItem(items) {
+    const enriched = items
+      .filter((x) => !x.archived)
+      .map((it) => {
+        const d = daysUntil(it.dueDateISO);
+        return { it, d, nudge: gentleNudge(it, d) };
+      });
 
-loadHome();
-getSkills();
+    const overdue = enriched.filter((x) => x.d !== null && x.d < 0).sort((a, b) => b.d - a.d)[0];
+    if (overdue) return { ...overdue.it, nudge: overdue.nudge };
 
-applyDefaultUIFromSettings();
+    const upcoming = enriched.filter((x) => x.d !== null && x.d >= 0).sort((a, b) => a.d - b.d)[0];
+    if (upcoming) return { ...upcoming.it, nudge: upcoming.nudge };
 
-renderAdmin();
-renderRoomsGrid();
-renderHomeSummary();
-renderSkills();
-renderBudgets();
-renderMoney();
-renderMoneyTxns();
-renderNextSteps();
-applyPrivacyMode();
+    const any = enriched[0];
+    return any ? { ...any.it, nudge: any.nudge } : null;
+  }
 
-})();
+  function renderStats(allItems) {
+    if (!adminStats) return;
+
+    const active = allItems.filter((i) => !i.archived);
+
+    const dueSoonCount = active.filter((i) => {
+      const d = daysUntil(i.dueDateISO);
+      return d !== null && d >= 0 && d <= 30;
+    }).length;
+
+    const onTrackCount = active.filter((i) => statusFromDays(daysUntil(i.dueDateISO)) === "green").length;
+    const priorityCount = active.filter((i) => i.priority === "high").length;
+
+    const next = getNextNudgeItem(active);
+
+    adminStats.innerHTML = `
+      <article class="card card--stat">
+        <div class="card__label">Next gentle nudge</div>
+        <div class="card__value">${escapeHtml(next?.name ?? "All sorted")}</div>
+        <div class="card__hint">${escapeHtml(next?.nudge ?? "Nothing urgent — you’re in a good place.")}</div>
+      </article>
+
+      <article class="card card--stat">
+        <div class="card__label">Due soon</div>
+        <div class="card__value">${dueSoonCount}</div>
+        <div class="card__hint">Items coming up within 30 days.</div>
+      </article>
+
+      <article class="card card--stat">
+        <div class="card__label">On track</div>
+        <div class="card__value">${onTrackCount}</div>
+        <div class="card__hint">Everything else looks steady.</div>
+      </article>
+
+      <article class="card card--stat">
+        <div class="card__label">High priority</div>
+        <div class="card__value">${priorityCount}</div>
+        <div class="card__hint">Things you marked as important.</div>
+      </article>
+    `;
+  }
+
+  // =========================
+  // BADGES + LIST RENDER
+  // =========================
+  function setCategoryBadge(el, itemsInCategory) {
+    if (!el) return;
+
+    if (!itemsInCategory.length) {
+      el.className = "badge badge--neutral";
+      el.textContent = "Empty";
+      return;
+    }
+
+    const overdue = itemsInCategory.filter((i) => {
+      const d = daysUntil(i.dueDateISO);
+      return !i.archived && d !== null && d < 0;
+    }).length;
+
+    const dueSoon = itemsInCategory.filter((i) => {
+      const d = daysUntil(i.dueDateISO);
+      return !i.archived && d !== null && d >= 0 && d <= 30;
+    }).length;
+
+    if (overdue > 0) {
+      el.className = "badge badge--danger";
+      el.textContent = `${overdue} overdue`;
+      return;
+    }
+    if (dueSoon > 0) {
+      el.className = "badge badge--warn";
+      el.textContent = `${dueSoon} due soon`;
+      return;
+    }
+
+    const activeCount = itemsInCategory.filter((i) => !i.archived).length;
+    el.className = "badge badge--ok";
+    el.textContent = `${activeCount} saved`;
+  }
+
+  function recurrenceLabel(item) {
+    if (item.recurrence === "none") return "One-off";
+    if (item.recurrence === "weekly") return "Repeats weekly";
+    if (item.recurrence === "monthly") return "Repeats monthly";
+    if (item.recurrence === "yearly") return "Repeats yearly";
+    if (item.recurrence === "custom") return `Repeats every ${item.customDays ?? 30} days`;
+    return "One-off";
+  }
+
+  function renderList(listEl, emptyEl, items) {
+    if (!listEl) return;
+
+    listEl.innerHTML = "";
+
+    if (!items.length) {
+      emptyEl?.removeAttribute("hidden");
+      return;
+    }
+    emptyEl?.setAttribute("hidden", "true");
+
+    for (const item of items) {
+      const d = daysUntil(item.dueDateISO);
+      const status = statusFromDays(d);
+      const badge = item.archived ? { label: "Archived", cls: "badge--neutral" } : badgeFromStatus(status);
+
+      const metaParts = [];
+      metaParts.push(recurrenceLabel(item));
+      if (item.dueDateISO) metaParts.push(fmtDueText(d));
+      if (item.details?.trim()) metaParts.push(item.details.trim());
+      if (item.priority === "high") metaParts.push("High priority");
+      metaParts.push(`Done: ${item.doneCount}`);
+
+      const li = document.createElement("li");
+      const stripClass =
+        item.archived
+          ? "list__item--neutral"
+          : status === "red"
+          ? "list__item--red"
+          : status === "amber"
+          ? "list__item--amber"
+          : "list__item--green";
+
+      li.className = `list__item ${stripClass}${item.archived ? " is-archived" : ""}`;
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(item.name)}</div>
+          <div class="list__meta">${escapeHtml(metaParts.join(" • "))}</div>
+        </div>
+
+        <div class="row-actions">
+          <button class="mini-btn" type="button" data-action="done" data-id="${item.id}">Mark done</button>
+          <button class="mini-btn" type="button" data-action="edit" data-id="${item.id}">Edit</button>
+          <button class="mini-btn mini-btn--danger" type="button" data-action="delete" data-id="${item.id}">Delete</button>
+          <button class="mini-btn" type="button" data-action="${item.archived ? "unarchive" : "archive"}" data-id="${item.id}">
+            ${item.archived ? "Unarchive" : "Archive"}
+          </button>
+          <span class="badge ${badge.cls}">${badge.label}</span>
+        </div>
+      `;
+      listEl.appendChild(li);
+    }
+  }
+
+  // =========================
+  // SMART ALERTS
+  // =========================
+  function buildSmartAlerts(allItems) {
+    const items = allItems.filter((i) => !i.archived);
+
+    return items
+      .map((it) => {
+        const d = daysUntil(it.dueDateISO);
+        const s = statusFromDays(d);
+
+        const urgency =
+          (s === "red" ? 120 : s === "amber" ? 70 : 10) +
+          (it.priority === "high" ? 20 : 0) +
+          (d === null ? -10 : 0) +
+          (d !== null ? Math.max(0, 40 - Math.min(40, d)) : 0);
+
+        return {
+          id: it.id,
+          title: it.name,
+          dueText: fmtDueText(d),
+          badge: badgeFromStatus(s),
+          nudge: gentleNudge(it, d),
+          score: urgency,
+        };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4);
+  }
+
+  function renderSmartAlerts(allItems) {
+    if (!listAlerts) return;
+
+    const alerts = buildSmartAlerts(allItems);
+    listAlerts.innerHTML = "";
+
+    if (!alerts.length) {
+      emptyAlerts?.removeAttribute("hidden");
+      if (badgeAlerts) {
+        badgeAlerts.className = "badge badge--ok";
+        badgeAlerts.textContent = "Clear";
+      }
+      return;
+    }
+
+    emptyAlerts?.setAttribute("hidden", "true");
+
+    if (badgeAlerts) {
+      badgeAlerts.className = "badge badge--warn";
+      badgeAlerts.textContent = `${alerts.length} active`;
+    }
+
+    for (const a of alerts) {
+      const li = document.createElement("li");
+      const strip =
+        a.badge.cls.includes("danger") ? "list__item--red" :
+        a.badge.cls.includes("warn") ? "list__item--amber" :
+        "list__item--green";
+
+      li.className = `list__item ${strip}`;
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(a.title)}</div>
+          <div class="list__meta">${escapeHtml(a.dueText)} • ${escapeHtml(a.nudge)}</div>
+        </div>
+        <div class="row-actions">
+          <button class="mini-btn" type="button" data-action="edit" data-id="${a.id}">Open</button>
+          <span class="badge ${a.badge.cls}">${a.badge.label}</span>
+        </div>
+      `;
+      listAlerts.appendChild(li);
+    }
+  }
+
+  // =========================
+  // NEXT STEPS (Part D)
+  // =========================
+  function buildNextSteps() {
+    const today = [];
+    const week = [];
+
+    // ---- LIFE ADMIN ----
+    const adminItems = loadItems().filter((i) => !i.archived);
+    for (const it of adminItems) {
+      const d = daysUntil(it.dueDateISO);
+      if (d === null) continue;
+
+      if (d < 0 || d <= 1) {
+        today.push({
+          source: "admin",
+          id: it.id,
+          title: it.name,
+          meta: fmtDueText(d),
+          hint: gentleNudge(it, d),
+          tag: "Life Admin",
+          score: 200 + (it.priority === "high" ? 20 : 0) + (d < 0 ? 40 : 0),
+        });
+        continue;
+      }
+
+      if (d <= 7 || (it.priority === "high" && d <= 14)) {
+        week.push({
+          source: "admin",
+          id: it.id,
+          title: it.name,
+          meta: fmtDueText(d),
+          hint: gentleNudge(it, d),
+          tag: "Life Admin",
+          score: 140 + (it.priority === "high" ? 20 : 0) + Math.max(0, 20 - d),
+        });
+      }
+    }
+
+    // ---- MONEY (Budgets + Payday) ----
+    try {
+      const store = loadStore();
+      const budgets = store.money.budgets || [];
+      const mk = currentMonthKey();
+
+      for (const b of budgets) {
+        const limit = Number(b.monthlyLimit || 0);
+        if (limit <= 0) continue;
+
+        const spent = (store.money.txns || [])
+          .filter(t => t.type === "spend" && t.budgetId === b.id && monthKeyFromISO(t.dateISO) === mk)
+          .reduce((acc, t) => acc + Number(t.amount || 0), 0);
+
+        if (spent > limit) {
+          today.push({
+            source: "admin",
+            id: `overspend_${b.id}`,
+            title: `Budget overspent: ${b.name}`,
+            meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
+            hint: "No panic — even one small adjustment helps (pause one optional spend).",
+            tag: "Money",
+            score: 220 + (b.priority === "high" ? 20 : 0),
+          });
+        } else if (spent > limit * 0.85) {
+          week.push({
+            source: "admin",
+            id: `near_${b.id}`,
+            title: `Budget nearly full: ${b.name}`,
+            meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
+            hint: "You’re close to the limit — worth keeping an eye on this week.",
+            tag: "Money",
+            score: 130 + (b.priority === "high" ? 10 : 0),
+          });
+        }
+      }
+
+      if (store.money.paydayISO) {
+        const d = daysUntil(store.money.paydayISO);
+        if (d !== null && d >= 0 && d <= 3) {
+          week.push({
+            source: "admin",
+            id: "payday",
+            title: "Payday coming up",
+            meta: fmtDueText(d),
+            hint: "Quick plan: bills → savings → fun money. Even a rough split helps.",
+            tag: "Money",
+            score: 125,
+          });
+        }
+      }
+    } catch {}
+
+    // (Home + Skills next steps are in later sections; kept synced via renderNextSteps calls)
+
+    const sortDesc = (a, b) => b.score - a.score;
+    today.sort(sortDesc);
+    week.sort(sortDesc);
+
+    return {
+      today: today.slice(0, 4),
+      week: week.slice(0, 6),
+    };
+  }
+
+  function renderNextSteps() {
+    if (!nextStepsToday || !nextStepsWeek) return;
+
+    const { today, week } = buildNextSteps();
+
+    if (badgeNextSteps) {
+      const total = today.length + week.length;
+      badgeNextSteps.className = total ? "badge badge--warn" : "badge badge--ok";
+      badgeNextSteps.textContent = total ? `${total} suggested` : "Clear";
+    }
+
+    nextStepsToday.innerHTML = "";
+    if (!today.length) emptyNextToday?.removeAttribute("hidden");
+    else emptyNextToday?.setAttribute("hidden", "true");
+
+    for (const t of today) {
+      const li = document.createElement("li");
+      li.className = "list__item list__item--amber";
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(t.title)}</div>
+          <div class="list__meta">${escapeHtml(t.meta)} • ${escapeHtml(t.hint)}</div>
+        </div>
+        <div class="row-actions">
+          <button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${escapeHtml(t.id)}">Open</button>
+          <span class="nextstep-tag">${escapeHtml(t.tag)}</span>
+        </div>
+      `;
+      nextStepsToday.appendChild(li);
+    }
+
+    nextStepsWeek.innerHTML = "";
+    if (!week.length) emptyNextWeek?.removeAttribute("hidden");
+    else emptyNextWeek?.setAttribute("hidden", "true");
+
+    for (const t of week) {
+      const li = document.createElement("li");
+      li.className = "list__item list__item--green";
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(t.title)}</div>
+          <div class="list__meta">${escapeHtml(t.meta)} • ${escapeHtml(t.hint)}</div>
+        </div>
+        <div class="row-actions">
+          <button class="mini-btn" type="button" data-ns-action="openAdmin" data-id="${escapeHtml(t.id)}">Open</button>
+          <span class="nextstep-tag">${escapeHtml(t.tag)}</span>
+        </div>
+      `;
+      nextStepsWeek.appendChild(li);
+    }
+  }
+
+  // =========================
+  // FUNDS (Money)
+  // =========================
+  function fundProgress(f) {
+    const target = Number(f.target ?? 0);
+    const current = Number(f.current ?? 0);
+    if (!Number.isFinite(target) || target <= 0) return { pct: 0, label: `${fmtGBP(current)} / (no target)` };
+    const pct = Math.max(0, Math.min(100, (current / target) * 100));
+    return { pct, label: `${fmtGBP(current)} / ${fmtGBP(target)} (${Math.round(pct)}%)` };
+  }
+
+  function monthsToTarget(f) {
+    const target = Number(f.target ?? 0);
+    const current = Number(f.current ?? 0);
+    const monthly = Number(f.monthlyGoal ?? 0);
+
+    if (!Number.isFinite(target) || target <= 0) return null;
+    if (!Number.isFinite(monthly) || monthly <= 0) return null;
+    if (current >= target) return 0;
+
+    const remaining = Math.max(0, target - current);
+    return Math.ceil(remaining / monthly);
+  }
+
+  function renderMoney() {
+    const store = loadStore();
+    const funds = store.money.funds ?? [];
+
+    if (badgeMoney) {
+      if (!funds.length) {
+        badgeMoney.className = "badge badge--neutral";
+        badgeMoney.textContent = "Empty";
+      } else {
+        const high = funds.filter((f) => f.priority === "high").length;
+        badgeMoney.className = high > 0 ? "badge badge--warn" : "badge badge--ok";
+        badgeMoney.textContent = `${funds.length} fund${funds.length === 1 ? "" : "s"}`;
+      }
+    }
+
+    if (moneySummary) {
+      const total = funds.reduce((acc, f) => acc + Number(f.current ?? 0), 0);
+      const totalTargets = funds.reduce((acc, f) => acc + Number(f.target ?? 0), 0);
+
+      moneySummary.innerHTML = `
+        <span class="money-chip">Total saved: <strong>${fmtGBP(total)}</strong></span>
+        <span class="money-chip">Total targets: <strong>${fmtGBP(totalTargets)}</strong></span>
+        <span class="money-chip">Funds: <strong>${funds.length}</strong></span>
+      `;
+    }
+
+    if (!listMoneyFunds) return;
+
+    listMoneyFunds.innerHTML = "";
+
+    if (!funds.length) {
+      emptyMoneyFunds?.removeAttribute("hidden");
+      return;
+    }
+    emptyMoneyFunds?.setAttribute("hidden", "true");
+
+    const sorted = [...funds].sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+
+    for (const f of sorted) {
+      const prog = fundProgress(f);
+      const monthly = Number(f.monthlyGoal ?? 0);
+      const monthlyText = monthly > 0 ? `Monthly goal: ${fmtMoney(monthly)}` : "Monthly goal: —";
+
+      const eta = monthsToTarget(f);
+      const etaText = eta === null ? "" : eta === 0 ? "Target reached 🎉" : `ETA: ~${eta} month${eta === 1 ? "" : "s"}`;
+
+      const li = document.createElement("li");
+      li.className = "list__item list__item--neutral";
+      li.innerHTML = `
+        <div class="fund-row" style="width:100%;">
+          <div class="fund-top">
+            <div class="fund-meta">
+              <div class="fund-name">${escapeHtml(f.name)}</div>
+              <div class="fund-sub">
+                ${escapeHtml(prog.label)} • ${escapeHtml(monthlyText)}${etaText ? " • " + escapeHtml(etaText) : ""}
+              </div>
+            </div>
+            <div class="fund-actions">
+              <button class="mini-btn" type="button" data-fund-action="deposit" data-id="${f.id}">Deposit</button>
+              <button class="mini-btn" type="button" data-fund-action="withdraw" data-id="${f.id}">Withdraw</button>
+              <button class="mini-btn" type="button" data-fund-action="edit" data-id="${f.id}">Edit</button>
+              <button class="mini-btn mini-btn--danger" type="button" data-fund-action="delete" data-id="${f.id}">Delete</button>
+            </div>
+          </div>
+
+          <div class="progress">
+            <div class="progress__bar" style="width:${prog.pct}%"></div>
+          </div>
+
+          ${f.notes ? `<div class="fund-sub">${escapeHtml(f.notes)}</div>` : ``}
+        </div>
+      `;
+      listMoneyFunds.appendChild(li);
+    }
+  }
+
+  // Fund save
+  fundForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = fundForm.name.value.trim();
+    if (!name) {
+      alert("Please enter a fund name.");
+      fundForm.name.focus();
+      return;
+    }
+
+    const priority = fundForm.priority.value;
+    const target = Number(fundForm.target.value || 0);
+    const current = Number(fundForm.current.value || 0);
+    const monthlyGoal = Number(fundForm.monthlyGoal.value || 0);
+    const notes = fundForm.notes.value.trim();
+
+    const store = loadStore();
+    const nowISO = new Date().toISOString();
+
+    if (editingFundId) {
+      const idx = store.money.funds.findIndex((f) => f.id === editingFundId);
+      if (idx === -1) {
+        alert("That fund couldn't be found.");
+        closeFundModal();
+        return;
+      }
+      store.money.funds[idx] = {
+        ...store.money.funds[idx],
+        name,
+        priority,
+        target: Number.isFinite(target) && target >= 0 ? target : 0,
+        current: Number.isFinite(current) && current >= 0 ? current : 0,
+        monthlyGoal: Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0,
+        notes,
+        updatedAtISO: nowISO,
+      };
+    } else {
+      const f = makeFund(name);
+      f.priority = priority;
+      f.target = Number.isFinite(target) && target >= 0 ? target : 0;
+      f.current = Number.isFinite(current) && current >= 0 ? current : 0;
+      f.monthlyGoal = Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0;
+      f.notes = notes;
+      f.createdAtISO = nowISO;
+      f.updatedAtISO = nowISO;
+      store.money.funds.push(f);
+    }
+
+    store.money.funds = normaliseFunds(store.money.funds);
+    saveStore(store);
+    renderMoney();
+    renderNextSteps();
+    closeFundModal();
+  });
+
+  // Fund actions (ONE listener on admin view)
+  document.getElementById("view-admin")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-fund-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-fund-action");
+    const id = btn.getAttribute("data-id");
+    if (!action || !id) return;
+
+    const store = loadStore();
+    const idx = store.money.funds.findIndex((f) => f.id === id);
+    if (idx === -1) return;
+
+    const fund = store.money.funds[idx];
+
+    if (action === "edit") return openFundModal("edit", fund);
+
+    if (action === "delete") {
+      if (!confirm("Delete this fund?")) return;
+      store.money.funds.splice(idx, 1);
+      store.money.funds = normaliseFunds(store.money.funds);
+      saveStore(store);
+      renderMoney();
+      renderNextSteps();
+      return;
+    }
+
+    if (action === "deposit" || action === "withdraw") {
+      const label = action === "deposit" ? "Deposit amount" : "Withdraw amount";
+      const raw = prompt(`${label} (${currencySymbol(store.money.currency)}):`, "");
+      if (raw === null) return;
+
+      const amt = Number(raw);
+      if (!Number.isFinite(amt) || amt <= 0) {
+        alert("Please enter a positive number.");
+        return;
+      }
+
+      const next =
+        action === "deposit"
+          ? Number(fund.current ?? 0) + amt
+          : Math.max(0, Number(fund.current ?? 0) - amt);
+
+      store.money.funds[idx] = { ...fund, current: next, updatedAtISO: new Date().toISOString() };
+      store.money.funds = normaliseFunds(store.money.funds);
+      saveStore(store);
+
+      // Optional: log txn
+      store.money.txns.push(makeTxn({
+        type: action === "deposit" ? "deposit" : "withdraw",
+        label: `${action === "deposit" ? "Deposit" : "Withdraw"}: ${fund.name}`,
+        amount: amt,
+        dateISO: toISODate(startOfToday()),
+        fundId: fund.id,
+      }));
+      store.money.txns = normaliseTxns(store.money.txns);
+      saveStore(store);
+
+      renderMoney();
+      renderMoneyTxns();
+      renderNextSteps();
+    }
+  });
+
+  // =========================
+  // BUDGETS + TXNS (Money)
+  // =========================
+  let editingBudgetId = null;
+
+  function budgetSpendThisMonth(store, budgetId) {
+    const mk = currentMonthKey();
+    return (store.money.txns || [])
+      .filter(t => t.type === "spend" && t.budgetId === budgetId && monthKeyFromISO(t.dateISO) === mk)
+      .reduce((acc, t) => acc + Number(t.amount || 0), 0);
+  }
+
+  function openBudgetModal(mode, budget = null) {
+    editingBudgetId = mode === "edit" ? (budget?.id ?? null) : null;
+
+    // fallback prompts if modal not present
+    if (!budgetModal || !budgetForm) {
+      const name = prompt("Budget name (e.g., Food / Petrol):", budget?.name ?? "");
+      if (name === null) return;
+
+      const limitRaw = prompt("Monthly limit:", String(Number(budget?.monthlyLimit ?? 0)));
+      if (limitRaw === null) return;
+
+      const notes = prompt("Notes (optional):", budget?.notes ?? "");
+      if (notes === null) return;
+
+      const store = loadStore();
+      const nowISO = new Date().toISOString();
+      const monthlyLimit = Number(limitRaw);
+
+      if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+        alert("Monthly limit must be 0 or a positive number.");
+        return;
+      }
+
+      if (editingBudgetId) {
+        const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
+        if (idx === -1) return;
+        store.money.budgets[idx] = {
+          ...store.money.budgets[idx],
+          name: name.trim() || store.money.budgets[idx].name,
+          monthlyLimit,
+          notes: notes.trim(),
+          updatedAtISO: nowISO,
+        };
+      } else {
+        const b = makeBudget(name.trim() || "Budget");
+        b.monthlyLimit = monthlyLimit;
+        b.notes = notes.trim();
+        b.updatedAtISO = nowISO;
+        store.money.budgets.push(b);
+      }
+
+      store.money.budgets = normaliseBudgets(store.money.budgets);
+      saveStore(store);
+      renderBudgets();
+      renderMoneyTxns();
+      renderNextSteps();
+      return;
+    }
+
+    if (budgetModalTitle) budgetModalTitle.textContent = mode === "edit" ? "Edit Budget" : "Add Budget";
+    budgetForm.reset();
+
+    budgetForm.id.value = budget?.id ?? "";
+    budgetForm.name.value = budget?.name ?? "";
+    budgetForm.priority.value = budget?.priority ?? "normal";
+    budgetForm.monthlyLimit.value = budget?.monthlyLimit != null ? String(budget.monthlyLimit) : "";
+    budgetForm.notes.value = budget?.notes ?? "";
+
+    budgetModal.setAttribute("aria-hidden", "false");
+    budgetModal.classList.add("is-open");
+    budgetForm.name?.focus?.();
+  }
+
+  function closeBudgetModal() {
+    budgetModal?.setAttribute("aria-hidden", "true");
+    budgetModal?.classList.remove("is-open");
+    editingBudgetId = null;
+  }
+
+  btnAddBudget?.addEventListener("click", () => openBudgetModal("add"));
+  btnCloseBudgetModal?.addEventListener("click", closeBudgetModal);
+  btnCancelBudgetModal?.addEventListener("click", closeBudgetModal);
+  budgetBackdrop?.addEventListener("click", closeBudgetModal);
+
+  budgetForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = budgetForm.name.value.trim();
+    if (!name) {
+      alert("Please enter a budget name.");
+      budgetForm.name.focus();
+      return;
+    }
+
+    const priority = budgetForm.priority.value === "high" ? "high" : "normal";
+    const monthlyLimit = Number(budgetForm.monthlyLimit.value || 0);
+    if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+      alert("Monthly limit must be 0 or a positive number.");
+      budgetForm.monthlyLimit.focus();
+      return;
+    }
+
+    const notes = budgetForm.notes.value.trim();
+    const store = loadStore();
+    const nowISO = new Date().toISOString();
+
+    if (editingBudgetId) {
+      const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
+      if (idx === -1) {
+        alert("Budget not found.");
+        closeBudgetModal();
+        return;
+      }
+      store.money.budgets[idx] = { ...store.money.budgets[idx], name, priority, monthlyLimit, notes, updatedAtISO: nowISO };
+    } else {
+      const b = makeBudget(name);
+      b.priority = priority;
+      b.monthlyLimit = monthlyLimit;
+      b.notes = notes;
+      b.createdAtISO = nowISO;
+      b.updatedAtISO = nowISO;
+      store.money.budgets.push(b);
+    }
+
+    store.money.budgets = normaliseBudgets(store.money.budgets);
+    saveStore(store);
+
+    renderBudgets();
+    renderMoneyTxns();
+    renderNextSteps();
+    closeBudgetModal();
+  });
+
+  function addSpendPrompt(budgetId) {
+    const store = loadStore();
+    const budget = store.money.budgets.find(b => b.id === budgetId);
+    if (!budget) return;
+
+    const label = prompt(`Spend label for "${budget.name}" (e.g., Tesco / Fuel):`, "");
+    if (label === null) return;
+
+    const amtRaw = prompt("Amount:", "");
+    if (amtRaw === null) return;
+    const amt = Number(amtRaw);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      alert("Please enter a positive number.");
+      return;
+    }
+
+    const dateISO = (prompt("Date (YYYY-MM-DD) — leave blank for today:", "") || toISODate(startOfToday())).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) {
+      alert("Please use YYYY-MM-DD format.");
+      return;
+    }
+
+    store.money.txns.push(makeTxn({
+      type: "spend",
+      label: label.trim() || "Spend",
+      amount: amt,
+      dateISO,
+      budgetId,
+    }));
+
+    store.money.txns = normaliseTxns(store.money.txns);
+    saveStore(store);
+
+    renderBudgets();
+    renderMoneyTxns();
+    renderNextSteps();
+  }
+
+  function renderBudgets() {
+    const store = loadStore();
+    const budgets = store.money.budgets || [];
+
+    if (badgeBudgets) {
+      if (!budgets.length) {
+        badgeBudgets.className = "badge badge--neutral";
+        badgeBudgets.textContent = "Empty";
+      } else {
+        const overspent = budgets.filter(b => {
+          const spent = budgetSpendThisMonth(store, b.id);
+          return Number(b.monthlyLimit || 0) > 0 && spent > Number(b.monthlyLimit || 0);
+        }).length;
+
+        badgeBudgets.className = overspent ? "badge badge--danger" : "badge badge--ok";
+        badgeBudgets.textContent = `${budgets.length} budget${budgets.length === 1 ? "" : "s"}`;
+      }
+    }
+
+    if (!listBudgets) return;
+
+    listBudgets.innerHTML = "";
+
+    if (!budgets.length) {
+      emptyBudgets?.removeAttribute("hidden");
+      return;
+    }
+    emptyBudgets?.setAttribute("hidden", "true");
+
+    const sorted = [...budgets].sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+
+    for (const b of sorted) {
+      const spent = budgetSpendThisMonth(store, b.id);
+      const limit = Number(b.monthlyLimit || 0);
+      const pct = limit > 0 ? Math.max(0, Math.min(100, (spent / limit) * 100)) : 0;
+
+      const status =
+        limit <= 0 ? "badge--neutral" :
+        spent > limit ? "badge--danger" :
+        spent > (0.8 * limit) ? "badge--warn" :
+        "badge--ok";
+
+      const li = document.createElement("li");
+      li.className = "list__item list__item--neutral";
+      li.innerHTML = `
+        <div class="fund-row" style="width:100%;">
+          <div class="fund-top">
+            <div class="fund-meta">
+              <div class="fund-name">${escapeHtml(b.name)}</div>
+              <div class="fund-sub">
+                This month: ${escapeHtml(fmtMoney(spent))} • Limit: ${escapeHtml(limit > 0 ? fmtMoney(limit) : "—")}
+                ${b.notes?.trim() ? ` • ${escapeHtml(b.notes.trim())}` : ""}
+              </div>
+            </div>
+            <div class="fund-actions">
+              <button class="mini-btn" type="button" data-budget-action="spend" data-id="${b.id}">Add spend</button>
+              <button class="mini-btn" type="button" data-budget-action="edit" data-id="${b.id}">Edit</button>
+              <button class="mini-btn mini-btn--danger" type="button" data-budget-action="delete" data-id="${b.id}">Delete</button>
+              <span class="badge ${status}">${limit > 0 ? `${Math.round(pct)}%` : "No limit"}</span>
+            </div>
+          </div>
+
+          ${limit > 0 ? `
+            <div class="progress">
+              <div class="progress__bar" style="width:${pct}%"></div>
+            </div>
+          ` : ``}
+        </div>
+      `;
+      listBudgets.appendChild(li);
+    }
+  }
+
+  document.getElementById("view-admin")?.addEventListener("click", (e) => {
+    const bbtn = e.target.closest("button[data-budget-action]");
+    if (!bbtn) return;
+
+    const action = bbtn.getAttribute("data-budget-action");
+    const id = bbtn.getAttribute("data-id");
+    if (!action || !id) return;
+
+    const store = loadStore();
+    const idx = store.money.budgets.findIndex(b => b.id === id);
+    if (idx === -1) return;
+
+    const budget = store.money.budgets[idx];
+
+    if (action === "edit") return openBudgetModal("edit", budget);
+
+    if (action === "delete") {
+      if (!confirm("Delete this budget?")) return;
+      store.money.budgets.splice(idx, 1);
+      store.money.txns = (store.money.txns || []).filter(t => t.budgetId !== id);
+      store.money.budgets = normaliseBudgets(store.money.budgets);
+      store.money.txns = normaliseTxns(store.money.txns);
+      saveStore(store);
+      renderBudgets();
+      renderMoneyTxns();
+      renderNextSteps();
+      return;
+    }
+
+    if (action === "spend") addSpendPrompt(id);
+  });
+
+  function renderMoneyTxns() {
+    if (!moneyTxnsList) return;
+
+    const store = loadStore();
+    const txns = store.money.txns || [];
+
+    moneyTxnsList.innerHTML = "";
+
+    if (!txns.length) {
+      moneyTxnsEmpty?.removeAttribute("hidden");
+      return;
+    }
+    moneyTxnsEmpty?.setAttribute("hidden", "true");
+
+    const sorted = [...txns].sort((a, b) => (b.dateISO || "").localeCompare(a.dateISO || ""));
+    for (const t of sorted.slice(0, 12)) {
+      const li = document.createElement("li");
+      li.className = "list__item list__item--neutral";
+      li.innerHTML = `
+        <div class="list__main">
+          <div class="list__title">${escapeHtml(t.label)}</div>
+          <div class="list__meta">${escapeHtml(t.dateISO)} • ${escapeHtml(t.type)} • ${escapeHtml(fmtMoney(t.amount))}</div>
+        </div>
+      `;
+      moneyTxnsList.appendChild(li);
+    }
+  }
+
+  // =========================
+  // MAIN ADMIN RENDER
+  // =========================
+  function renderAdmin() {
+    const allItems = loadItems();
+
+    const settings = getSettings();
+    if (settings.calmModeAuto && uiState.calmModeManual === null) {
+      uiState.calmMode = urgentCount(allItems) > Number(settings.calmThreshold ?? 3);
+      if (calmCheckbox) calmCheckbox.checked = uiState.calmMode;
+    }
+
+    setOverallPill(computeOverallStatus(allItems));
+    renderStats(allItems);
+    renderSmartAlerts(allItems);
+
+    let visible = applyFilterAndSort(allItems);
+    if (uiState.calmMode) visible = applyCalmMode(visible);
+
+    const groups = {
+      renewal: visible.filter((i) => i.category === "renewal"),
+      account: visible.filter((i) => i.category === "account"),
+      info: visible.filter((i) => i.category === "info"),
+      vehicle: visible.filter((i) => i.category === "vehicle"),
+    };
+
+    renderList(listRenewals, emptyRenewals, groups.renewal);
+    renderList(listAccounts, emptyAccounts, groups.account);
+    renderList(listInfo, emptyInfo, groups.info);
+    renderList(listVehicle, emptyVehicle, groups.vehicle);
+
+    renderBudgets();
+    renderMoney();
+    renderMoneyTxns();
+
+    if (uiState.calmMode) {
+      setCategoryCardVisibility("renewal", groups.renewal.length > 0);
+      setCategoryCardVisibility("account", groups.account.length > 0);
+      setCategoryCardVisibility("info", groups.info.length > 0);
+      setCategoryCardVisibility("vehicle", groups.vehicle.length > 0);
+      setCategoryCardVisibility("money", true);
+    } else {
+      setCategoryCardVisibility("renewal", true);
+      setCategoryCardVisibility("account", true);
+      setCategoryCardVisibility("info", true);
+      setCategoryCardVisibility("vehicle", true);
+      setCategoryCardVisibility("money", true);
+    }
+
+    const badgeItems = uiState.showArchived ? allItems : allItems.filter((i) => !i.archived);
+    setCategoryBadge(badgeRenewals, badgeItems.filter((i) => i.category === "renewal"));
+    setCategoryBadge(badgeAccounts, badgeItems.filter((i) => i.category === "account"));
+    setCategoryBadge(badgeInfo, badgeItems.filter((i) => i.category === "info"));
+    setCategoryBadge(badgeVehicle, badgeItems.filter((i) => i.category === "vehicle"));
+
+    renderNextSteps();
+  }
+
+  // =========================
+  // ACTIONS: edit/delete/archive/done
+  // =========================
+  document.getElementById("view-admin")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-action");
+    const id = btn.getAttribute("data-id");
+    if (!action || !id) return;
+
+    const items = loadItems();
+    const idx = items.findIndex((x) => x.id === id);
+    const item = idx >= 0 ? items[idx] : null;
+    if (!item) return;
+
+    if (action === "delete") {
+      if (!confirm("Delete this item?")) return;
+      items.splice(idx, 1);
+      saveItems(items);
+      renderAdmin();
+      return;
+    }
+
+    if (action === "edit") return openModal("edit", item);
+
+    if (action === "archive") {
+      item.archived = true;
+      item.updatedAtISO = new Date().toISOString();
+      saveItems(items);
+      renderAdmin();
+      return;
+    }
+
+    if (action === "unarchive") {
+      item.archived = false;
+      item.updatedAtISO = new Date().toISOString();
+      saveItems(items);
+      renderAdmin();
+      return;
+    }
+
+    if (action === "done") {
+      item.doneCount = (item.doneCount || 0) + 1;
+      const nowISO = new Date().toISOString();
+
+      if (item.recurrence === "none") {
+        item.archived = true;
+        item.updatedAtISO = nowISO;
+        saveItems(items);
+        renderAdmin();
+        return;
+      }
+
+      const todayISO = toISODate(startOfToday());
+      const baseDue = item.dueDateISO ? item.dueDateISO : todayISO;
+
+      const d = daysUntil(item.dueDateISO);
+      const effectiveBase = d !== null && d < 0 ? todayISO : baseDue;
+
+      if (item.recurrence === "weekly") item.dueDateISO = addDaysISO(effectiveBase, 7);
+      if (item.recurrence === "monthly") item.dueDateISO = addMonthsISO(effectiveBase, 1);
+      if (item.recurrence === "yearly") item.dueDateISO = addYearsISO(effectiveBase, 1);
+      if (item.recurrence === "custom") item.dueDateISO = addDaysISO(effectiveBase, item.customDays ?? 30);
+
+      item.updatedAtISO = nowISO;
+      item.archived = false;
+
+      saveItems(items);
+      renderAdmin();
+    }
+  });
+
+  // Next Steps click open
+  document.getElementById("nextStepsWrap")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-ns-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-ns-action");
+    if (action === "openAdmin") {
+      const id = btn.getAttribute("data-id");
+      if (!id) return;
+
+      const items = loadItems();
+      const item = items.find((x) => x.id === id);
+      if (!item) return;
+
+      setActiveView("admin");
+      openModal("edit", item);
+    }
+  });
+
+    // ============================================================
+  // SECTION 5/5 — EXPORT/IMPORT + SAMPLE DATA + BOOT + CLOSE IIFE
+  // ============================================================
+
+  // =========================
+  // EXPORT / IMPORT (JSON)
+  // =========================
+  const btnExport = document.getElementById("btnExport");
+  const btnImportJson = document.getElementById("btnImportJson");
+  const fileImport = document.getElementById("fileImport"); // <input type="file" accept="application/json">
+
+  function downloadJSON(filename, obj) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
+  btnExport?.addEventListener("click", () => {
+    const store = loadStore();
+    downloadJSON("life-admin-backup.json", store);
+    toast("Exported backup JSON");
+  });
+
+  btnImportJson?.addEventListener("click", () => {
+    if (!fileImport) {
+      alert("Import control not found (missing #fileImport).");
+      return;
+    }
+    fileImport.click();
+  });
+
+  fileImport?.addEventListener("change", async () => {
+    const file = fileImport.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const store = normaliseStore(parsed);
+
+      if (!confirm("Import this backup? This will overwrite your current data.")) {
+        fileImport.value = "";
+        return;
+      }
+
+      saveStore(store);
+      fileImport.value = "";
+
+      // re-render everything
+      applyDefaultUIFromSettings();
+      applyMoneyVisibilityFromSettings();
+      renderAdmin();
+      renderHome();
+      renderSkills();
+
+      toast("Import complete");
+    } catch (err) {
+      alert("Import failed. Make sure this is a valid JSON backup.\n\n" + (err?.message || err));
+    }
+  });
+
+  // =========================
+  // SAMPLE DATA
+  // =========================
+  btnSampleData?.addEventListener("click", () => {
+    if (!confirm("Add sample data? (Won’t delete existing, just adds a few examples.)")) return;
+
+    const store = loadStore();
+
+    // Life Admin items
+    const nowISO = new Date().toISOString();
+    const todayISO = toISODate(startOfToday());
+
+    const sampleItems = [
+      {
+        id: uid(),
+        category: "renewal",
+        name: "Car insurance renewal",
+        details: "Compare quotes • check auto-renew",
+        dueDateISO: addDaysISO(todayISO, 18),
+        reminderProfile: "gentle",
+        priority: "high",
+        archived: false,
+        recurrence: "yearly",
+        customDays: null,
+        createdAtISO: nowISO,
+        updatedAtISO: nowISO,
+        doneCount: 0,
+      },
+      {
+        id: uid(),
+        category: "account",
+        name: "Subscription review",
+        details: "Cancel anything unused",
+        dueDateISO: addDaysISO(todayISO, 14),
+        reminderProfile: "gentle",
+        priority: "normal",
+        archived: false,
+        recurrence: "custom",
+        customDays: 90,
+        createdAtISO: nowISO,
+        updatedAtISO: nowISO,
+        doneCount: 0,
+      },
+      {
+        id: uid(),
+        category: "vehicle",
+        name: "MOT",
+        details: "Book early for a convenient slot",
+        dueDateISO: addDaysISO(todayISO, 33),
+        reminderProfile: "careful",
+        priority: "high",
+        archived: false,
+        recurrence: "yearly",
+        customDays: null,
+        createdAtISO: nowISO,
+        updatedAtISO: nowISO,
+        doneCount: 0,
+      },
+      {
+        id: uid(),
+        category: "info",
+        name: "NI number / key docs",
+        details: "Keep a secure note with where it’s stored",
+        dueDateISO: null,
+        reminderProfile: "gentle",
+        priority: "normal",
+        archived: false,
+        recurrence: "none",
+        customDays: null,
+        createdAtISO: nowISO,
+        updatedAtISO: nowISO,
+        doneCount: 0,
+      },
+    ];
+
+    store.lifeAdmin.items = normaliseItems([...(store.lifeAdmin.items || []), ...sampleItems]);
+
+    // Money: 1–2 funds + budgets
+    if ((store.money.funds || []).length === 0) {
+      const f1 = makeFund("Emergency fund");
+      f1.priority = "high";
+      f1.target = 2000;
+      f1.current = 400;
+      f1.monthlyGoal = 150;
+
+      const f2 = makeFund("Holiday fund");
+      f2.priority = "normal";
+      f2.target = 1200;
+      f2.current = 250;
+      f2.monthlyGoal = 100;
+
+      store.money.funds = normaliseFunds([f1, f2]);
+    }
+
+    if ((store.money.budgets || []).length === 0) {
+      const b1 = makeBudget("Food");
+      b1.priority = "high";
+      b1.monthlyLimit = 300;
+
+      const b2 = makeBudget("Transport");
+      b2.priority = "normal";
+      b2.monthlyLimit = 120;
+
+      store.money.budgets = normaliseBudgets([b1, b2]);
+    }
+
+    // add a couple of spends in this month
+    const mk = currentMonthKey();
+    const someDate = mk + "-05";
+    const foodId = store.money.budgets.find(b => b.name.toLowerCase() === "food")?.id || store.money.budgets[0]?.id;
+    const transportId = store.money.budgets.find(b => b.name.toLowerCase() === "transport")?.id || store.money.budgets[1]?.id;
+
+    if (foodId) {
+      store.money.txns.push(makeTxn({ type: "spend", label: "Tesco", amount: 45.2, dateISO: someDate, budgetId: foodId }));
+    }
+    if (transportId) {
+      store.money.txns.push(makeTxn({ type: "spend", label: "Fuel", amount: 35, dateISO: mk + "-08", budgetId: transportId }));
+    }
+
+    store.money.txns = normaliseTxns(store.money.txns);
+
+    // Home: add costs on a couple of defaults so stats show something
+    const rooms = store.home.rooms || defaultRooms();
+    const pick = (arr, name, cost) => {
+      const it = arr.find(x => (x.name || "").toLowerCase().includes(name.toLowerCase()));
+      if (it) it.cost = cost;
+      if (it) it.planned = true;
+    };
+    if (rooms.bedroom) {
+      pick(rooms.bedroom.essentials, "mattress", 350);
+      pick(rooms.bedroom.essentials, "bed", 400);
+    }
+    if (rooms.kitchen) {
+      pick(rooms.kitchen.extras, "air fryer", 120);
+    }
+    store.home.rooms = rooms;
+
+    saveStore(store);
+
+    renderAdmin();
+    renderHome();
+    renderSkills();
+    renderNextSteps();
+    applyMoneyVisibilityFromSettings();
+
+    toast("Sample data added");
+  });
+
+  // =========================
+  // BOOT
+  // =========================
+  function boot() {
+    // ensure store exists and is normalised
+    const store = loadStore();
+    saveStore(store);
+
+    applyDefaultUIFromSettings();
+    applyMoneyVisibilityFromSettings();
+
+    // default view: admin
+    setActiveView("admin");
+
+    // initial renders
+    renderAdmin();
+    renderHome();
+    renderSkills();
+    renderNextSteps();
+
+    toast("Ready");
+  }
+
+  boot();
+
+})(); // end IIFE
