@@ -655,62 +655,6 @@
     </div>
   </div>
 
-  <!-- =========================
-     Part G: Tools Modal
-========================= -->
-<section class="modal" id="toolsModal" aria-hidden="true">
-  <div class="modal__backdrop"></div>
-  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="toolsModalTitle">
-    <header class="modal__header">
-      <h3 id="toolsModalTitle" style="margin:0;">Tools</h3>
-      <button class="icon-btn icon-btn--sm" type="button" id="btnCloseToolsModal" aria-label="Close">✕</button>
-    </header>
-
-    <div class="form">
-      <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
-        <article class="card">
-          <h4 class="card__title">Backup</h4>
-          <p class="muted muted--pad">Export your entire Life Setup store to a JSON file.</p>
-          <div class="form__actions">
-            <button class="primary-btn" type="button" id="btnToolsExport">Export store</button>
-          </div>
-        </article>
-
-        <article class="card">
-          <h4 class="card__title">Restore</h4>
-          <p class="muted muted--pad">Import a previous export, or legacy Life Admin items.</p>
-          <div class="form__actions">
-            <button class="ghost-btn" type="button" id="btnToolsImport">Import JSON</button>
-          </div>
-        </article>
-
-        <article class="card">
-          <h4 class="card__title">Try sample data</h4>
-          <p class="muted muted--pad">Adds example Life Admin items so you can test the flow.</p>
-          <div class="form__actions">
-            <button class="ghost-btn" type="button" id="btnToolsSample">Add sample items</button>
-          </div>
-        </article>
-
-        <article class="card">
-          <h4 class="card__title">Reset app</h4>
-          <p class="muted muted--pad">Clears the full store (Life Admin, Home, Skills, Money).</p>
-          <div class="form__actions">
-            <button class="ghost-btn" type="button" id="btnToolsReset" style="border-color: rgba(255,91,91,0.30);">
-              Reset everything
-            </button>
-          </div>
-        </article>
-      </div>
-
-      <div class="form__actions" style="margin-top: 12px;">
-        <button class="ghost-btn" type="button" id="btnToolsDone">Done</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-
   <!-- Modal: Tools -->
   <div class="modal" id="toolsModal" aria-hidden="true">
     <div class="modal__backdrop" data-close-tools="true"></div>
