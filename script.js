@@ -2717,6 +2717,21 @@ function roomById(rooms, roomId) {
   return rooms.find(r => r.id === roomId) || null;
 }
 
+function loadSkills() {
+  const store = loadStore();
+  if (!store.skills?.categories || Object.keys(store.skills.categories).length === 0) {
+    store.skills = { categories: defaultSkills() };
+    saveStore(store);
+  }
+  return store.skills;
+}
+
+function saveSkills(skills) {
+  const store = loadStore();
+  store.skills = skills;
+  saveStore(store);
+}
+
 
   // =========================
   // BOOT (Part B)
