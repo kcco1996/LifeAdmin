@@ -651,11 +651,20 @@ select:not(#modal select) option{
 
 /* Modal: light fields, black text */
 #modal .field__control,
-#fundModal .field__control{
+#fundModal .field__control,
+#homeItemModal .field__control{
   background: rgba(255,255,255,0.92) !important;
   color: #0b0d12 !important;
   border-color: rgba(0,0,0,0.18) !important;
 }
+
+#homeItemModal .field__control::placeholder{
+  color: rgba(11, 13, 18, 0.50) !important;
+}
+
+#homeItemModal select.field__control{ color-scheme: light; }
+#homeItemModal select.field__control option{ background: #ffffff; color: #0b0d12; }
+
 
 #modal .field__control::placeholder,
 #fundModal .field__control::placeholder{
@@ -820,11 +829,52 @@ select:not(#modal select) option{
 }
 
 /* Future Home room detail */
-#roomDetail .card { box-shadow: none; }
-#roomDetail .card__title { font-size: 16px; }
+#roomPanel .card { box-shadow: none; }
+#roomPanel .card__title { font-size: 16px; }
 
 .list__meta .pill-note{
   margin-left: 6px;
   font-size: 12px;
   color: rgba(255,255,255,0.78);
+}
+
+#roomsGrid{
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+@media (max-width: 820px){
+  #roomsGrid{ grid-template-columns: 1fr; }
+}
+
+.inline-add{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+
+.inline-add .field__control{
+  padding: 9px 12px;
+  border-radius: 12px;
+}
+
+.inline-add .mini-btn{
+  padding: 9px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 820px){
+  .inline-add{
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+#homeItemModal input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
 }
