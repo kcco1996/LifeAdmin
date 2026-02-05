@@ -2349,6 +2349,10 @@
 
     room.notes = String(homeRoomNotes?.value ?? "");
     saveHomeRooms(rooms);
+
+      renderRoomsGrid(); // ✅ ADD THIS LINE
+
+
     toast("Room notes saved");
   });
 
@@ -2468,6 +2472,9 @@
 
     saveHomeRooms(rooms);
     renderHomeStats();
+    
+  renderRoomsGrid(); // ✅ ADD THIS LINE
+
     renderRoomLists();
     toast("Essential added");
   });
@@ -2486,6 +2493,7 @@
 
     saveHomeRooms(rooms);
     renderHomeStats();
+      renderRoomsGrid(); // ✅ ADD THIS LINE
     renderRoomLists();
     toast("Extra added");
   });
@@ -2519,6 +2527,7 @@
 
       saveHomeRooms(rooms);
       renderHomeStats();
+       renderRoomsGrid(); // ✅ ADD THIS LINE
       renderRoomLists();
       toast("Item deleted");
       return;
@@ -2531,6 +2540,9 @@
 
       saveHomeRooms(rooms);
       renderHomeStats();
+      
+  renderRoomsGrid(); // ✅ ADD THIS LINE
+
       renderRoomLists();
       toast(arr[idx].planned ? "Marked planned" : "Marked not planned");
       return;
@@ -2546,6 +2558,7 @@
 
       saveHomeRooms(rooms);
       renderHomeStats();
+       renderRoomsGrid(); // ✅ ADD THIS LINE
       renderRoomLists();
       toast("Item updated");
     }
