@@ -1,17 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
-
   <script>
-  // iOS Home Screen web-clip sometimes drops the trailing slash and GitHub Pages can 404.
-  (function () {
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-    if (!isStandalone) return;
+    // iOS Home Screen web-clip sometimes drops the trailing slash and GitHub Pages can 404.
+    (function () {
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+      if (!isStandalone) return;
 
-    const p = location.pathname;
-    const isRepoRoot = p.endsWith("/LifeAdmin") && !p.endsWith("/LifeAdmin/");
-    if (isRepoRoot) location.replace(p + "/" + location.search + location.hash);
-  })();
+      const p = location.pathname;
+      const isRepoRoot = p.endsWith("/LifeAdmin") && !p.endsWith("/LifeAdmin/");
+      if (isRepoRoot) location.replace(p + "/" + location.search + location.hash);
+    })();
   </script>
 
   <!-- Icons -->
@@ -87,7 +86,6 @@
             <span id="statusText">All good</span>
           </div>
 
-          <!-- Part C: Tools button (tidy) -->
           <button class="ghost-btn ghost-btn--sm" type="button" id="btnTools">
             <span aria-hidden="true">🧰</span> Tools
           </button>
@@ -100,42 +98,39 @@
       <section class="content">
 
         <!-- NEXT STEPS (Part D) -->
-<div class="grid" id="nextStepsWrap">
-  <article class="card nextsteps">
-    <div class="card__header">
-      <h2 class="card__title">Next Steps</h2>
-      <span class="badge badge--neutral" id="badgeNextSteps">—</span>
-    </div>
+        <div class="grid" id="nextStepsWrap">
+          <article class="card nextsteps">
+            <div class="card__header">
+              <h2 class="card__title">Next Steps</h2>
+              <span class="badge badge--neutral" id="badgeNextSteps">—</span>
+            </div>
 
-    <div class="nextsteps__cols">
-      <div class="nextsteps__col">
-        <div class="nextsteps__label">Today</div>
-        <ul class="list" id="nextStepsToday"></ul>
-        <p class="muted muted--pad" id="emptyNextToday" hidden>
-          Nothing pressing today — you’re in a good place.
-        </p>
-      </div>
+            <div class="nextsteps__cols">
+              <div class="nextsteps__col">
+                <div class="nextsteps__label">Today</div>
+                <ul class="list" id="nextStepsToday"></ul>
+                <p class="muted muted--pad" id="emptyNextToday" hidden>
+                  Nothing pressing today — you’re in a good place.
+                </p>
+              </div>
 
-      <div class="nextsteps__col">
-        <div class="nextsteps__label">This week</div>
-        <ul class="list" id="nextStepsWeek"></ul>
-        <p class="muted muted--pad" id="emptyNextWeek" hidden>
-          No obvious prep needed this week.
-        </p>
-      </div>
-    </div>
+              <div class="nextsteps__col">
+                <div class="nextsteps__label">This week</div>
+                <ul class="list" id="nextStepsWeek"></ul>
+                <p class="muted muted--pad" id="emptyNextWeek" hidden>
+                  No obvious prep needed this week.
+                </p>
+              </div>
+            </div>
 
-    <p class="muted muted--pad">
-      These are gentle suggestions — small steps that reduce stress later.
-    </p>
-  </article>
-</div>
-
+            <p class="muted muted--pad">
+              These are gentle suggestions — small steps that reduce stress later.
+            </p>
+          </article>
+        </div>
 
         <!-- VIEW: LIFE ADMIN -->
         <div class="view is-visible" id="view-admin">
-
-          <!-- Life Admin: Controls Row -->
           <div class="admin-controls">
             <div class="admin-controls__left">
               <div class="search">
@@ -207,13 +202,9 @@
             </div>
           </div>
 
-          <!-- Stats (filled by JS) -->
           <div class="grid grid--stats" id="adminStats"></div>
 
-          <!-- Alerts + Panels -->
           <div class="grid grid--panels admin-panels">
-
-            <!-- Alerts (full width) -->
             <article class="card admin-alerts">
               <div class="card__header">
                 <h2 class="card__title">Smart Alerts</h2>
@@ -227,7 +218,6 @@
               </p>
             </article>
 
-            <!-- Renewals -->
             <article class="card" data-cat-card="renewal">
               <div class="card__header">
                 <h2 class="card__title">Renewals &amp; Deadlines</h2>
@@ -239,7 +229,6 @@
               </p>
             </article>
 
-            <!-- Accounts -->
             <article class="card" data-cat-card="account">
               <div class="card__header">
                 <h2 class="card__title">Accounts &amp; Services</h2>
@@ -251,7 +240,6 @@
               </p>
             </article>
 
-            <!-- Info -->
             <article class="card" data-cat-card="info">
               <div class="card__header">
                 <h2 class="card__title">Important Info (Quick Ref)</h2>
@@ -263,7 +251,6 @@
               </p>
             </article>
 
-            <!-- Vehicle -->
             <article class="card" data-cat-card="vehicle">
               <div class="card__header">
                 <h2 class="card__title">Vehicle</h2>
@@ -275,7 +262,6 @@
               </p>
             </article>
 
-            <!-- Money -->
             <article class="card" data-cat-card="money">
               <div class="card__header">
                 <h2 class="card__title">Money &amp; Future Fund</h2>
@@ -294,290 +280,222 @@
                 No funds yet. Add one like “Emergency Fund” or “House Deposit”.
               </p>
             </article>
-
           </div>
         </div>
 
-      <!-- VIEW: FUTURE HOME -->
-<div class="view" id="view-home">
+        <!-- VIEW: FUTURE HOME (Part F clean version: SINGLE set of elements, NO duplicate IDs) -->
+        <div class="view" id="view-home">
 
-  <!-- Top summary bar (E.1) -->
-  <div class="money-summary" style="margin-bottom:12px;">
-    <span class="money-chip">Essentials planned: <strong id="homeSummaryEssentials">—</strong></span>
-    <span class="money-chip">Extras planned: <strong id="homeSummaryExtras">—</strong></span>
-    <span class="money-chip" id="homeSummaryCosts"></span>
-  </div>
+          <!-- Top summary bar -->
+          <div class="money-summary" style="margin-bottom:12px;">
+            <span class="money-chip">Essentials planned: <strong id="homeSummaryEssentials">—</strong></span>
+            <span class="money-chip">Extras planned: <strong id="homeSummaryExtras">—</strong></span>
+            <span class="money-chip" id="homeSummaryCosts"></span>
+          </div>
 
-  <!-- Room Cards Grid (E.2) -->
-  <div class="grid grid--rooms" id="roomsGrid"></div>
+          <!-- Room Cards Grid -->
+          <div class="grid grid--rooms" id="roomsGrid"></div>
 
-  <!-- Room Detail Panel (E.3–E.6) -->
-  <article class="card" id="roomPanel" hidden>
-    <div class="card__header">
-      <div>
-        <h2 class="card__title" id="roomTitle">Room</h2>
-        <span class="badge badge--neutral" id="roomBadge">—</span>
-      </div>
+          <!-- Room Detail Panel -->
+          <article class="card" id="roomPanel" hidden>
+            <div class="card__header">
+              <div>
+                <!-- NOTE: unique id for title (no duplicates anywhere else) -->
+                <h2 class="card__title" id="roomPanelTitle">Room</h2>
+                <span class="badge badge--neutral" id="roomBadge">—</span>
+              </div>
 
-      <div class="row-actions">
-        <button class="mini-btn" type="button" id="btnCloseRoom">Back</button>
-      </div>
-    </div>
+              <div class="row-actions">
+                <button class="mini-btn" type="button" id="btnCloseRoom">Back</button>
+              </div>
+            </div>
 
-    <!-- Room quick filters (E.6) -->
-    <div class="admin-controls" style="margin: 0 0 12px;">
-      <div class="admin-controls__left">
-        <div class="search">
-          <span class="search__icon" aria-hidden="true">🔎</span>
-          <input
-            id="roomSearch"
-            class="search__input"
-            type="search"
-            placeholder="Search items in this room…"
-            autocomplete="off"
-          />
-        </div>
-      </div>
+            <div class="admin-controls" style="margin: 0 0 12px;">
+              <div class="admin-controls__left">
+                <div class="search">
+                  <span class="search__icon" aria-hidden="true">🔎</span>
+                  <input
+                    id="roomSearch"
+                    class="search__input"
+                    type="search"
+                    placeholder="Search items in this room…"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
 
-      <div class="admin-controls__right">
-        <label class="toggle">
-          <input id="chkPlannedOnly" type="checkbox" />
-          <span class="toggle__box" aria-hidden="true"></span>
-          <span class="toggle__label">Planned only</span>
-        </label>
-      </div>
-    </div>
+              <div class="admin-controls__right">
+                <label class="toggle">
+                  <input id="chkPlannedOnly" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Planned only</span>
+                </label>
+              </div>
+            </div>
 
-    <!-- Room budget summary -->
-    <div class="money-summary" id="roomBudgetSummary" style="margin-bottom:10px;"></div>
+            <div class="money-summary" id="roomBudgetSummary" style="margin-bottom:10px;"></div>
 
-    <div class="row-actions" style="justify-content:flex-end; margin-bottom:12px;">
-      <span class="badge badge--neutral" id="roomBudgetBadge">—</span>
-    </div>
+            <div class="row-actions" style="justify-content:flex-end; margin-bottom:12px;">
+              <span class="badge badge--neutral" id="roomBudgetBadge">—</span>
+            </div>
 
-    <!-- Two columns on desktop; stacks on mobile via your CSS grid -->
-    <div class="grid grid--panels">
-      <!-- Essentials -->
-      <article class="card" style="padding:12px;">
-        <div class="card__header">
-          <h3 class="card__title">🟢 Essentials</h3>
-          <span class="badge badge--neutral" id="badgeEssentials">—</span>
-        </div>
-
-        <!-- Add essential -> opens modal (submit handler) -->
-        <form class="inline-add" id="formAddEssential" style="margin-bottom:10px;">
-          <input class="field__control" name="name" placeholder="Add essential…" />
-          <input class="field__control" name="cost" type="number" min="0" step="1" placeholder="£" style="max-width:120px;" />
-          <button class="mini-btn" type="submit">+ Add</button>
-        </form>
-
-        <ul class="list" id="listEssentials"></ul>
-        <p class="muted muted--pad" id="emptyEssentials" hidden>No essentials yet — add the first one.</p>
-      </article>
-
-      <!-- Extras -->
-      <article class="card" style="padding:12px;">
-        <div class="card__header">
-          <h3 class="card__title">✨ Extras</h3>
-          <span class="badge badge--neutral" id="badgeExtras">—</span>
-        </div>
-
-        <!-- Add extra -> opens modal (submit handler) -->
-        <form class="inline-add" id="formAddExtra" style="margin-bottom:10px;">
-          <input class="field__control" name="name" placeholder="Add extra…" />
-          <input class="field__control" name="cost" type="number" min="0" step="1" placeholder="£" style="max-width:120px;" />
-          <button class="mini-btn" type="submit">+ Add</button>
-        </form>
-
-        <ul class="list" id="listExtras"></ul>
-        <p class="muted muted--pad" id="emptyExtras" hidden>No extras yet — add upgrades when you’re ready.</p>
-      </article>
-    </div>
-
-    <!-- Notes + actions -->
-    <div style="margin-top:12px;">
-      <label class="field" style="display:block;">
-        <span class="field__label">Room notes</span>
-        <input class="field__control" id="roomNotes" placeholder="Any notes for this room…" />
-      </label>
-
-      <div class="row-actions" style="justify-content:flex-end; gap:10px; margin-top:10px;">
-        <button class="ghost-btn ghost-btn--sm" type="button" id="btnResetRoom">Reset room</button>
-        <button class="primary-btn" type="button" id="btnSaveRoomNotes">Save notes</button>
-      </div>
-    </div>
-  </article>
-</div>
-
-  <!-- Room Cards -->
-  <div class="grid grid--rooms" id="homeRooms"></div>
-
-  <!-- Room Detail -->
-  <article class="card" id="roomDetail" hidden>
-    <div class="card__header">
-      <div>
-        <h2 class="card__title" id="roomTitle">Room</h2>
-        <p class="muted" id="roomSubtitle">Plan essentials first, then extras when you’re ready.</p>
-      </div>
-
-      <div class="row-actions">
-        <button class="mini-btn" type="button" id="btnBackRooms">Back</button>
-        <button class="primary-btn" type="button" id="btnAddHomeItem">+ Add item</button>
-      </div>
-    </div>
-
-    <div class="admin-controls" style="margin: 0 0 12px;">
-      <div class="admin-controls__left">
-        <div class="chips" role="tablist" aria-label="Room filters">
-          <button class="chip is-active" type="button" data-room-filter="both">Essentials + Extras</button>
-          <button class="chip" type="button" data-room-filter="essential">Essentials</button>
-          <button class="chip" type="button" data-room-filter="extra">Extras</button>
-        </div>
-      </div>
-
-      <div class="admin-controls__right">
-        <label class="toggle">
-          <input id="chkRoomPlannedOnly" type="checkbox" />
-          <span class="toggle__box" aria-hidden="true"></span>
-          <span class="toggle__label">Planned only</span>
-        </label>
-      </div>
-    </div>
-
-    <div class="grid grid--panels">
-      <article class="card" style="padding:12px;">
-        <div class="card__header">
-          <h3 class="card__title">🟢 Essentials</h3>
-          <span class="badge badge--neutral" id="badgeRoomEss">—</span>
-        </div>
-        <ul class="list" id="listRoomEss"></ul>
-        <p class="muted muted--pad" id="emptyRoomEss" hidden>No essentials yet — add the first one.</p>
-      </article>
-
-      <article class="card" style="padding:12px;">
-        <div class="card__header">
-          <h3 class="card__title">✨ Extras</h3>
-          <span class="badge badge--neutral" id="badgeRoomExtra">—</span>
-        </div>
-        <ul class="list" id="listRoomExtra"></ul>
-        <p class="muted muted--pad" id="emptyRoomExtra" hidden>No extras yet — add upgrades when you’re ready.</p>
-      </article>
-    </div>
-  </article>
-</div>
-
-<!-- Modal: Future Home Add/Edit Item -->
-<div class="modal" id="homeItemModal" aria-hidden="true">
-  <div class="modal__backdrop"></div>
-
-  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="homeItemModalTitle">
-    <div class="modal__header">
-      <h2 class="modal__title" id="homeItemModalTitle">Add item</h2>
-      <button class="icon-btn icon-btn--sm" type="button" id="btnCloseHomeItemModal" aria-label="Close">✕</button>
-    </div>
-
-    <form id="homeItemForm" class="form" autocomplete="off">
-      <!-- (optional hidden kind field, JS will set it if present) -->
-      <input type="hidden" name="kind" />
-
-      <div class="form__row">
-        <label class="field">
-          <span class="field__label">Item name</span>
-          <input class="field__control" name="name" placeholder="e.g., Desk chair" required />
-        </label>
-
-        <label class="field">
-          <span class="field__label">Estimated cost (£)</span>
-          <input class="field__control" name="cost" type="number" min="0" step="1" placeholder="e.g., 180" />
-        </label>
-      </div>
-
-      <div class="form__row">
-        <label class="field">
-          <span class="field__label">Priority</span>
-          <select class="field__control" name="priority" required>
-            <option value="normal">Normal</option>
-            <option value="high">High</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span class="field__label">Planned?</span>
-          <input type="checkbox" name="planned" />
-        </label>
-      </div>
-
-      <div class="form__row" style="grid-template-columns: 1fr;">
-        <label class="field">
-          <span class="field__label">Notes (optional)</span>
-          <input class="field__control" name="notes" placeholder="e.g., ergonomic, mesh back" />
-        </label>
-      </div>
-
-      <div class="form__actions">
-        <button class="ghost-btn" type="button" id="btnCancelHomeItemModal">Cancel</button>
-        <button class="primary-btn" type="submit">Save item</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-        <!-- VIEW: LIFE SKILLS -->
-        <section class="view" id="view-skills">
-          <div class="content">
             <div class="grid grid--panels">
-              <article class="card">
+              <!-- Essentials -->
+              <article class="card" style="padding:12px;">
                 <div class="card__header">
-                  <h2 class="card__title">Life Skills Progress</h2>
-                  <span class="badge badge--neutral" id="skillsBadge">—</span>
+                  <h3 class="card__title">🟢 Essentials</h3>
+                  <span class="badge badge--neutral" id="badgeEssentials">—</span>
                 </div>
 
-                <div class="money-summary" id="skillsSummary"></div>
-
-                <form class="inline-add" id="formAddSkill">
-                  <select class="field__control" name="category">
-                    <option value="Cooking">Cooking</option>
-                    <option value="Cleaning">Cleaning</option>
-                    <option value="Laundry">Laundry</option>
-                    <option value="Personal Admin">Personal Admin</option>
-                    <option value="Health">Health</option>
-                    <option value="Home Basics">Home Basics</option>
-                    
-                  </select>
-                  <input class="field__control" name="name" placeholder="Add a skill (e.g., Cook pasta properly)" />
-                  <button class="mini-btn" type="submit">Add</button>
+                <form class="inline-add" id="formAddEssential" style="margin-bottom:10px;">
+                  <input class="field__control" name="name" placeholder="Add essential…" />
+                  <input class="field__control" name="cost" type="number" min="0" step="1" placeholder="£" style="max-width:120px;" />
+                  <button class="mini-btn" type="submit">+ Add</button>
                 </form>
 
-                <div class="chips" id="skillsFilterChips" style="margin-top:10px;">
-                  <button class="chip is-active" type="button" data-skill-filter="all">All</button>
-                  <button class="chip" type="button" data-skill-filter="Cooking">Cooking</button>
-                  <button class="chip" type="button" data-skill-filter="Cleaning">Cleaning</button>
-                  <button class="chip" type="button" data-skill-filter="Laundry">Laundry</button>
-                  <button class="chip" type="button" data-skill-filter="Personal Admin">Personal Admin</button>
-                  <button class="chip" type="button" data-skill-filter="Health">Health</button>
-                  <button class="chip" type="button" data-skill-filter="Home Basics">Home Basics</button>
-                </div>
+                <ul class="list" id="listEssentials"></ul>
+                <p class="muted muted--pad" id="emptyEssentials" hidden>No essentials yet — add the first one.</p>
               </article>
 
-              <article class="card">
+              <!-- Extras -->
+              <article class="card" style="padding:12px;">
                 <div class="card__header">
-                  <h2 class="card__title">Skills</h2>
-                  <span class="badge badge--neutral" id="skillsCountBadge">—</span>
+                  <h3 class="card__title">✨ Extras</h3>
+                  <span class="badge badge--neutral" id="badgeExtras">—</span>
                 </div>
 
-                <ul class="list" id="skillsList"></ul>
-                <p class="muted muted--pad" id="skillsEmpty" hidden>No skills yet — add one above.</p>
+                <form class="inline-add" id="formAddExtra" style="margin-bottom:10px;">
+                  <input class="field__control" name="name" placeholder="Add extra…" />
+                  <input class="field__control" name="cost" type="number" min="0" step="1" placeholder="£" style="max-width:120px;" />
+                  <button class="mini-btn" type="submit">+ Add</button>
+                </form>
+
+                <ul class="list" id="listExtras"></ul>
+                <p class="muted muted--pad" id="emptyExtras" hidden>No extras yet — add upgrades when you’re ready.</p>
               </article>
             </div>
+
+            <div style="margin-top:12px;">
+              <label class="field" style="display:block;">
+                <span class="field__label">Room notes</span>
+                <input class="field__control" id="roomNotes" placeholder="Any notes for this room…" />
+              </label>
+
+              <div class="row-actions" style="justify-content:flex-end; gap:10px; margin-top:10px;">
+                <button class="ghost-btn ghost-btn--sm" type="button" id="btnResetRoom">Reset room</button>
+                <button class="primary-btn" type="button" id="btnSaveRoomNotes">Save notes</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- VIEW: LIFE SKILLS -->
+        <div class="view" id="view-skills">
+          <div class="grid grid--panels">
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Life Skills Progress</h2>
+                <span class="badge badge--neutral" id="skillsBadge">—</span>
+              </div>
+
+              <div class="money-summary" id="skillsSummary"></div>
+
+              <form class="inline-add" id="formAddSkill">
+                <select class="field__control" name="category">
+                  <option value="Cooking">Cooking</option>
+                  <option value="Cleaning">Cleaning</option>
+                  <option value="Laundry">Laundry</option>
+                  <option value="Personal Admin">Personal Admin</option>
+                  <option value="Health">Health</option>
+                  <option value="Home Basics">Home Basics</option>
+                </select>
+                <input class="field__control" name="name" placeholder="Add a skill (e.g., Cook pasta properly)" />
+                <button class="mini-btn" type="submit">Add</button>
+              </form>
+
+              <div class="chips" id="skillsFilterChips" style="margin-top:10px;">
+                <button class="chip is-active" type="button" data-skill-filter="all">All</button>
+                <button class="chip" type="button" data-skill-filter="Cooking">Cooking</button>
+                <button class="chip" type="button" data-skill-filter="Cleaning">Cleaning</button>
+                <button class="chip" type="button" data-skill-filter="Laundry">Laundry</button>
+                <button class="chip" type="button" data-skill-filter="Personal Admin">Personal Admin</button>
+                <button class="chip" type="button" data-skill-filter="Health">Health</button>
+                <button class="chip" type="button" data-skill-filter="Home Basics">Home Basics</button>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Skills</h2>
+                <span class="badge badge--neutral" id="skillsCountBadge">—</span>
+              </div>
+
+              <ul class="list" id="skillsList"></ul>
+              <p class="muted muted--pad" id="skillsEmpty" hidden>No skills yet — add one above.</p>
+            </article>
           </div>
-        </section>
+        </div>
 
       </section>
     </main>
   </div>
 
-  <!-- Modal: Tools (Part C) -->
+  <!-- Modal: Future Home Add/Edit Item -->
+  <div class="modal" id="homeItemModal" aria-hidden="true">
+    <div class="modal__backdrop"></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="homeItemModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="homeItemModalTitle">Add item</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseHomeItemModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="homeItemForm" class="form" autocomplete="off">
+        <input type="hidden" name="kind" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Item name</span>
+            <input class="field__control" name="name" placeholder="e.g., Desk chair" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Estimated cost (£)</span>
+            <input class="field__control" name="cost" type="number" min="0" step="1" placeholder="e.g., 180" />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Priority</span>
+            <select class="field__control" name="priority" required>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Planned?</span>
+            <input type="checkbox" name="planned" />
+          </label>
+        </div>
+
+        <div class="form__row" style="grid-template-columns: 1fr;">
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input class="field__control" name="notes" placeholder="e.g., ergonomic, mesh back" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelHomeItemModal">Cancel</button>
+          <button class="primary-btn" type="submit">Save item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Tools -->
   <div class="modal" id="toolsModal" aria-hidden="true">
     <div class="modal__backdrop" data-close-tools="true"></div>
 
@@ -590,7 +508,6 @@
       <div class="form">
         <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
 
-          <!-- Export / Import -->
           <article class="card" style="padding:12px;">
             <div class="card__header">
               <h3 class="card__title">Backup & Restore</h3>
@@ -619,7 +536,6 @@
             </p>
           </article>
 
-          <!-- Home Templates -->
           <article class="card" style="padding:12px;">
             <div class="card__header">
               <h3 class="card__title">Future Home Templates</h3>
@@ -659,7 +575,6 @@
             </p>
           </article>
 
-          <!-- Global Budget -->
           <article class="card" style="padding:12px;">
             <div class="card__header">
               <h3 class="card__title">Global Home Budget</h3>
@@ -835,7 +750,6 @@
           Tip: “Mark done” will move one-off items into Archive, or advance the next due date for recurring items.
         </p>
       </form>
-
     </div>
   </div>
 

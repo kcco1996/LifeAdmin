@@ -1370,7 +1370,7 @@ try {
     // ---- LIFE SKILLS ----
     // focus: “In progress” items
     try {
-      const skills = loadSkills();
+      const skills = getSkills();
       const cats = skills.categories || {};
 
       for (const ck of Object.keys(cats)) {
@@ -2174,190 +2174,454 @@ btnResetRoom?.addEventListener("click", () => {
 });
 
   // =========================
-  // LIFE SKILLS (Part B)
-  // =========================
-  const skillsState = { filter: "all" };
+// LIFE SKILLS (Part F)
+// =========================
 
-  function skillLevelLabel(level) {
-    if (level === "ns") return { text: "Not started", cls: "skill-pill skill-pill--ns" };
-    if (level === "ip") return { text: "In progress", cls: "skill-pill skill-pill--ip" };
-    return { text: "Confident", cls: "skill-pill skill-pill--cf" };
-  }
+// ---- DOM hooks (safe if missing) ----
+const skillsCatsGrid = document.getElementById("skillsCatsGrid");              // category cards container
+const skillsCategoryPanel = document.getElementById("skillsCategoryPanel");    // detail view wrapper
+const skillsCategoryTitle = document.getElementById("skillsCategoryTitle");    // h2 title in detail
+const btnSkillsBack = document.getElementById("btnSkillsBack");                // back button
+const skillsCategoryList = document.getElementById("skillsCategoryList");      // ul list in detail
+const skillsCategoryEmpty = document.getElementById("skillsCategoryEmpty");    // empty hint in detail
+const btnAddSkillInCat = document.getElementById("btnAddSkillInCat");          // add skill button in detail
 
-  function nextSkillLevel(level) {
-    if (level === "ns") return "ip";
-    if (level === "ip") return "cf";
-    return "ns";
-  }
+// dashboard integration (safe if missing)
+const dashSkillsConfident = document.getElementById("dashSkillsConfident");    // number
+const dashSkillsLearning = document.getElementById("dashSkillsLearning");      // number
 
-  function flattenSkills(categoriesObj) {
-    const all = [];
-    for (const key of Object.keys(categoriesObj)) {
-      const cat = categoriesObj[key];
-      for (const it of cat.items ?? []) {
-        all.push({ ...it, category: key });
-      }
-    }
-    return all;
-  }
+// modal (optional – if missing we fallback to prompt)
+const skillsModal = document.getElementById("skillsModal");
+const skillsModalTitle = document.getElementById("skillsModalTitle");
+const skillsModalBackdrop = skillsModal?.querySelector(".modal__backdrop");
+const btnCloseSkillsModal = document.getElementById("btnCloseSkillsModal");
+const btnCancelSkillsModal = document.getElementById("btnCancelSkillsModal");
+const skillsForm = document.getElementById("skillsForm");
 
-  function renderSkills() {
-    const skills = loadSkills();
-    const categories = skills.categories;
-    const all = flattenSkills(categories);
+// ---- Part F state ----
+let activeSkillCategoryKey = null;
+let editingSkill = { categoryKey: null, id: null };
 
-    const ns = all.filter((x) => x.level === "ns").length;
-    const ip = all.filter((x) => x.level === "ip").length;
-    const cf = all.filter((x) => x.level === "cf").length;
-
-    if (skillsBadge) {
-      skillsBadge.className = cf > 0 ? "badge badge--ok" : "badge badge--neutral";
-      skillsBadge.textContent = `${cf} confident`;
-    }
-
-    if (skillsCountBadge) {
-      skillsCountBadge.className = "badge badge--neutral";
-      skillsCountBadge.textContent = `${all.length} total`;
-    }
-
-    if (skillsSummary) {
-      skillsSummary.innerHTML = `
-        <span class="money-chip">Not started: <strong>${ns}</strong></span>
-        <span class="money-chip">In progress: <strong>${ip}</strong></span>
-        <span class="money-chip">Confident: <strong>${cf}</strong></span>
-      `;
-    }
-
-    let visible = [...all];
-    if (skillsState.filter !== "all") visible = visible.filter((x) => x.category === skillsState.filter);
-
-    const order = { ns: 0, ip: 1, cf: 2 };
-    visible.sort((a, b) => {
-      if (order[a.level] !== order[b.level]) return order[a.level] - order[b.level];
-      return a.name.localeCompare(b.name);
-    });
-
-    if (!skillsList) return;
-    skillsList.innerHTML = "";
-
-    if (!visible.length) {
-      skillsEmpty?.removeAttribute("hidden");
-      return;
-    }
-    skillsEmpty?.setAttribute("hidden", "true");
-
-    for (const s of visible) {
-      const pill = skillLevelLabel(s.level);
-
-      const li = document.createElement("li");
-      li.className = "list__item list__item--neutral";
-      li.innerHTML = `
-        <div class="list__main">
-          <div class="list__title">${escapeHtml(s.name)}</div>
-          <div class="list__meta">${escapeHtml(s.category)}</div>
-        </div>
-
-        <div class="row-actions">
-          <button class="mini-btn" type="button" data-skill-action="toggle" data-id="${s.id}" data-category="${escapeHtml(s.category)}">
-            Update
-          </button>
-          <button class="mini-btn" type="button" data-skill-action="rename" data-id="${s.id}" data-category="${escapeHtml(s.category)}">
-            Rename
-          </button>
-          <button class="mini-btn mini-btn--danger" type="button" data-skill-action="delete" data-id="${s.id}" data-category="${escapeHtml(s.category)}">
-            Delete
-          </button>
-          <span class="${pill.cls}">${pill.text}</span>
-        </div>
-      `;
-      skillsList.appendChild(li);
-    }
-  }
-
-  formAddSkill?.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const category = formAddSkill.category.value;
-    const name = formAddSkill.name.value.trim();
-    if (!name) return;
-
-    const skills = loadSkills();
-    if (!skills.categories[category]) skills.categories[category] = { category, items: [] };
-
-    skills.categories[category].items.push({
+// ---- defaults required by Part F ----
+function defaultLifeSkills() {
+  const mk = (category, names) => ({
+    category,
+    items: names.map((n) => ({
       id: uid(),
-      name,
-      level: "ns",
+      name: n,
+      level: "ns",     // ns | ip | cf
       notes: "",
       createdAtISO: new Date().toISOString(),
-    });
-
-    saveSkills(skills);
-    formAddSkill.reset();
-    renderSkills();
-   renderNextSteps(); // ✅
+      updatedAtISO: new Date().toISOString(),
+    })),
   });
 
-  skillsFilterChips?.addEventListener("click", (e) => {
-    const chip = e.target.closest("[data-skill-filter]");
-    if (!chip) return;
+  return {
+    "Cooking": mk("Cooking", [
+      "Cook chicken safely",
+      "Make rice properly",
+      "Cook a hot breakfast",
+    ]),
+    "Cleaning & Laundry": mk("Cleaning & Laundry", [
+      "Clean a bathroom properly",
+      "Vacuum + dust routine",
+      "Run a wash cycle confidently",
+    ]),
+    "Home Routines": mk("Home Routines", [
+      "Weekly reset routine",
+      "Basic meal planning",
+      "Keep a simple cleaning schedule",
+    ]),
+    "Money Skills": mk("Money Skills", [
+      "Track bills & renewals",
+      "Set a monthly budget",
+      "Understand direct debits & standing orders",
+    ]),
+    "Life Admin Skills": mk("Life Admin Skills", [
+      "Book appointments",
+      "Keep documents organised",
+      "Handle important letters/emails calmly",
+    ]),
+    "Car Skills": mk("Car Skills", [
+      "Check tyre pressure",
+      "Top up screenwash",
+      "Understand MOT/service basics",
+    ]),
+    "Home Practical Skills": mk("Home Practical Skills", [
+      "Change a lightbulb",
+      "Reset internet router",
+      "Use a basic tool kit safely",
+    ]),
+  };
+}
 
-    const key = chip.getAttribute("data-skill-filter");
-    if (!key) return;
+function ensureSkillsStore() {
+  const store = loadStore();
 
-    skillsState.filter = key;
+  if (!store.skills || typeof store.skills !== "object") store.skills = {};
+  if (!store.skills.version) store.skills.version = 2;
 
-    Array.from(skillsFilterChips.querySelectorAll(".chip")).forEach((c) =>
-      c.classList.toggle("is-active", c === chip)
-    );
+  // migrate/seed categories
+  if (!store.skills.categories || typeof store.skills.categories !== "object" || Object.keys(store.skills.categories).length === 0) {
+    store.skills.categories = defaultLifeSkills();
+    store.skills.version = 2;
+    saveStore(store);
+    return store.skills;
+  }
 
-    renderSkills();
-    renderNextSteps(); // ✅
-  });
+  // ensure the core categories exist (don’t delete user ones)
+  const core = defaultLifeSkills();
+  for (const k of Object.keys(core)) {
+    if (!store.skills.categories[k]) store.skills.categories[k] = core[k];
+  }
 
-  skillsList?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-skill-action]");
-    if (!btn) return;
+  store.skills.version = 2;
+  saveStore(store);
+  return store.skills;
+}
 
-    const action = btn.getAttribute("data-skill-action");
-    const id = btn.getAttribute("data-id");
-    const category = btn.getAttribute("data-category");
+function getSkills() {
+  return ensureSkillsStore();
+}
 
-    if (!action || !id || !category) return;
+function saveSkillsObj(skills) {
+  const store = loadStore();
+  store.skills = skills;
+  store.skills.version = 2;
+  saveStore(store);
+}
 
-    const skills = loadSkills();
-    const cat = skills.categories[category];
-    if (!cat) return;
+function totalsFromSkills(skills) {
+  const cats = skills.categories || {};
+  let total = 0, ns = 0, ip = 0, cf = 0;
 
-    const idx = cat.items.findIndex((x) => x.id === id);
+  for (const ck of Object.keys(cats)) {
+    const items = cats[ck]?.items || [];
+    total += items.length;
+    ns += items.filter(x => x.level === "ns").length;
+    ip += items.filter(x => x.level === "ip").length;
+    cf += items.filter(x => x.level === "cf").length;
+  }
+  return { total, ns, ip, cf };
+}
+
+function categoryProgress(cat) {
+  const items = cat?.items || [];
+  const total = items.length;
+  const cf = items.filter(x => x.level === "cf").length;
+  const pct = total ? Math.round((cf / total) * 100) : 0;
+
+  // short hint (Part F)
+  let hint = "Start small — one skill at a time.";
+  if (pct >= 80) hint = "Nearly there — you’re basically sorted.";
+  else if (pct >= 40) hint = "Good progress — keep building.";
+  else if (pct >= 10) hint = "Nice start — keep going.";
+
+  return { total, cf, pct, hint };
+}
+
+function setSkillsDashboardStats() {
+  const skills = getSkills();
+  const t = totalsFromSkills(skills);
+
+  if (dashSkillsConfident) dashSkillsConfident.textContent = String(t.cf);
+  if (dashSkillsLearning) dashSkillsLearning.textContent = String(t.ip);
+}
+
+// ---- view helpers ----
+function openSkillsCategory(categoryKey) {
+  activeSkillCategoryKey = categoryKey;
+
+  if (skillsCategoryPanel) skillsCategoryPanel.hidden = false;
+  if (skillsCategoryTitle) skillsCategoryTitle.textContent = categoryKey;
+
+  renderSkillsCategoryDetail();
+}
+
+function closeSkillsCategory() {
+  activeSkillCategoryKey = null;
+  if (skillsCategoryPanel) skillsCategoryPanel.hidden = true;
+  renderSkillsCategories(); // return to grid
+}
+
+btnSkillsBack?.addEventListener("click", closeSkillsCategory);
+
+// ---- category cards page ----
+function renderSkillsCategories() {
+  const skills = getSkills();
+  const cats = skills.categories || {};
+
+  // if your HTML still uses the old elements, we bail safely
+  if (!skillsCatsGrid) {
+    // fallback: keep your old list if you haven’t updated HTML yet
+    setSkillsDashboardStats();
+    return;
+  }
+
+  skillsCatsGrid.innerHTML = "";
+
+  const keys = Object.keys(cats);
+
+  for (const k of keys) {
+    const cat = cats[k];
+    const p = categoryProgress(cat);
+
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "skill-cat-card";
+    card.innerHTML = `
+      <div class="skill-cat-card__top">
+        <div class="skill-cat-card__title">${escapeHtml(k)}</div>
+        <div class="skill-cat-card__count">${p.cf} / ${p.total} confident</div>
+      </div>
+      <div class="progress" aria-label="Category progress">
+        <div class="progress__bar" style="width:${p.pct}%"></div>
+      </div>
+      <div class="skill-cat-card__hint">${escapeHtml(p.hint)}</div>
+    `;
+    card.addEventListener("click", () => openSkillsCategory(k));
+    skillsCatsGrid.appendChild(card);
+  }
+
+  setSkillsDashboardStats();
+}
+
+// ---- skill item controls ----
+function setSkillLevel(categoryKey, skillId, level) {
+  const skills = getSkills();
+  const cat = skills.categories?.[categoryKey];
+  if (!cat) return;
+
+  const idx = (cat.items || []).findIndex(x => x.id === skillId);
+  if (idx === -1) return;
+
+  cat.items[idx].level = level;
+  cat.items[idx].updatedAtISO = new Date().toISOString();
+
+  saveSkillsObj(skills);
+  renderSkillsCategories();
+  renderSkillsCategoryDetail();
+  renderNextSteps(); // keep your Next Steps synced
+}
+
+function deleteSkill(categoryKey, skillId) {
+  const skills = getSkills();
+  const cat = skills.categories?.[categoryKey];
+  if (!cat) return;
+
+  const idx = (cat.items || []).findIndex(x => x.id === skillId);
+  if (idx === -1) return;
+
+  cat.items.splice(idx, 1);
+  saveSkillsObj(skills);
+
+  renderSkillsCategories();
+  renderSkillsCategoryDetail();
+  renderNextSteps();
+}
+
+function upsertSkill(categoryKey, payload) {
+  const skills = getSkills();
+  if (!skills.categories[categoryKey]) {
+    skills.categories[categoryKey] = { category: categoryKey, items: [] };
+  }
+
+  const cat = skills.categories[categoryKey];
+  const nowISO = new Date().toISOString();
+
+  if (payload.id) {
+    const idx = cat.items.findIndex(x => x.id === payload.id);
     if (idx === -1) return;
 
-    if (action === "toggle") {
-      cat.items[idx].level = nextSkillLevel(cat.items[idx].level);
-      saveSkills(skills);
-      renderSkills();
-      renderNextSteps(); // ✅
-      return;
-    }
+    cat.items[idx] = {
+      ...cat.items[idx],
+      name: payload.name,
+      level: payload.level,
+      notes: payload.notes,
+      updatedAtISO: nowISO,
+    };
+  } else {
+    cat.items.push({
+      id: uid(),
+      name: payload.name,
+      level: payload.level,
+      notes: payload.notes,
+      createdAtISO: nowISO,
+      updatedAtISO: nowISO,
+    });
+  }
 
-    if (action === "rename") {
-      const next = prompt("Rename skill:", cat.items[idx].name);
-      if (next === null) return;
-      cat.items[idx].name = next.trim() || cat.items[idx].name;
-      saveSkills(skills);
-      renderSkills();
-      renderNextSteps(); // ✅
-      return;
-    }
+  saveSkillsObj(skills);
+  renderSkillsCategories();
+  renderSkillsCategoryDetail();
+  renderNextSteps();
+}
 
-    if (action === "delete") {
-      if (!confirm("Delete this skill?")) return;
-      cat.items.splice(idx, 1);
-      saveSkills(skills);
-      renderSkills();
-      renderNextSteps(); // ✅
-    }
+// ---- modal (optional) ----
+function openSkillsModal(mode, categoryKey, item) {
+  editingSkill = { categoryKey, id: mode === "edit" ? item?.id : null };
+
+  // fallback prompts if modal HTML not present yet
+  if (!skillsModal || !skillsForm) {
+    const name = prompt(mode === "edit" ? "Edit skill name:" : "New skill name:", item?.name ?? "");
+    if (name === null) return;
+
+    const notes = prompt("Notes (optional):", item?.notes ?? "");
+    if (notes === null) return;
+
+    const level = item?.level ?? "ns";
+    upsertSkill(categoryKey, {
+      id: item?.id,
+      name: name.trim() || (item?.name ?? "Skill"),
+      level,
+      notes: notes.trim(),
+    });
+    return;
+  }
+
+  if (skillsModalTitle) skillsModalTitle.textContent = mode === "edit" ? "Edit Skill" : "Add Skill";
+  skillsForm.reset();
+
+  if (skillsForm.name) skillsForm.name.value = item?.name ?? "";
+  if (skillsForm.level) skillsForm.level.value = item?.level ?? "ns";
+  if (skillsForm.notes) skillsForm.notes.value = item?.notes ?? "";
+
+  skillsModal.setAttribute("aria-hidden", "false");
+  skillsModal.classList.add("is-open");
+  skillsForm.name?.focus?.();
+}
+
+function closeSkillsModal() {
+  skillsModal?.setAttribute("aria-hidden", "true");
+  skillsModal?.classList.remove("is-open");
+  editingSkill = { categoryKey: null, id: null };
+}
+
+btnCloseSkillsModal?.addEventListener("click", closeSkillsModal);
+btnCancelSkillsModal?.addEventListener("click", closeSkillsModal);
+skillsModalBackdrop?.addEventListener("click", closeSkillsModal);
+
+skillsForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const categoryKey = editingSkill.categoryKey;
+  if (!categoryKey) return;
+
+  const name = String(skillsForm.name?.value ?? "").trim();
+  if (!name) {
+    alert("Please enter a skill name.");
+    skillsForm.name?.focus?.();
+    return;
+  }
+
+  const level = (skillsForm.level?.value === "ip" || skillsForm.level?.value === "cf") ? skillsForm.level.value : "ns";
+  const notes = String(skillsForm.notes?.value ?? "").trim();
+
+  upsertSkill(categoryKey, {
+    id: editingSkill.id,
+    name,
+    level,
+    notes,
   });
+
+  closeSkillsModal();
+});
+
+btnAddSkillInCat?.addEventListener("click", () => {
+  if (!activeSkillCategoryKey) return;
+  openSkillsModal("add", activeSkillCategoryKey, null);
+});
+
+// ---- detail view render ----
+function renderSkillsCategoryDetail() {
+  if (!activeSkillCategoryKey) return;
+  const skills = getSkills();
+  const cat = skills.categories?.[activeSkillCategoryKey];
+  if (!cat) return;
+
+  if (!skillsCategoryList) return;
+  skillsCategoryList.innerHTML = "";
+
+  const items = [...(cat.items || [])].sort((a, b) => a.name.localeCompare(b.name));
+
+  if (!items.length) {
+    skillsCategoryEmpty?.removeAttribute("hidden");
+    return;
+  }
+  skillsCategoryEmpty?.setAttribute("hidden", "true");
+
+  for (const it of items) {
+    const li = document.createElement("li");
+    li.className = "skill-row";
+
+    li.innerHTML = `
+      <div class="skill-row__main">
+        <div class="skill-row__name">${escapeHtml(it.name)}</div>
+        ${it.notes?.trim() ? `<div class="skill-row__notes">${escapeHtml(it.notes.trim())}</div>` : ``}
+      </div>
+
+      <div class="skill-row__actions">
+        <div class="skill-status">
+          <button type="button" class="skill-status__btn ${it.level === "ns" ? "is-active is-ns" : ""}"
+            data-skill-set="ns" data-id="${it.id}">⬜</button>
+          <button type="button" class="skill-status__btn ${it.level === "ip" ? "is-active is-ip" : ""}"
+            data-skill-set="ip" data-id="${it.id}">🟨</button>
+          <button type="button" class="skill-status__btn ${it.level === "cf" ? "is-active is-cf" : ""}"
+            data-skill-set="cf" data-id="${it.id}">🟩</button>
+        </div>
+
+        <button class="mini-btn" type="button" data-skill-action="edit" data-id="${it.id}">Edit</button>
+        <button class="mini-btn mini-btn--danger" type="button" data-skill-action="delete" data-id="${it.id}">Delete</button>
+      </div>
+    `;
+
+    skillsCategoryList.appendChild(li);
+  }
+
+  setSkillsDashboardStats();
+}
+
+skillsCategoryList?.addEventListener("click", (e) => {
+  const setBtn = e.target.closest("button[data-skill-set]");
+  if (setBtn && activeSkillCategoryKey) {
+    const level = setBtn.getAttribute("data-skill-set");
+    const id = setBtn.getAttribute("data-id");
+    if (!id || !level) return;
+    setSkillLevel(activeSkillCategoryKey, id, level);
+    return;
+  }
+
+  const actionBtn = e.target.closest("button[data-skill-action]");
+  if (!actionBtn || !activeSkillCategoryKey) return;
+
+  const action = actionBtn.getAttribute("data-skill-action");
+  const id = actionBtn.getAttribute("data-id");
+  if (!action || !id) return;
+
+  const skills = getSkills();
+  const cat = skills.categories?.[activeSkillCategoryKey];
+  if (!cat) return;
+
+  const item = (cat.items || []).find(x => x.id === id);
+  if (!item) return;
+
+  if (action === "edit") {
+    openSkillsModal("edit", activeSkillCategoryKey, item);
+    return;
+  }
+
+  if (action === "delete") {
+    if (!confirm("Delete this skill?")) return;
+    deleteSkill(activeSkillCategoryKey, id);
+  }
+});
+
+// initial render entry point for Skills tab
+function renderSkills() {
+  // If detail panel open, update it too
+  renderSkillsCategories();
+  if (activeSkillCategoryKey) renderSkillsCategoryDetail();
+}
+
 
   // =========================
   // MAIN RENDER
@@ -2577,7 +2841,7 @@ btnResetRoom?.addEventListener("click", () => {
         saveStore(store);
 
         loadHome();
-        loadSkills();
+       getSkills();
 
         renderAdmin();
         renderRoomsGrid();
@@ -2691,47 +2955,6 @@ btnResetRoom?.addEventListener("click", () => {
     alert("Settings coming soon: templates, backups, notifications, money preferences.");
   });
 
-function normaliseHomeItem(x) {
-  const name = (x?.name ?? "").toString().trim();
-  if (!name) return null;
-
-  const item = {
-    id: (x?.id ?? uid()).toString(),
-    name,
-    bucket: x?.bucket === "extra" ? "extra" : "essential",
-    planned: Boolean(x?.planned ?? false),
-    priority: x?.priority === "high" ? "high" : "normal",
-    cost: x?.cost != null && String(x.cost).trim() !== "" ? Number(x.cost) : null,
-    notes: (x?.notes ?? "").toString(),
-    createdAtISO: (x?.createdAtISO ?? new Date().toISOString()).toString(),
-    updatedAtISO: (x?.updatedAtISO ?? new Date().toISOString()).toString(),
-  };
-
-  if (!Number.isFinite(item.cost)) item.cost = null;
-  if (item.cost != null && item.cost < 0) item.cost = null;
-
-  return item;
-}
-
-function roomById(rooms, roomId) {
-  return rooms.find(r => r.id === roomId) || null;
-}
-
-function loadSkills() {
-  const store = loadStore();
-  if (!store.skills?.categories || Object.keys(store.skills.categories).length === 0) {
-    store.skills = { categories: defaultSkills() };
-    saveStore(store);
-  }
-  return store.skills;
-}
-
-function saveSkills(skills) {
-  const store = loadStore();
-  store.skills = skills;
-  saveStore(store);
-}
-
 
   // =========================
   // BOOT (Part B)
@@ -2740,7 +2963,7 @@ function saveSkills(skills) {
   setRecurrenceUI(itemForm?.recurrence?.value || "none");
 
   loadHome();
-  loadSkills();
+getSkills();
 
   renderAdmin();
   renderRoomsGrid();
