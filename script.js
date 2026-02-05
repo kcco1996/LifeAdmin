@@ -142,41 +142,58 @@
   const LS_LEGACY_LIFEADMIN = "lifeSetup.lifeAdmin.items.v5";
 
   function defaultRooms() {
-    const mk = (title, essentials, extras) => ({
-      title,
-      notes: "",
-      essentials: essentials.map((n) => ({ id: uid(), name: n, cost: 0, done: false })),
-      extras: extras.map((n) => ({ id: uid(), name: n, cost: 0, done: false })),
-    });
+  const mkItem = (name) => ({
+    id: uid(),
+    name,
+    planned: false,        // ✅ planned replaces done
+    priority: "normal",    // "high" | "normal"
+    cost: 0,
+    notes: "",
+    createdAtISO: new Date().toISOString(),
+    updatedAtISO: new Date().toISOString(),
+  });
 
-    return {
-      bedroom: mk(
-        "Bedroom",
-        ["Bed frame", "Mattress", "Pillow(s)", "Duvet", "Bedsheets", "Wardrobe / storage"],
-        ["Bedside table", "Lamp", "Mirror", "Rug", "Extra storage boxes"]
-      ),
-      kitchen: mk(
-        "Kitchen",
-        ["Plates/bowls", "Cutlery", "Mugs", "Cooking basics (knife/board)", "Bin", "Tea towels"],
-        ["Air fryer", "Blender", "Extra pans", "Nice glasses", "Organisers"]
-      ),
-      living: mk(
-        "Living Room",
-        ["Sofa", "TV stand", "Curtains/blinds", "Lighting", "Basic cleaning kit"],
-        ["Coffee table", "Rug", "Wall art", "Speaker", "Extra seating"]
-      ),
-      bathroom: mk(
-        "Bathroom",
-        ["Towels", "Toilet brush", "Shower curtain (if needed)", "Soap/shampoo", "Bath mat"],
-        ["Storage caddy", "Nice mirror", "Plants", "Extra shelves"]
-      ),
-      office: mk(
-        "Office",
-        ["Desk", "Chair", "Monitor (optional)", "Extension lead", "Basic stationery"],
-        ["Second monitor", "Desk lamp", "Cable management", "Whiteboard", "Printer"]
-      ),
-    };
-  }
+  const mk = (title, essentials, extras) => ({
+    title,
+    notes: "",
+    essentials: essentials.map(mkItem),
+    extras: extras.map(mkItem),
+  });
+
+  return {
+    bedroom: mk(
+      "Bedroom",
+      ["Bed frame", "Mattress", "Pillow(s)", "Duvet", "Bedsheets", "Wardrobe / storage"],
+      ["Bedside table", "Lamp", "Mirror", "Rug", "Extra storage boxes"]
+    ),
+    kitchen: mk(
+      "Kitchen",
+      ["Plates/bowls", "Cutlery", "Mugs", "Cooking basics (knife/board)", "Bin", "Tea towels"],
+      ["Air fryer", "Blender", "Extra pans", "Nice glasses", "Organisers"]
+    ),
+    living: mk(
+      "Living Room",
+      ["Sofa", "TV stand", "Curtains/blinds", "Lighting", "Basic cleaning kit"],
+      ["Coffee table", "Rug", "Wall art", "Speaker", "Extra seating"]
+    ),
+    bathroom: mk(
+      "Bathroom",
+      ["Towels", "Toilet brush", "Shower curtain (if needed)", "Soap/shampoo", "Bath mat"],
+      ["Storage caddy", "Nice mirror", "Plants", "Extra shelves"]
+    ),
+    office: mk(
+      "Home Office",
+      ["Desk", "Chair", "Monitor (optional)", "Extension lead", "Basic stationery"],
+      ["Second monitor", "Desk lamp", "Cable management", "Whiteboard", "Printer"]
+    ),
+    utility: mk(
+      "Storage/Utility",
+      ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+      ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+    ),
+  };
+}
+
 
   function defaultSkills() {
     const mk = (category, names) => ({
@@ -1302,52 +1319,53 @@
       }
     }
 
-    // ---- FUTURE HOME ----
-    // prioritise: essentials not done + essentials with £0 cost (budget clarity)
-    try {
-      const home = loadHome();
-      const rooms = home.rooms || {};
+// ---- FUTURE HOME ----
+// prioritise: essentials not planned + essentials with £0 cost (budget clarity)
+try {
+  const home = loadHome();
+  const rooms = home.rooms || {};
 
-      for (const rk of Object.keys(rooms)) {
-        const r = rooms[rk];
-        const title = r.title || rk;
+  for (const rk of Object.keys(rooms)) {
+    const r = rooms[rk];
+    const title = r.title || rk;
 
-        const essentials = r.essentials || [];
-        for (const item of essentials) {
-          const nm = (item.name || "").trim();
-          if (!nm) continue;
+    const essentials = r.essentials || [];
+    for (const item of essentials) {
+      const nm = (item.name || "").trim();
+      if (!nm) continue;
 
-          const cost = Number(item.cost) || 0;
-          const done = !!item.done;
+      const cost = Number(item.cost) || 0;
+      const planned = !!item.planned;
 
-          if (!done) {
-            if (cost <= 0) {
-              week.push({
-                source: "home",
-                id: item.id || uid(),
-                title: `${title}: estimate cost`,
-                meta: nm,
-                hint: "Adding a rough cost makes your move budget feel real (no need to be perfect).",
-                tag: "Future Home",
-                score: 90,
-              });
-            } else {
-              week.push({
-                source: "home",
-                id: item.id || uid(),
-                title: `${title}: plan this essential`,
-                meta: `${nm} • £${cost.toFixed(0)}`,
-                hint: "One small decision now = less overwhelm later.",
-                tag: "Future Home",
-                score: 95,
-              });
-            }
-          }
+      if (!planned) {
+        if (cost <= 0) {
+          week.push({
+            source: "home",
+            id: item.id || uid(),
+            title: `${title}: estimate cost`,
+            meta: nm,
+            hint: "Adding a rough cost makes your move budget feel real (no need to be perfect).",
+            tag: "Future Home",
+            score: 90,
+          });
+        } else {
+          week.push({
+            source: "home",
+            id: item.id || uid(),
+            title: `${title}: plan this essential`,
+            meta: `${nm} • £${cost.toFixed(0)}`,
+            hint: "One small decision now = less overwhelm later.",
+            tag: "Future Home",
+            score: 95,
+          });
         }
       }
-    } catch {
-      // ignore
     }
+  }
+} catch {
+  // ignore
+}
+
 
     // ---- LIFE SKILLS ----
     // focus: “In progress” items
@@ -1609,310 +1627,551 @@
   // =========================
   // Home + Skills save/load
   // =========================
-  function loadHome() {
-    const store = loadStore();
-    if (!store.home?.rooms || Object.keys(store.home.rooms).length === 0) {
-      store.home = { rooms: defaultRooms() };
-      saveStore(store);
-    }
-    return store.home;
+  function normaliseHomeItem(it) {
+  const name = String(it?.name ?? "").trim();
+  if (!name) return null;
+
+  const nowISO = new Date().toISOString();
+
+  // ✅ migrate old shape: { done, cost } -> { planned, cost }
+  const planned =
+    typeof it?.planned === "boolean" ? it.planned :
+    typeof it?.done === "boolean" ? it.done :
+    false;
+
+  const priority = it?.priority === "high" ? "high" : "normal";
+
+  const costNum = Number(it?.cost ?? 0);
+  const cost = Number.isFinite(costNum) && costNum >= 0 ? costNum : 0;
+
+  return {
+    id: String(it?.id ?? uid()),
+    name,
+    planned: Boolean(planned),
+    priority,
+    cost,
+    notes: String(it?.notes ?? ""),
+    createdAtISO: String(it?.createdAtISO ?? nowISO),
+    updatedAtISO: String(it?.updatedAtISO ?? nowISO),
+  };
+}
+
+function normaliseRoom(room, fallbackTitle) {
+  const title = String(room?.title ?? fallbackTitle ?? "Room");
+
+  const essentialsRaw = Array.isArray(room?.essentials) ? room.essentials : [];
+  const extrasRaw = Array.isArray(room?.extras) ? room.extras : [];
+
+  const essentials = essentialsRaw.map(normaliseHomeItem).filter(Boolean);
+  const extras = extrasRaw.map(normaliseHomeItem).filter(Boolean);
+
+  return {
+    title,
+    notes: String(room?.notes ?? ""),
+    essentials,
+    extras,
+  };
+}
+
+// ✅ HOME now lives in the main store (versioned)
+function loadHome() {
+  const store = loadStore();
+
+  // ensure section exists + version
+  if (!store.home || typeof store.home !== "object") store.home = {};
+  if (!store.home.version) store.home.version = 2;
+
+  // ensure rooms exist
+  const templates = defaultRooms();
+  const existing = store.home.rooms && typeof store.home.rooms === "object" ? store.home.rooms : {};
+
+  const outRooms = {};
+  for (const key of Object.keys(templates)) {
+    outRooms[key] = normaliseRoom(existing[key], templates[key].title);
+    // if room missing completely, seed from template
+    if (!existing[key]) outRooms[key] = normaliseRoom(templates[key], templates[key].title);
   }
 
-  function saveHome(home) {
-    const store = loadStore();
-    store.home = home;
-    saveStore(store);
-  }
+  store.home.rooms = outRooms;
+  store.home.version = 2;
+  saveStore(store);
 
-  function loadSkills() {
-    const store = loadStore();
-    if (!store.skills?.categories || Object.keys(store.skills.categories).length === 0) {
-      store.skills = { categories: defaultSkills() };
-      saveStore(store);
-    }
-    return store.skills;
-  }
+  return store.home;
+}
 
-  function saveSkills(skills) {
-    const store = loadStore();
-    store.skills = skills;
-    saveStore(store);
-  }
+function saveHome(home) {
+  const store = loadStore();
+  store.home = home;
+  store.home.version = 2;
+  saveStore(store);
+}
+
 
   // =========================
-  // FUTURE HOME (Part B)
-  // =========================
-  let activeRoomKey = null;
+// FUTURE HOME (Part E)
+// =========================
+let activeRoomKey = null;
 
-  function roomCompletion(room) {
-    const essTotal = room.essentials.length;
-    const essDone = room.essentials.filter((x) => x.done).length;
-    const exTotal = room.extras.length;
-    const exDone = room.extras.filter((x) => x.done).length;
-    return { essTotal, essDone, exTotal, exDone };
+// Optional top summary bar hooks (safe if missing)
+const homeSummaryEss = document.getElementById("homeSummaryEssentials");
+const homeSummaryEx = document.getElementById("homeSummaryExtras");
+const homeSummaryCosts = document.getElementById("homeSummaryCosts");
+
+// Room-level filters (safe if missing)
+const roomSearch = document.getElementById("roomSearch");
+const chkPlannedOnly = document.getElementById("chkPlannedOnly");
+
+// Add/Edit modal hooks (safe if missing)
+const homeItemModal = document.getElementById("homeItemModal");
+const homeItemModalTitle = document.getElementById("homeItemModalTitle");
+const homeItemBackdrop = homeItemModal?.querySelector(".modal__backdrop");
+const btnCloseHomeItemModal = document.getElementById("btnCloseHomeItemModal");
+const btnCancelHomeItemModal = document.getElementById("btnCancelHomeItemModal");
+const homeItemForm = document.getElementById("homeItemForm");
+
+let editingHomeItem = { roomKey: null, kind: null, id: null };
+
+function homeRoomStats(room) {
+  const essTotal = room.essentials.length;
+  const essPlanned = room.essentials.filter((x) => x.planned).length;
+  const exTotal = room.extras.length;
+  const exPlanned = room.extras.filter((x) => x.planned).length;
+
+  const essCost = room.essentials.reduce((a, it) => a + (Number(it.cost) || 0), 0);
+  const exCost = room.extras.reduce((a, it) => a + (Number(it.cost) || 0), 0);
+
+  return { essTotal, essPlanned, exTotal, exPlanned, essCost, exCost, totalCost: essCost + exCost };
+}
+
+function homeTotals(home) {
+  const rooms = home.rooms || {};
+  let essTotal = 0, essPlanned = 0, exTotal = 0, exPlanned = 0;
+  let essCost = 0, exCost = 0;
+
+  for (const rk of Object.keys(rooms)) {
+    const st = homeRoomStats(rooms[rk]);
+    essTotal += st.essTotal;
+    essPlanned += st.essPlanned;
+    exTotal += st.exTotal;
+    exPlanned += st.exPlanned;
+    essCost += st.essCost;
+    exCost += st.exCost;
   }
 
-  function sumCost(items) {
-    return items.reduce((acc, it) => acc + (Number(it.cost) || 0), 0);
+  return { essTotal, essPlanned, exTotal, exPlanned, essCost, exCost, overallCost: essCost + exCost };
+}
+
+function renderHomeSummary() {
+  const home = loadHome();
+  const t = homeTotals(home);
+
+  if (homeSummaryEss) homeSummaryEss.textContent = `${t.essPlanned}/${t.essTotal}`;
+  if (homeSummaryEx) homeSummaryEx.textContent = `${t.exPlanned}/${t.exTotal}`;
+
+  if (homeSummaryCosts) {
+    homeSummaryCosts.innerHTML = `
+      <span class="money-chip">Essentials: <strong>${fmtGBP(t.essCost)}</strong></span>
+      <span class="money-chip">Extras: <strong>${fmtGBP(t.exCost)}</strong></span>
+      <span class="money-chip">Overall: <strong>${fmtGBP(t.overallCost)}</strong></span>
+    `;
+  }
+}
+
+function renderRoomsGrid() {
+  if (!roomsGrid) return;
+
+  const home = loadHome();
+  const rooms = home.rooms || {};
+
+  roomsGrid.innerHTML = "";
+
+  for (const key of Object.keys(rooms)) {
+    const room = rooms[key];
+    const st = homeRoomStats(room);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "room-card";
+    btn.dataset.roomKey = key;
+
+    // Optional: room cost total
+    const roomCost = st.totalCost > 0 ? ` • ${fmtGBP(st.totalCost)}` : "";
+
+    btn.innerHTML = `
+      <div class="room-card__title">${escapeHtml(room.title)}</div>
+      <div class="room-card__meta">
+        Essentials: ${st.essPlanned}/${st.essTotal} • Extras: ${st.exPlanned}/${st.exTotal}${roomCost}
+      </div>
+    `;
+
+    btn.addEventListener("click", () => openRoom(key));
+    roomsGrid.appendChild(btn);
   }
 
-  function renderRoomsGrid() {
-    if (!roomsGrid) return;
-    const home = loadHome();
-    const rooms = home.rooms;
+  renderHomeSummary(); // ✅ top bar stays in sync
+}
 
-    roomsGrid.innerHTML = "";
+function openRoom(roomKey) {
+  activeRoomKey = roomKey;
 
-    for (const key of Object.keys(rooms)) {
-      const room = rooms[key];
-      const c = roomCompletion(room);
-      const pct = c.essTotal ? Math.round((c.essDone / c.essTotal) * 100) : 0;
+  const home = loadHome();
+  const room = home.rooms[roomKey];
+  if (!room) return;
 
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "room-card";
-      btn.dataset.roomKey = key;
+  if (roomTitle) roomTitle.textContent = room.title;
+  if (roomPanel) roomPanel.hidden = false;
+  if (roomNotes) roomNotes.value = room.notes || "";
 
-      btn.innerHTML = `
-        <div class="room-card__title">${escapeHtml(room.title)}</div>
-        <div class="room-card__meta">Essentials: ${c.essDone}/${c.essTotal} • Extras: ${c.exDone}/${c.exTotal}</div>
-        <div class="progress" style="margin-top:10px;">
-          <div class="progress__bar" style="width:${pct}%"></div>
+  // reset filters
+  if (roomSearch) roomSearch.value = "";
+  if (chkPlannedOnly) chkPlannedOnly.checked = false;
+
+  renderRoomLists();
+}
+
+function closeRoom() {
+  activeRoomKey = null;
+  if (roomPanel) roomPanel.hidden = true;
+}
+
+btnCloseRoom?.addEventListener("click", closeRoom);
+
+roomSearch?.addEventListener("input", renderRoomLists);
+chkPlannedOnly?.addEventListener("change", renderRoomLists);
+
+function applyRoomFilters(items) {
+  let out = [...items];
+
+  const q = (roomSearch?.value ?? "").trim().toLowerCase();
+  if (q) {
+    out = out.filter((it) =>
+      (it.name || "").toLowerCase().includes(q) ||
+      (it.notes || "").toLowerCase().includes(q)
+    );
+  }
+
+  if (chkPlannedOnly?.checked) out = out.filter((it) => !!it.planned);
+
+  return out;
+}
+
+function setHomeBadges(room) {
+  const st = homeRoomStats(room);
+
+  if (badgeEssentials) {
+    badgeEssentials.className = st.essPlanned < st.essTotal ? "badge badge--warn" : "badge badge--ok";
+    badgeEssentials.textContent = `${st.essPlanned}/${st.essTotal}`;
+  }
+  if (badgeExtras) {
+    badgeExtras.className = st.exPlanned ? "badge badge--ok" : "badge badge--neutral";
+    badgeExtras.textContent = `${st.exPlanned}/${st.exTotal}`;
+  }
+
+  if (roomBadge) {
+    roomBadge.className = st.essPlanned === st.essTotal && st.essTotal > 0 ? "badge badge--ok" : "badge badge--warn";
+    roomBadge.textContent = st.essPlanned === st.essTotal && st.essTotal > 0 ? "Essentials planned" : "Essentials first";
+  }
+
+  if (roomBudgetSummary) {
+    roomBudgetSummary.innerHTML = `
+      <span class="money-chip">Essentials: <strong>${fmtGBP(st.essCost)}</strong></span>
+      <span class="money-chip">Extras: <strong>${fmtGBP(st.exCost)}</strong></span>
+      <span class="money-chip">Room total: <strong>${fmtGBP(st.totalCost)}</strong></span>
+    `;
+  }
+
+  if (roomBudgetBadge) {
+    roomBudgetBadge.className = st.totalCost > 0 ? "badge badge--ok" : "badge badge--neutral";
+    roomBudgetBadge.textContent = st.totalCost > 0 ? "Budgeted" : "No costs yet";
+  }
+}
+
+function renderRoomLists() {
+  const home = loadHome();
+  const room = home.rooms[activeRoomKey];
+  if (!room) return;
+
+  setHomeBadges(room);
+
+  const renderItems = (listEl, emptyEl, rawItems, kind) => {
+    if (!listEl) return;
+    listEl.innerHTML = "";
+
+    const items = applyRoomFilters(rawItems);
+
+    if (!items.length) {
+      emptyEl?.removeAttribute("hidden");
+      return;
+    }
+    emptyEl?.setAttribute("hidden", "true");
+
+    for (const it of items) {
+      const li = document.createElement("li");
+      li.className = "list__item list__item--neutral";
+
+      const cost = Number(it.cost) || 0;
+      const prioOn = it.priority === "high";
+
+      li.innerHTML = `
+        <div class="room-item" style="width:100%;">
+          <div class="room-item__left">
+            <button class="tick ${it.planned ? "is-on" : ""}" type="button"
+              data-room-action="togglePlanned" data-kind="${kind}" data-id="${it.id}"></button>
+
+            <div style="min-width:0;">
+              <div class="room-item__title">${escapeHtml(it.name)}</div>
+              <div class="room-item__meta">
+                ${it.planned ? "Planned" : "Not planned"} •
+                <button class="mini-btn ${prioOn ? "mini-btn--warn" : ""}" type="button"
+                  data-room-action="togglePriority" data-kind="${kind}" data-id="${it.id}">
+                  ${prioOn ? "⭐ High" : "☆ Normal"}
+                </button>
+                ${it.notes?.trim() ? ` • ${escapeHtml(it.notes.trim())}` : ""}
+              </div>
+            </div>
+          </div>
+
+          <div class="row-actions">
+            <span class="cost">${fmtGBP(cost)}</span>
+            <button class="mini-btn" type="button" data-room-action="edit" data-kind="${kind}" data-id="${it.id}">Edit</button>
+            <button class="mini-btn mini-btn--danger" type="button" data-room-action="delete" data-kind="${kind}" data-id="${it.id}">Delete</button>
+          </div>
         </div>
       `;
 
-      btn.addEventListener("click", () => openRoom(key));
-      roomsGrid.appendChild(btn);
+      listEl.appendChild(li);
     }
+  };
+
+  renderItems(listEssentials, emptyEssentials, room.essentials, "essentials");
+  renderItems(listExtras, emptyExtras, room.extras, "extras");
+
+  renderHomeSummary();
+}
+
+function openHomeItemModal(mode, payload) {
+  // payload: { roomKey, kind, item? }
+  const { roomKey, kind, item } = payload;
+
+  editingHomeItem = { roomKey, kind, id: mode === "edit" ? item?.id : null };
+
+  // If you haven’t added the modal HTML yet, fallback to prompts
+  if (!homeItemModal || !homeItemForm) {
+    const nm = prompt("Item name:", item?.name ?? "");
+    if (nm === null) return;
+
+    const planned = confirm("Planned? OK = planned, Cancel = not planned");
+    const high = confirm("High priority? OK = High (⭐), Cancel = Normal");
+    const costRaw = prompt("Estimated cost (£):", String(Number(item?.cost ?? 0)));
+    if (costRaw === null) return;
+    const notes = prompt("Notes:", item?.notes ?? "");
+    if (notes === null) return;
+
+    upsertRoomItem(roomKey, kind, {
+      id: item?.id,
+      name: nm.trim() || item?.name || "Item",
+      planned,
+      priority: high ? "high" : "normal",
+      cost: Number(costRaw) || 0,
+      notes: notes.trim(),
+    });
+    return;
   }
 
-  function openRoom(roomKey) {
-    activeRoomKey = roomKey;
-    const home = loadHome();
-    const room = home.rooms[roomKey];
-    if (!room) return;
+  if (homeItemModalTitle) homeItemModalTitle.textContent = mode === "edit" ? "Edit item" : "Add item";
+  homeItemForm.reset();
 
-    if (roomTitle) roomTitle.textContent = room.title;
-    if (roomPanel) roomPanel.hidden = false;
-    if (roomNotes) roomNotes.value = room.notes || "";
+  // expected form fields: name, planned, priority, cost, notes, bucket(kind) optional
+  if (homeItemForm.name) homeItemForm.name.value = item?.name ?? "";
+  if (homeItemForm.planned) homeItemForm.planned.checked = !!item?.planned;
+  if (homeItemForm.priority) homeItemForm.priority.value = item?.priority ?? "normal";
+  if (homeItemForm.cost) homeItemForm.cost.value = item?.cost != null ? String(Number(item.cost) || 0) : "";
+  if (homeItemForm.notes) homeItemForm.notes.value = item?.notes ?? "";
+  if (homeItemForm.kind) homeItemForm.kind.value = kind; // optional hidden field
 
-    renderRoomLists();
+  homeItemModal.setAttribute("aria-hidden", "false");
+  homeItemModal.classList.add("is-open");
+  homeItemForm.name?.focus?.();
+}
+
+function closeHomeItemModal() {
+  homeItemModal?.setAttribute("aria-hidden", "true");
+  homeItemModal?.classList.remove("is-open");
+  editingHomeItem = { roomKey: null, kind: null, id: null };
+}
+
+btnCloseHomeItemModal?.addEventListener("click", closeHomeItemModal);
+btnCancelHomeItemModal?.addEventListener("click", closeHomeItemModal);
+homeItemBackdrop?.addEventListener("click", closeHomeItemModal);
+
+homeItemForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const roomKey = editingHomeItem.roomKey;
+  const kind = editingHomeItem.kind;
+  if (!roomKey || !kind) return;
+
+  const name = String(homeItemForm.name?.value ?? "").trim();
+  if (!name) {
+    alert("Please enter a name.");
+    homeItemForm.name?.focus?.();
+    return;
   }
 
-  function closeRoom() {
-    activeRoomKey = null;
-    if (roomPanel) roomPanel.hidden = true;
-  }
+  const planned = !!homeItemForm.planned?.checked;
+  const priority = homeItemForm.priority?.value === "high" ? "high" : "normal";
 
-  btnCloseRoom?.addEventListener("click", closeRoom);
+  const costNum = Number(homeItemForm.cost?.value ?? 0);
+  const cost = Number.isFinite(costNum) && costNum >= 0 ? costNum : 0;
 
-  function renderRoomLists() {
-    const home = loadHome();
-    const room = home.rooms[activeRoomKey];
-    if (!room) return;
+  const notes = String(homeItemForm.notes?.value ?? "").trim();
 
-    const c = roomCompletion(room);
-    if (badgeEssentials) {
-      badgeEssentials.className = c.essDone < c.essTotal ? "badge badge--warn" : "badge badge--ok";
-      badgeEssentials.textContent = `${c.essDone}/${c.essTotal}`;
-    }
-    if (badgeExtras) {
-      badgeExtras.className = "badge badge--neutral";
-      badgeExtras.textContent = `${c.exDone}/${c.exTotal}`;
-    }
-
-    if (roomBadge) {
-      if (c.essTotal && c.essDone === c.essTotal) {
-        roomBadge.className = "badge badge--ok";
-        roomBadge.textContent = "Essentials done";
-      } else {
-        roomBadge.className = "badge badge--warn";
-        roomBadge.textContent = "Essentials first";
-      }
-    }
-
-    const essCost = sumCost(room.essentials);
-    const exCost = sumCost(room.extras);
-    const total = essCost + exCost;
-
-    if (roomBudgetSummary) {
-      roomBudgetSummary.innerHTML = `
-        <span class="money-chip">Essentials: <strong>£${essCost.toFixed(2)}</strong></span>
-        <span class="money-chip">Extras: <strong>£${exCost.toFixed(2)}</strong></span>
-        <span class="money-chip">Room total: <strong>£${total.toFixed(2)}</strong></span>
-      `;
-    }
-
-    if (roomBudgetBadge) {
-      roomBudgetBadge.className = total > 0 ? "badge badge--ok" : "badge badge--neutral";
-      roomBudgetBadge.textContent = total > 0 ? "Budgeted" : "No costs yet";
-    }
-
-    const renderItems = (listEl, emptyEl, items, kind) => {
-      if (!listEl) return;
-      listEl.innerHTML = "";
-
-      if (!items.length) {
-        emptyEl?.removeAttribute("hidden");
-        return;
-      }
-      emptyEl?.setAttribute("hidden", "true");
-
-      for (const it of items) {
-        const li = document.createElement("li");
-        li.className = "list__item list__item--neutral";
-        const cost = Number(it.cost) || 0;
-
-        li.innerHTML = `
-          <div class="room-item">
-            <div class="room-item__left">
-              <button class="tick ${it.done ? "is-on" : ""}" type="button" data-room-action="toggle" data-kind="${kind}" data-id="${it.id}"></button>
-              <div style="min-width:0;">
-                <div class="room-item__title">${escapeHtml(it.name)}</div>
-                <div class="room-item__meta">${it.done ? "Done" : "Not done yet"}</div>
-              </div>
-            </div>
-
-            <div class="row-actions">
-              <span class="cost">£${cost.toFixed(2)}</span>
-              <button class="mini-btn" type="button" data-room-action="edit" data-kind="${kind}" data-id="${it.id}">Edit</button>
-              <button class="mini-btn mini-btn--danger" type="button" data-room-action="delete" data-kind="${kind}" data-id="${it.id}">Delete</button>
-            </div>
-          </div>
-        `;
-        listEl.appendChild(li);
-      }
-    };
-
-    renderItems(listEssentials, emptyEssentials, room.essentials, "essentials");
-    renderItems(listExtras, emptyExtras, room.extras, "extras");
-  }
-
-  function addRoomItem(kind, name, cost) {
-    const home = loadHome();
-    const room = home.rooms[activeRoomKey];
-    if (!room) return;
-
-    const item = { id: uid(), name, cost: Number(cost) || 0, done: false };
-    room[kind].push(item);
-
-    saveHome(home);
-    renderRoomLists();
-    renderRoomsGrid();
-    renderNextSteps(); // ✅
-  }
-
-  formAddEssential?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!activeRoomKey) return;
-
-    const name = formAddEssential.name.value.trim();
-    const cost = formAddEssential.cost.value;
-
-    if (!name) return;
-    addRoomItem("essentials", name, cost);
-
-    formAddEssential.reset();
+  upsertRoomItem(roomKey, kind, {
+    id: editingHomeItem.id,
+    name,
+    planned,
+    priority,
+    cost,
+    notes,
   });
 
-  formAddExtra?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!activeRoomKey) return;
+  closeHomeItemModal();
+});
 
-    const name = formAddExtra.name.value.trim();
-    const cost = formAddExtra.cost.value;
+function upsertRoomItem(roomKey, kind, patch) {
+  const home = loadHome();
+  const room = home.rooms[roomKey];
+  if (!room) return;
 
-    if (!name) return;
-    addRoomItem("extras", name, cost);
+  const arr = kind === "extras" ? room.extras : room.essentials;
+  const nowISO = new Date().toISOString();
 
-    formAddExtra.reset();
-  });
-
-  roomPanel?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-room-action]");
-    if (!btn) return;
-
-    const action = btn.getAttribute("data-room-action");
-    const kind = btn.getAttribute("data-kind");
-    const id = btn.getAttribute("data-id");
-
-    if (!action || !kind || !id) return;
-
-    const home = loadHome();
-    const room = home.rooms[activeRoomKey];
-    if (!room) return;
-
-    const arr = room[kind];
-    const idx = arr.findIndex((x) => x.id === id);
-    if (idx === -1) return;
-
-    if (action === "toggle") {
-      arr[idx].done = !arr[idx].done;
-      saveHome(home);
-      renderRoomLists();
-      renderRoomsGrid();
-      renderNextSteps();
-      return;
-    }
-
-    if (action === "delete") {
-      if (!confirm("Delete this item?")) return;
-      arr.splice(idx, 1);
-      saveHome(home);
-      renderRoomLists();
-      renderRoomsGrid();
-      renderNextSteps();
-      return;
-    }
-
-    if (action === "edit") {
-      const current = arr[idx];
-      const newName = prompt("Item name:", current.name);
-      if (newName === null) return;
-
-      const newCostRaw = prompt("Cost (£):", String(Number(current.cost) || 0));
-      if (newCostRaw === null) return;
-
-      const newCost = Number(newCostRaw);
+  if (patch.id) {
+    const idx = arr.findIndex((x) => x.id === patch.id);
+    if (idx >= 0) {
       arr[idx] = {
-        ...current,
-        name: newName.trim() || current.name,
-        cost: Number.isFinite(newCost) && newCost >= 0 ? newCost : Number(current.cost) || 0,
+        ...arr[idx],
+        ...patch,
+        updatedAtISO: nowISO,
       };
-
-      saveHome(home);
-      renderRoomLists();
-      renderRoomsGrid();
-      renderNextSteps();
     }
-  });
+  } else {
+    arr.push({
+      id: uid(),
+      name: patch.name,
+      planned: !!patch.planned,
+      priority: patch.priority === "high" ? "high" : "normal",
+      cost: Number(patch.cost) || 0,
+      notes: patch.notes || "",
+      createdAtISO: nowISO,
+      updatedAtISO: nowISO,
+    });
+  }
 
-  btnSaveRoomNotes?.addEventListener("click", () => {
-    if (!activeRoomKey) return;
-    const home = loadHome();
-    const room = home.rooms[activeRoomKey];
-    if (!room) return;
+  saveHome(home);
+  renderRoomLists();
+  renderRoomsGrid();
+  renderNextSteps();
+}
 
-    room.notes = (roomNotes?.value ?? "").trim();
+function addRoomItem(kind) {
+  if (!activeRoomKey) return;
+  openHomeItemModal("add", { roomKey: activeRoomKey, kind });
+}
+
+// ✅ your existing “Add essential/extra” forms can now open the modal
+formAddEssential?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  addRoomItem("essentials");
+  formAddEssential.reset();
+});
+
+formAddExtra?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  addRoomItem("extras");
+  formAddExtra.reset();
+});
+
+roomPanel?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-room-action]");
+  if (!btn) return;
+
+  const action = btn.getAttribute("data-room-action");
+  const kind = btn.getAttribute("data-kind");
+  const id = btn.getAttribute("data-id");
+  if (!action || !kind || !id) return;
+
+  const home = loadHome();
+  const room = home.rooms[activeRoomKey];
+  if (!room) return;
+
+  const arr = kind === "extras" ? room.extras : room.essentials;
+  const idx = arr.findIndex((x) => x.id === id);
+  if (idx === -1) return;
+
+  const nowISO = new Date().toISOString();
+
+  if (action === "togglePlanned") {
+    arr[idx].planned = !arr[idx].planned;
+    arr[idx].updatedAtISO = nowISO;
     saveHome(home);
-
-    alert("Room notes saved.");
-  });
-
-  btnResetRoom?.addEventListener("click", () => {
-    if (!activeRoomKey) return;
-    if (!confirm("Reset this room back to its template? This will overwrite items + notes.")) return;
-
-    const templates = defaultRooms();
-    const home = loadHome();
-
-    home.rooms[activeRoomKey] = templates[activeRoomKey] ?? home.rooms[activeRoomKey];
-    saveHome(home);
-
-    openRoom(activeRoomKey);
+    renderRoomLists();
     renderRoomsGrid();
-    renderNextSteps(); // ✅
-  });
+    renderNextSteps();
+    return;
+  }
+
+  if (action === "togglePriority") {
+    arr[idx].priority = arr[idx].priority === "high" ? "normal" : "high";
+    arr[idx].updatedAtISO = nowISO;
+    saveHome(home);
+    renderRoomLists();
+    renderRoomsGrid();
+    renderNextSteps();
+    return;
+  }
+
+  if (action === "delete") {
+    if (!confirm("Delete this item?")) return;
+    arr.splice(idx, 1);
+    saveHome(home);
+    renderRoomLists();
+    renderRoomsGrid();
+    renderNextSteps();
+    return;
+  }
+
+  if (action === "edit") {
+    openHomeItemModal("edit", { roomKey: activeRoomKey, kind, item: arr[idx] });
+  }
+});
+
+btnSaveRoomNotes?.addEventListener("click", () => {
+  if (!activeRoomKey) return;
+  const home = loadHome();
+  const room = home.rooms[activeRoomKey];
+  if (!room) return;
+
+  room.notes = (roomNotes?.value ?? "").trim();
+  saveHome(home);
+
+  alert("Room notes saved.");
+});
+
+btnResetRoom?.addEventListener("click", () => {
+  if (!activeRoomKey) return;
+  if (!confirm("Reset this room back to its template? This will overwrite items + notes.")) return;
+
+  const templates = defaultRooms();
+  const home = loadHome();
+
+  home.rooms[activeRoomKey] = normaliseRoom(templates[activeRoomKey], templates[activeRoomKey]?.title);
+  saveHome(home);
+
+  openRoom(activeRoomKey);
+  renderRoomsGrid();
+  renderNextSteps();
+});
 
   // =========================
   // LIFE SKILLS (Part B)
@@ -2432,6 +2691,33 @@
     alert("Settings coming soon: templates, backups, notifications, money preferences.");
   });
 
+function normaliseHomeItem(x) {
+  const name = (x?.name ?? "").toString().trim();
+  if (!name) return null;
+
+  const item = {
+    id: (x?.id ?? uid()).toString(),
+    name,
+    bucket: x?.bucket === "extra" ? "extra" : "essential",
+    planned: Boolean(x?.planned ?? false),
+    priority: x?.priority === "high" ? "high" : "normal",
+    cost: x?.cost != null && String(x.cost).trim() !== "" ? Number(x.cost) : null,
+    notes: (x?.notes ?? "").toString(),
+    createdAtISO: (x?.createdAtISO ?? new Date().toISOString()).toString(),
+    updatedAtISO: (x?.updatedAtISO ?? new Date().toISOString()).toString(),
+  };
+
+  if (!Number.isFinite(item.cost)) item.cost = null;
+  if (item.cost != null && item.cost < 0) item.cost = null;
+
+  return item;
+}
+
+function roomById(rooms, roomId) {
+  return rooms.find(r => r.id === roomId) || null;
+}
+
+
   // =========================
   // BOOT (Part B)
   // =========================
@@ -2443,6 +2729,7 @@
 
   renderAdmin();
   renderRoomsGrid();
+  renderHomeSummary();
   renderSkills();
   renderNextSteps(); // ✅
 })();

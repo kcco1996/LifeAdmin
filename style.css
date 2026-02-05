@@ -818,3 +818,13 @@ select:not(#modal select) option{
 #nextStepsWrap #nextStepsWeek .list__item{
   border-color: rgba(56,217,150,0.18);
 }
+
+/* Future Home room detail */
+#roomDetail .card { box-shadow: none; }
+#roomDetail .card__title { font-size: 16px; }
+
+.list__meta .pill-note{
+  margin-left: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.78);
+}
