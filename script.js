@@ -2186,12 +2186,27 @@
   const homeStats = document.getElementById("homeStats");
   const roomsGrid = document.getElementById("roomsGrid");
 
-  // ✅ Robust Home layout wrapper so grid/detail toggling always works
-const homeGridWrap =
-  document.getElementById("homeGridWrap") ||
-  roomsGrid?.closest(".home-grid-wrap") ||
-  roomsGrid?.parentElement ||
-  null;
+// ✅ Robust Home layout wrapper: must include roomsGrid, but MUST NOT include #roomDetail
+function findHomeGridWrap() {
+  const explicit = document.getElementById("homeGridWrap");
+  if (explicit) return explicit;
+
+  // Prefer a semantic wrapper if you have one
+  const clsWrap = roomsGrid?.closest(".home-grid-wrap");
+  if (clsWrap && roomDetail && !clsWrap.contains(roomDetail)) return clsWrap;
+
+  // Walk up the DOM until we find a parent that contains roomsGrid but NOT roomDetail
+  let el = roomsGrid?.parentElement || null;
+  while (el) {
+    if (roomsGrid && el.contains(roomsGrid) && roomDetail && !el.contains(roomDetail)) return el;
+    el = el.parentElement;
+  }
+
+  return null;
+}
+
+const homeGridWrap = findHomeGridWrap();
+
 
   const roomDetail = document.getElementById("roomDetail");
   const btnRoomBack = document.getElementById("btnRoomBack");
@@ -2350,7 +2365,12 @@ function hideRoomDetail() {
 
   if (homeGridWrap) homeGridWrap.classList.remove("is-hidden");
   roomDetail?.classList.remove("is-visible");
+
+  // ✅ keep UI accurate when returning
+  renderHomeStats();
+  renderRoomsGrid();
 }
+
 
   btnRoomBack?.addEventListener("click", hideRoomDetail);
 
@@ -2362,20 +2382,20 @@ function hideRoomDetail() {
     showRoomDetail(key);
   });
 
-  btnSaveRoomNotes?.addEventListener("click", () => {
-    if (!activeRoomKey) return;
-    const rooms = getHomeRooms();
-    const room = rooms[activeRoomKey];
-    if (!room) return;
+btnSaveRoomNotes?.addEventListener("click", () => {
+  if (!activeRoomKey) return;
+  const rooms = getHomeRooms();
+  const room = rooms[activeRoomKey];
+  if (!room) return;
 
-    room.notes = String(homeRoomNotes?.value ?? "");
-    saveHomeRooms(rooms);
+  room.notes = String(homeRoomNotes?.value ?? "");
+  saveHomeRooms(rooms);
 
-      renderRoomsGrid(); // ✅ ADD THIS LINE
+  renderHomeStats();   // ✅ add
+  renderRoomsGrid();   // ✅ keep
 
-
-    toast("Room notes saved");
-  });
+  toast("Room notes saved");
+});
 
   function applyHomeFilters(items) {
     let out = [...items];
@@ -2986,14 +3006,18 @@ function hideRoomDetail() {
       return;
     }
 
-    if (type === "home") {
-      const roomKey = row.getAttribute("data-gs-room");
-      if (!roomKey) return;
-      setActiveView("home");
-      showRoomDetail(roomKey);
-      setGlobalResultsOpen(false);
-      return;
-    }
+  if (type === "home") {
+  const roomKey = row.getAttribute("data-gs-room");
+  if (!roomKey) return;
+
+  setActiveView("home");
+  renderHome();           // ✅ IMPORTANT: ensure Home UI is in the right state
+  showRoomDetail(roomKey);
+
+  setGlobalResultsOpen(false);
+  return;
+}
+
 
     if (type === "skills") {
       setActiveView("skills");
