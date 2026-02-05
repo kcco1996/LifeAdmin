@@ -37,7 +37,7 @@
         <div class="brand__mark" aria-hidden="true">🏠</div>
         <div class="brand__text">
           <div class="brand__name">Life Admin</div>
-          <div class="brand__tag">Admin • Home • Skills</div>
+          <div class="brand__tag">Admin • Home • Skills • Money</div>
         </div>
       </div>
 
@@ -46,13 +46,27 @@
           <span class="nav__icon" aria-hidden="true">🧾</span>
           <span class="nav__label">Life Admin</span>
         </button>
+
         <button class="nav__item" data-view="home" type="button">
           <span class="nav__icon" aria-hidden="true">🏡</span>
           <span class="nav__label">Future Home</span>
         </button>
+
         <button class="nav__item" data-view="skills" type="button">
           <span class="nav__icon" aria-hidden="true">🧠</span>
           <span class="nav__label">Life Skills</span>
+        </button>
+
+        <!-- ✅ Part G: Money section exists -->
+        <button class="nav__item" data-view="money" type="button">
+          <span class="nav__icon" aria-hidden="true">💷</span>
+          <span class="nav__label">Money</span>
+        </button>
+
+        <!-- ✅ Part L: Settings page exists -->
+        <button class="nav__item" data-view="settings" type="button">
+          <span class="nav__icon" aria-hidden="true">⚙️</span>
+          <span class="nav__label">Settings</span>
         </button>
       </nav>
 
@@ -81,6 +95,27 @@
         </div>
 
         <div class="topbar__right">
+          <!-- ✅ Part H: Global search bar in topbar (all sections) -->
+          <div class="search" style="min-width:260px; position:relative;">
+            <span class="search__icon" aria-hidden="true">🔎</span>
+            <input
+              id="globalSearch"
+              class="search__input"
+              type="search"
+              placeholder="Search everything… (passport, sofa, emergency fund)"
+              autocomplete="off"
+            />
+            <!-- Results popover (filled by JS) -->
+            <div class="search-results" id="globalSearchResults" hidden>
+              <div class="search-results__header">
+                <span class="muted">Results</span>
+                <span class="badge badge--neutral" id="globalSearchCount">0</span>
+              </div>
+              <ul class="list" id="globalSearchList"></ul>
+              <p class="muted muted--pad" id="globalSearchEmpty" hidden>No matches. Try a different word.</p>
+            </div>
+          </div>
+
           <div class="pill" id="overallStatus">
             <span class="dot dot--green" id="overallDot" aria-hidden="true"></span>
             <span id="statusText">All good</span>
@@ -283,7 +318,7 @@
           </div>
         </div>
 
-        <!-- VIEW: FUTURE HOME (Part F clean version: SINGLE set of elements, NO duplicate IDs) -->
+        <!-- VIEW: FUTURE HOME -->
         <div class="view" id="view-home">
 
           <!-- Top summary bar -->
@@ -300,7 +335,6 @@
           <article class="card" id="roomPanel" hidden>
             <div class="card__header">
               <div>
-                <!-- NOTE: unique id for title (no duplicates anywhere else) -->
                 <h2 class="card__title" id="roomPanelTitle">Room</h2>
                 <span class="badge badge--neutral" id="roomBadge">—</span>
               </div>
@@ -436,9 +470,135 @@
           </div>
         </div>
 
+        <!-- ✅ VIEW: MONEY (Part G) -->
+        <div class="view" id="view-money">
+          <!-- Top summary cards -->
+          <div class="grid grid--stats" id="moneyTopStats"></div>
+
+          <div class="grid grid--panels">
+            <!-- Funds -->
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Future Funds</h2>
+                <span class="badge badge--neutral" id="fundsBadge">—</span>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-end;">
+                <button class="mini-btn" type="button" id="btnMoneyAddFund">+ Add fund</button>
+              </div>
+
+              <ul class="list" id="fundsList"></ul>
+              <p class="muted muted--pad" id="fundsEmpty" hidden>
+                No funds yet. Add your first one like “House Deposit” or “Emergency”.
+              </p>
+            </article>
+
+            <!-- Budgets -->
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Budgets</h2>
+                <span class="badge badge--neutral" id="budgetsBadge">—</span>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-end;">
+                <button class="mini-btn" type="button" id="btnMoneyAddBudget">+ Add budget</button>
+              </div>
+
+              <ul class="list" id="budgetsList"></ul>
+              <p class="muted muted--pad" id="budgetsEmpty" hidden>
+                No budgets yet. Start with “Food”, “Travel”, “Subscriptions”.
+              </p>
+            </article>
+          </div>
+        </div>
+
+        <!-- ✅ VIEW: SETTINGS (Part L) -->
+        <div class="view" id="view-settings">
+          <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
+            <article class="card" style="padding:12px;">
+              <div class="card__header">
+                <h2 class="card__title">Settings</h2>
+                <span class="badge badge--neutral">Preferences</span>
+              </div>
+
+              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px;">
+                <label class="toggle">
+                  <input id="setCalmDefault" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Calm Mode by default</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setAnimations" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Animations</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setReducedMotion" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Reduced motion</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setHighContrast" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">High contrast</span>
+                </label>
+              </div>
+
+              <hr class="sep" />
+
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Notifications (prep)</h3>
+                <span class="badge badge--neutral">Quiet hours</span>
+              </div>
+
+              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px;">
+                <label class="toggle">
+                  <input id="setNotifications" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Enable notifications</span>
+                </label>
+
+                <div class="form__row" style="grid-template-columns: 1fr 1fr; gap:10px;">
+                  <label class="field">
+                    <span class="field__label">Quiet from</span>
+                    <input class="field__control" id="setQuietFrom" type="time" />
+                  </label>
+                  <label class="field">
+                    <span class="field__label">Quiet to</span>
+                    <input class="field__control" id="setQuietTo" type="time" />
+                  </label>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Data</h3>
+                <span class="badge badge--neutral">Backup</span>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-start; gap:10px; flex-wrap:wrap;">
+                <button class="mini-btn" type="button" id="btnBackupAll">Backup all data</button>
+                <button class="mini-btn" type="button" id="btnRestoreAll">Restore backup</button>
+                <button class="ghost-btn ghost-btn--sm" type="button" id="btnResetAll">Reset all data</button>
+              </div>
+
+              <p class="muted muted--pad">
+                Tip: “Backup all data” exports everything. Restore merges safely where possible.
+              </p>
+            </article>
+          </div>
+        </div>
+
       </section>
     </main>
   </div>
+
+  <!-- Hidden file input used by imports (single input reused by module import buttons) -->
+  <input id="fileImport" type="file" accept="application/json" hidden />
 
   <!-- Modal: Future Home Add/Edit Item -->
   <div class="modal" id="homeItemModal" aria-hidden="true">
@@ -495,6 +655,62 @@
     </div>
   </div>
 
+  <!-- =========================
+     Part G: Tools Modal
+========================= -->
+<section class="modal" id="toolsModal" aria-hidden="true">
+  <div class="modal__backdrop"></div>
+  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="toolsModalTitle">
+    <header class="modal__header">
+      <h3 id="toolsModalTitle" style="margin:0;">Tools</h3>
+      <button class="icon-btn icon-btn--sm" type="button" id="btnCloseToolsModal" aria-label="Close">✕</button>
+    </header>
+
+    <div class="form">
+      <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+        <article class="card">
+          <h4 class="card__title">Backup</h4>
+          <p class="muted muted--pad">Export your entire Life Setup store to a JSON file.</p>
+          <div class="form__actions">
+            <button class="primary-btn" type="button" id="btnToolsExport">Export store</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h4 class="card__title">Restore</h4>
+          <p class="muted muted--pad">Import a previous export, or legacy Life Admin items.</p>
+          <div class="form__actions">
+            <button class="ghost-btn" type="button" id="btnToolsImport">Import JSON</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h4 class="card__title">Try sample data</h4>
+          <p class="muted muted--pad">Adds example Life Admin items so you can test the flow.</p>
+          <div class="form__actions">
+            <button class="ghost-btn" type="button" id="btnToolsSample">Add sample items</button>
+          </div>
+        </article>
+
+        <article class="card">
+          <h4 class="card__title">Reset app</h4>
+          <p class="muted muted--pad">Clears the full store (Life Admin, Home, Skills, Money).</p>
+          <div class="form__actions">
+            <button class="ghost-btn" type="button" id="btnToolsReset" style="border-color: rgba(255,91,91,0.30);">
+              Reset everything
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <div class="form__actions" style="margin-top: 12px;">
+        <button class="ghost-btn" type="button" id="btnToolsDone">Done</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
   <!-- Modal: Tools -->
   <div class="modal" id="toolsModal" aria-hidden="true">
     <div class="modal__backdrop" data-close-tools="true"></div>
@@ -519,20 +735,23 @@
               <button class="mini-btn" type="button" id="btnImportAll">Import everything</button>
             </div>
 
+            <!-- ✅ Part K: module-level export/import -->
             <div class="row-actions" style="justify-content:flex-start; gap:10px; margin-top:10px; flex-wrap:wrap;">
               <button class="mini-btn" type="button" id="btnExportAdmin">Export Life Admin</button>
               <button class="mini-btn" type="button" id="btnExportHome">Export Future Home</button>
               <button class="mini-btn" type="button" id="btnExportSkills">Export Life Skills</button>
+              <button class="mini-btn" type="button" id="btnExportMoney">Export Money</button>
             </div>
 
             <div class="row-actions" style="justify-content:flex-start; gap:10px; margin-top:10px; flex-wrap:wrap;">
               <button class="mini-btn" type="button" id="btnImportAdmin">Import Life Admin</button>
               <button class="mini-btn" type="button" id="btnImportHome">Import Future Home</button>
               <button class="mini-btn" type="button" id="btnImportSkills">Import Life Skills</button>
+              <button class="mini-btn" type="button" id="btnImportMoney">Import Money</button>
             </div>
 
             <p class="muted muted--pad">
-              Tip: “Export everything” is your full backup. Section exports are handy if you want to share or move just one part.
+              Tip: “Export everything” is your full backup. Section exports are handy if you want to move just one module.
             </p>
           </article>
 
@@ -597,7 +816,7 @@
     </div>
   </div>
 
-  <!-- Modal (Money Fund Add/Edit) -->
+  <!-- ✅ Modal (Money Fund Add/Edit) -->
   <div class="modal" id="fundModal" aria-hidden="true">
     <div class="modal__backdrop" data-close="true"></div>
 
@@ -638,11 +857,19 @@
         </div>
 
         <div class="form__row">
+          <!-- Optional target date per spec -->
+          <label class="field">
+            <span class="field__label">Target date (optional)</span>
+            <input class="field__control" name="targetDate" type="date" />
+          </label>
+
           <label class="field">
             <span class="field__label">Monthly goal (£)</span>
             <input class="field__control" name="monthlyGoal" type="number" min="0" step="0.01" placeholder="e.g., 150" />
           </label>
+        </div>
 
+        <div class="form__row" style="grid-template-columns: 1fr;">
           <label class="field">
             <span class="field__label">Notes (optional)</span>
             <input class="field__control" name="notes" placeholder="e.g., keep 3–6 months buffer" />
@@ -656,6 +883,55 @@
 
         <p class="muted muted--small">
           Tip: You can deposit/withdraw from the fund list after saving.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ✅ Modal (Money Budget Add/Edit) -->
+  <div class="modal" id="budgetModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="true"></div>
+
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="budgetModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="budgetModalTitle">Add Budget</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseBudgetModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="budgetForm" class="form" autocomplete="off">
+        <input type="hidden" name="id" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Category</span>
+            <input class="field__control" name="name" placeholder="e.g., Food" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Monthly limit (£)</span>
+            <input class="field__control" name="limit" type="number" min="0" step="0.01" placeholder="e.g., 350" required />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Spent so far (£)</span>
+            <input class="field__control" name="spent" type="number" min="0" step="0.01" placeholder="e.g., 120" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input class="field__control" name="notes" placeholder="e.g., includes takeaways" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelBudget">Cancel</button>
+          <button class="primary-btn" type="submit">Save budget</button>
+        </div>
+
+        <p class="muted muted--small">
+          Tip: You can add spending from the budget list after saving.
         </p>
       </form>
     </div>
@@ -754,5 +1030,7 @@
   </div>
 
   <script src="script.js"></script>
+  <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+
 </body>
 </html>

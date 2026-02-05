@@ -1224,3 +1224,54 @@ select:not(#modal select) option{
   .skills-add-row .primary-btn,
   .skills-add-row .ghost-btn{ width: 100%; }
 }
+
+/* =========================
+   Part K: Privacy Mode
+========================= */
+.is-private .money-chip strong,
+.is-private .cost,
+.is-private .fund-sub,
+.is-private .progress__bar{
+  filter: blur(6px);
+  opacity: 0.75;
+}
+
+.is-private .progress{
+  opacity: 0.65;
+}
+
+/* =========================
+   Part L: Toasts + Motion
+========================= */
+.toast-wrap{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  gap: 10px;
+  z-index: 12000;
+}
+
+.toast{
+  width: min(360px, calc(100vw - 32px));
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)), var(--panel);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+  padding: 12px;
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+}
+
+.toast__title{ font-weight: 850; font-size: 13px; margin: 0; }
+.toast__msg{ margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
+.toast__dot{ width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; }
+.toast--ok .toast__dot{ background: var(--ok); }
+.toast--warn .toast__dot{ background: var(--warn); }
+.toast--danger .toast__dot{ background: var(--danger); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}

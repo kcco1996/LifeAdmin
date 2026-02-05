@@ -231,16 +231,131 @@
     };
   }
 
-  function defaultStore() {
-    return {
-      version: 1,
-      lifeAdmin: { items: [] },
-      home: { rooms: defaultRooms() },
-      skills: { categories: defaultSkills() },
-      money: { funds: [], currency: "GBP" },
-      settings: { calmModeAuto: true, calmThreshold: 3 },
-    };
-  }
+ function makeBudget(name) {
+  return {
+    id: uid(),
+    name,
+    priority: "normal", // normal | high
+    monthlyLimit: 0,
+    notes: "",
+    createdAtISO: new Date().toISOString(),
+    updatedAtISO: new Date().toISOString(),
+  };
+}
+
+function makeTxn({ type, label, amount, dateISO, fundId = null, budgetId = null }) {
+  return {
+    id: uid(),
+    type, // deposit | withdraw | spend | income
+    label: String(label ?? "").trim(),
+    amount: Number(amount ?? 0),
+    dateISO: String(dateISO ?? toISODate(startOfToday())),
+    fundId: fundId ? String(fundId) : null,
+    budgetId: budgetId ? String(budgetId) : null,
+    createdAtISO: new Date().toISOString(),
+  };
+}
+
+function defaultStore() {
+  return {
+    version: 2,
+    lifeAdmin: { items: [] },
+    home: { rooms: defaultRooms() },
+    skills: { categories: defaultSkills() },
+
+    money: {
+      currency: "GBP",
+      funds: [],
+      budgets: [],
+      txns: [], // transaction log for budgets + optional fund movements
+      paydayISO: null, // optional: next payday date
+    },
+
+    settings: {
+      calmModeAuto: true,
+      calmThreshold: 3,
+      focusWeekDefault: false,
+      showArchivedDefault: false,
+      defaultSort: "dueSoonest",
+    },
+  };
+}
+
+function normaliseBudgets(budgets) {
+  if (!Array.isArray(budgets)) return [];
+  const nowISO = new Date().toISOString();
+
+  return budgets
+    .map((b) => {
+      const name = String(b?.name ?? "").trim();
+      if (!name) return null;
+
+      const monthlyLimit = Number(b?.monthlyLimit ?? 0);
+
+      return {
+        id: String(b?.id ?? uid()),
+        name,
+        priority: ["normal", "high"].includes(b?.priority) ? b.priority : "normal",
+        monthlyLimit: Number.isFinite(monthlyLimit) && monthlyLimit >= 0 ? monthlyLimit : 0,
+        notes: String(b?.notes ?? ""),
+        createdAtISO: String(b?.createdAtISO ?? nowISO),
+        updatedAtISO: String(b?.updatedAtISO ?? nowISO),
+      };
+    })
+    .filter(Boolean);
+}
+
+function normaliseTxns(txns) {
+  if (!Array.isArray(txns)) return [];
+  const today = toISODate(startOfToday());
+
+  const okType = new Set(["deposit", "withdraw", "spend", "income"]);
+  return txns
+    .map((t) => {
+      const type = String(t?.type ?? "").trim();
+      if (!okType.has(type)) return null;
+
+      const amount = Number(t?.amount ?? 0);
+      const dateISO = String(t?.dateISO ?? today);
+
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) return null;
+      if (!Number.isFinite(amount) || amount <= 0) return null;
+
+      const label = String(t?.label ?? "").trim();
+      if (!label) return null;
+
+      return {
+        id: String(t?.id ?? uid()),
+        type,
+        label,
+        amount,
+        dateISO,
+        fundId: t?.fundId ? String(t.fundId) : null,
+        budgetId: t?.budgetId ? String(t.budgetId) : null,
+        createdAtISO: String(t?.createdAtISO ?? new Date().toISOString()),
+      };
+    })
+    .filter(Boolean);
+}
+
+function normaliseSettings(s) {
+  const base = defaultStore().settings;
+  const out = { ...base, ...(typeof s === "object" && s ? s : {}) };
+
+  out.calmModeAuto = !!out.calmModeAuto;
+
+  const th = Number(out.calmThreshold);
+  out.calmThreshold = Number.isFinite(th) && th >= 0 ? th : base.calmThreshold;
+
+  out.focusWeekDefault = !!out.focusWeekDefault;
+  out.showArchivedDefault = !!out.showArchivedDefault;
+
+  const allowedSort = new Set(["dueSoonest","dueLatest","createdOldest","createdNewest","nameAZ","nameZA"]);
+  out.defaultSort = allowedSort.has(out.defaultSort) ? out.defaultSort : base.defaultSort;
+
+  return out;
+}
+
 
   function normaliseItems(arr) {
     const nowISO = new Date().toISOString();
@@ -315,25 +430,34 @@
       .filter(Boolean);
   }
 
-  function normaliseStore(s) {
-    const base = defaultStore();
-    base.lifeAdmin.items = normaliseItems(Array.isArray(s?.lifeAdmin?.items) ? s.lifeAdmin.items : []);
+function normaliseStore(s) {
+  const base = defaultStore();
 
-    base.money = {
-      currency: String(s?.money?.currency ?? "GBP"),
-      funds: normaliseFunds(s?.money?.funds),
-    };
+  // Life Admin
+  base.lifeAdmin.items = normaliseItems(Array.isArray(s?.lifeAdmin?.items) ? s.lifeAdmin.items : []);
 
-    base.settings = {
-      ...base.settings,
-      ...(typeof s?.settings === "object" && s.settings ? s.settings : {}),
-    };
+  // Money
+  base.money = {
+    currency: String(s?.money?.currency ?? "GBP"),
+    funds: normaliseFunds(s?.money?.funds),
+    budgets: normaliseBudgets(s?.money?.budgets),
+    txns: normaliseTxns(s?.money?.txns),
+    paydayISO: (s?.money?.paydayISO && /^\d{4}-\d{2}-\d{2}$/.test(String(s.money.paydayISO))) ? String(s.money.paydayISO) : null,
+  };
 
-    base.home.rooms = s?.home?.rooms ?? base.home.rooms;
-    base.skills.categories = s?.skills?.categories ?? base.skills.categories;
+  // Settings (wired)
+  base.settings = normaliseSettings(s?.settings);
 
-    return base;
-  }
+  // Home + Skills (keep your existing behaviour)
+  base.home.rooms = s?.home?.rooms ?? base.home.rooms;
+  base.skills.categories = s?.skills?.categories ?? base.skills.categories;
+
+  // Version bump
+  base.version = 2;
+
+  return base;
+}
+
 
   function saveStore(store) {
     localStorage.setItem(LS_STORE_KEY, JSON.stringify(store));
@@ -490,6 +614,24 @@
     calmMode: false,
     calmModeManual: null,
   };
+
+  function getSettings() {
+  return loadStore().settings || defaultStore().settings;
+}
+
+function applyDefaultUIFromSettings() {
+  const s = getSettings();
+
+  // defaults for admin controls
+  uiState.showArchived = !!s.showArchivedDefault;
+  uiState.focusWeek = !!s.focusWeekDefault;
+  uiState.sort = s.defaultSort || "dueSoonest";
+
+  if (showArchivedCheckbox) showArchivedCheckbox.checked = uiState.showArchived;
+  if (focusWeekCheckbox) focusWeekCheckbox.checked = uiState.focusWeek;
+  if (sortSelect) sortSelect.value = uiState.sort;
+}
+
 
   // =========================
   // URGENCY + CALM MODE HELPERS
@@ -1319,6 +1461,64 @@
       }
     }
 
+    // ---- MONEY (Budgets + Payday) ----
+try {
+  const store = loadStore();
+  const budgets = store.money.budgets || [];
+  const mk = currentMonthKey();
+
+  // Overspend warnings + nearing limit
+  for (const b of budgets) {
+    const limit = Number(b.monthlyLimit || 0);
+    if (limit <= 0) continue;
+
+    const spent = (store.money.txns || [])
+      .filter(t => t.type === "spend" && t.budgetId === b.id && monthKeyFromISO(t.dateISO) === mk)
+      .reduce((acc, t) => acc + Number(t.amount || 0), 0);
+
+    if (spent > limit) {
+      today.push({
+        source: "admin",
+        id: uid(),
+        title: `Budget overspent: ${b.name}`,
+        meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
+        hint: "No panic — even one small adjustment helps (pause one optional spend).",
+        tag: "Money",
+        score: 220 + (b.priority === "high" ? 20 : 0),
+      });
+    } else if (spent > limit * 0.85) {
+      week.push({
+        source: "admin",
+        id: uid(),
+        title: `Budget nearly full: ${b.name}`,
+        meta: `${fmtMoney(spent)} / ${fmtMoney(limit)}`,
+        hint: "You’re close to the limit — worth keeping an eye on this week.",
+        tag: "Money",
+        score: 130 + (b.priority === "high" ? 10 : 0),
+      });
+    }
+  }
+
+  // Payday nudge (optional)
+  if (store.money.paydayISO) {
+    const d = daysUntil(store.money.paydayISO);
+    if (d !== null && d >= 0 && d <= 3) {
+      week.push({
+        source: "admin",
+        id: uid(),
+        title: "Payday coming up",
+        meta: fmtDueText(d),
+        hint: "Quick plan: bills → savings → fun money. Even a rough split helps.",
+        tag: "Money",
+        score: 125,
+      });
+    }
+  }
+} catch {
+  // ignore
+}
+
+
 // ---- FUTURE HOME ----
 // prioritise: essentials not planned + essentials with £0 cost (budget clarity)
 try {
@@ -1475,11 +1675,24 @@ try {
   // =========================
   // MONEY RENDER (Funds)
   // =========================
-  function fmtGBP(n) {
-    const x = Number(n ?? 0);
-    const safe = Number.isFinite(x) ? x : 0;
-    return "£" + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
+function fmtMoney(n) {
+  const store = loadStore();
+  const code = String(store.money?.currency ?? "GBP");
+  const sym = currencySymbol(code);
+
+  const x = Number(n ?? 0);
+  const safe = Number.isFinite(x) ? x : 0;
+  return sym + safe.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function monthKeyFromISO(dateISO) {
+  // YYYY-MM
+  return String(dateISO).slice(0, 7);
+}
+
+function currentMonthKey() {
+  return monthKeyFromISO(toISODate(startOfToday()));
+}
 
   function fundProgress(f) {
     const target = Number(f.target ?? 0);
@@ -1488,6 +1701,26 @@ try {
     const pct = Math.max(0, Math.min(100, (current / target) * 100));
     return { pct, label: `${fmtGBP(current)} / ${fmtGBP(target)} (${Math.round(pct)}%)` };
   }
+
+  function monthsToTarget(f) {
+  const target = Number(f.target ?? 0);
+  const current = Number(f.current ?? 0);
+  const monthly = Number(f.monthlyGoal ?? 0);
+
+  if (!Number.isFinite(target) || target <= 0) return null;
+  if (!Number.isFinite(monthly) || monthly <= 0) return null;
+  if (current >= target) return 0;
+
+  const remaining = Math.max(0, target - current);
+  return Math.ceil(remaining / monthly);
+}
+
+function currencySymbol(code) {
+  if (code === "EUR") return "€";
+  if (code === "USD") return "$";
+  return "£";
+}
+
 
   function renderMoney() {
     const store = loadStore();
@@ -1536,7 +1769,10 @@ try {
       li.className = "list__item list__item--neutral";
 
       const monthly = Number(f.monthlyGoal ?? 0);
-      const monthlyText = monthly > 0 ? `Monthly goal: ${fmtGBP(monthly)}` : "Monthly goal: —";
+      const monthlyText = monthly > 0 ? `Monthly goal: ${fmtMoney(monthly)}` : "Monthly goal: —";
+const eta = monthsToTarget(f);
+const etaText = (eta === null) ? "" : (eta === 0 ? "Target reached 🎉" : `ETA: ~${eta} month${eta === 1 ? "" : "s"}`);
+
       const prioText = f.priority === "high" ? "High priority" : "Normal";
 
       li.innerHTML = `
@@ -1544,7 +1780,9 @@ try {
           <div class="fund-top">
             <div class="fund-meta">
               <div class="fund-name">${escapeHtml(f.name)}</div>
-              <div class="fund-sub">${escapeHtml(prog.label)} • ${escapeHtml(monthlyText)} • ${escapeHtml(prioText)}</div>
+              <div class="fund-sub">
+  ${escapeHtml(prog.label)} • ${escapeHtml(monthlyText)} • ${escapeHtml(prioText)}${etaText ? " • " + escapeHtml(etaText) : ""}
+</div>
             </div>
             <div class="fund-actions">
               <button class="mini-btn" type="button" data-fund-action="deposit" data-id="${f.id}">Deposit</button>
@@ -2198,6 +2436,29 @@ const btnCloseSkillsModal = document.getElementById("btnCloseSkillsModal");
 const btnCancelSkillsModal = document.getElementById("btnCancelSkillsModal");
 const skillsForm = document.getElementById("skillsForm");
 
+// Budgets DOM (safe if missing)
+const badgeBudgets = document.getElementById("badgeBudgets");
+const listBudgets = document.getElementById("listBudgets");
+const emptyBudgets = document.getElementById("emptyBudgets");
+const btnAddBudget = document.getElementById("btnAddBudget");
+const btnAddSpend = document.getElementById("btnAddSpend"); // optional: global spend button
+const moneyTxnsList = document.getElementById("moneyTxnsList"); // optional
+const moneyTxnsEmpty = document.getElementById("moneyTxnsEmpty"); // optional
+
+// Budget modal (optional)
+const budgetModal = document.getElementById("budgetModal");
+const budgetModalTitle = document.getElementById("budgetModalTitle");
+const budgetBackdrop = budgetModal?.querySelector(".modal__backdrop");
+const btnCloseBudgetModal = document.getElementById("btnCloseBudgetModal");
+const btnCancelBudgetModal = document.getElementById("btnCancelBudgetModal");
+const budgetForm = document.getElementById("budgetForm");
+
+const globalSearchInput = document.getElementById("globalSearch");
+const globalSearchResults = document.getElementById("globalSearchResults");
+const globalSearchEmpty = document.getElementById("globalSearchEmpty");
+
+
+
 // ---- Part F state ----
 let activeSkillCategoryKey = null;
 let editingSkill = { categoryKey: null, id: null };
@@ -2346,6 +2607,7 @@ function closeSkillsCategory() {
 
 btnSkillsBack?.addEventListener("click", closeSkillsCategory);
 
+
 // ---- category cards page ----
 function renderSkillsCategories() {
   const skills = getSkills();
@@ -2385,6 +2647,109 @@ function renderSkillsCategories() {
 
   setSkillsDashboardStats();
 }
+
+function globalSearch(query) {
+  const q = String(query || "").trim().toLowerCase();
+  if (!q) return [];
+
+  const out = [];
+
+  // Life Admin
+  for (const it of loadItems()) {
+    if ((it.name || "").toLowerCase().includes(q) || (it.details || "").toLowerCase().includes(q)) {
+      out.push({ type: "Life Admin", view: "admin", label: it.name, meta: it.details || "", id: it.id });
+    }
+  }
+
+  // Home
+  try {
+    const home = loadHome();
+    for (const rk of Object.keys(home.rooms || {})) {
+      const r = home.rooms[rk];
+      const all = [...(r.essentials || []), ...(r.extras || [])];
+      for (const x of all) {
+        if ((x.name || "").toLowerCase().includes(q) || (x.notes || "").toLowerCase().includes(q)) {
+          out.push({ type: "Future Home", view: "home", label: `${r.title}: ${x.name}`, meta: x.notes || "", id: x.id });
+        }
+      }
+    }
+  } catch {}
+
+  // Skills
+  try {
+    const skills = getSkills();
+    for (const ck of Object.keys(skills.categories || {})) {
+      const cat = skills.categories[ck];
+      for (const it of (cat.items || [])) {
+        if ((it.name || "").toLowerCase().includes(q) || (it.notes || "").toLowerCase().includes(q)) {
+          out.push({ type: "Life Skills", view: "skills", label: `${ck}: ${it.name}`, meta: it.notes || "", id: it.id });
+        }
+      }
+    }
+  } catch {}
+
+  // Money (Funds + Budgets)
+  try {
+    const store = loadStore();
+    for (const f of (store.money.funds || [])) {
+      if ((f.name || "").toLowerCase().includes(q) || (f.notes || "").toLowerCase().includes(q)) {
+        out.push({ type: "Money", view: "admin", label: `Fund: ${f.name}`, meta: f.notes || "", id: f.id });
+      }
+    }
+    for (const b of (store.money.budgets || [])) {
+      if ((b.name || "").toLowerCase().includes(q) || (b.notes || "").toLowerCase().includes(q)) {
+        out.push({ type: "Money", view: "admin", label: `Budget: ${b.name}`, meta: b.notes || "", id: b.id });
+      }
+    }
+  } catch {}
+
+  return out.slice(0, 30);
+}
+
+function renderGlobalSearch() {
+  if (!globalSearchInput || !globalSearchResults) return;
+
+  const q = globalSearchInput.value || "";
+  const results = globalSearch(q);
+
+  globalSearchResults.innerHTML = "";
+
+  if (!results.length) {
+    globalSearchEmpty?.removeAttribute("hidden");
+    return;
+  }
+  globalSearchEmpty?.setAttribute("hidden", "true");
+
+  for (const r of results) {
+    const li = document.createElement("li");
+    li.className = "list__item list__item--neutral";
+    li.innerHTML = `
+      <div class="list__main">
+        <div class="list__title">${escapeHtml(r.label)}</div>
+        <div class="list__meta">${escapeHtml(r.type)} • ${escapeHtml(r.meta || "")}</div>
+      </div>
+      <div class="row-actions">
+        <button class="mini-btn" type="button" data-gs-go="${escapeHtml(r.view)}">Open</button>
+      </div>
+    `;
+    globalSearchResults.appendChild(li);
+  }
+}
+
+function applyPrivacyMode() {
+  const store = loadStore();
+  const hide = !!store.settings?.hideMoney;
+  document.body.classList.toggle("is-private", hide);
+}
+
+globalSearchInput?.addEventListener("input", renderGlobalSearch);
+globalSearchResults?.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-gs-go]");
+  if (!btn) return;
+  const view = btn.getAttribute("data-gs-go");
+  if (view) setActiveView(view);
+});
+
 
 // ---- skill item controls ----
 function setSkillLevel(categoryKey, skillId, level) {
@@ -2629,10 +2994,12 @@ function renderSkills() {
   function renderAdmin() {
     const allItems = loadItems();
 
-    if (AUTO_CALM_ENABLED && uiState.calmModeManual === null) {
-      uiState.calmMode = urgentCount(allItems) > AUTO_CALM_THRESHOLD;
-      if (calmCheckbox) calmCheckbox.checked = uiState.calmMode;
-    }
+const settings = getSettings();
+if (settings.calmModeAuto && uiState.calmModeManual === null) {
+  uiState.calmMode = urgentCount(allItems) > Number(settings.calmThreshold ?? 3);
+  if (calmCheckbox) calmCheckbox.checked = uiState.calmMode;
+}
+
 
     setOverallPill(computeOverallStatus(allItems));
     renderStats(allItems);
@@ -2654,6 +3021,524 @@ function renderSkills() {
     renderList(listAccounts, emptyAccounts, groups.account);
     renderList(listInfo, emptyInfo, groups.info);
     renderList(listVehicle, emptyVehicle, groups.vehicle);
+
+    let editingBudgetId = null;
+
+function openBudgetModal(mode, budget = null) {
+  editingBudgetId = mode === "edit" ? (budget?.id ?? null) : null;
+
+  // fallback if modal not present
+  if (!budgetModal || !budgetForm) {
+    const name = prompt("Budget name (e.g., Food / Petrol):", budget?.name ?? "");
+    if (name === null) return;
+
+    const limitRaw = prompt("Monthly limit:", String(Number(budget?.monthlyLimit ?? 0)));
+    if (limitRaw === null) return;
+
+    const notes = prompt("Notes (optional):", budget?.notes ?? "");
+    if (notes === null) return;
+
+    const store = loadStore();
+    const nowISO = new Date().toISOString();
+
+    const monthlyLimit = Number(limitRaw);
+    if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+      alert("Monthly limit must be 0 or a positive number.");
+      return;
+    }
+
+    if (editingBudgetId) {
+      const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
+      if (idx === -1) return;
+      store.money.budgets[idx] = {
+        ...store.money.budgets[idx],
+        name: name.trim() || store.money.budgets[idx].name,
+        monthlyLimit,
+        notes: notes.trim(),
+        updatedAtISO: nowISO,
+      };
+    } else {
+      const b = makeBudget(name.trim() || "Budget");
+      b.monthlyLimit = monthlyLimit;
+      b.notes = notes.trim();
+      b.updatedAtISO = nowISO;
+      store.money.budgets.push(b);
+    }
+
+    store.money.budgets = normaliseBudgets(store.money.budgets);
+    saveStore(store);
+    renderBudgets();
+    renderNextSteps();
+    return;
+  }
+
+  if (budgetModalTitle) budgetModalTitle.textContent = mode === "edit" ? "Edit Budget" : "Add Budget";
+  budgetForm.reset();
+
+  budgetForm.id.value = budget?.id ?? "";
+  budgetForm.name.value = budget?.name ?? "";
+  budgetForm.priority.value = budget?.priority ?? "normal";
+  budgetForm.monthlyLimit.value = budget?.monthlyLimit != null ? String(budget.monthlyLimit) : "";
+  budgetForm.notes.value = budget?.notes ?? "";
+
+  budgetModal.setAttribute("aria-hidden", "false");
+  budgetModal.classList.add("is-open");
+  budgetForm.name?.focus?.();
+}
+
+function closeBudgetModal() {
+  budgetModal?.setAttribute("aria-hidden", "true");
+  budgetModal?.classList.remove("is-open");
+  editingBudgetId = null;
+}
+
+btnAddBudget?.addEventListener("click", () => openBudgetModal("add"));
+btnCloseBudgetModal?.addEventListener("click", closeBudgetModal);
+btnCancelBudgetModal?.addEventListener("click", closeBudgetModal);
+budgetBackdrop?.addEventListener("click", closeBudgetModal);
+
+budgetForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const name = budgetForm.name.value.trim();
+  if (!name) {
+    alert("Please enter a budget name.");
+    budgetForm.name.focus();
+    return;
+  }
+
+  const priority = budgetForm.priority.value === "high" ? "high" : "normal";
+  const monthlyLimit = Number(budgetForm.monthlyLimit.value || 0);
+  if (!Number.isFinite(monthlyLimit) || monthlyLimit < 0) {
+    alert("Monthly limit must be 0 or a positive number.");
+    budgetForm.monthlyLimit.focus();
+    return;
+  }
+
+  const notes = budgetForm.notes.value.trim();
+  const store = loadStore();
+  const nowISO = new Date().toISOString();
+
+  if (editingBudgetId) {
+    const idx = store.money.budgets.findIndex(b => b.id === editingBudgetId);
+    if (idx === -1) {
+      alert("Budget not found.");
+      closeBudgetModal();
+      return;
+    }
+    store.money.budgets[idx] = {
+      ...store.money.budgets[idx],
+      name,
+      priority,
+      monthlyLimit,
+      notes,
+      updatedAtISO: nowISO,
+    };
+  } else {
+    const b = makeBudget(name);
+    b.priority = priority;
+    b.monthlyLimit = monthlyLimit;
+    b.notes = notes;
+    b.createdAtISO = nowISO;
+    b.updatedAtISO = nowISO;
+    store.money.budgets.push(b);
+  }
+
+  store.money.budgets = normaliseBudgets(store.money.budgets);
+  saveStore(store);
+
+  renderBudgets();
+  renderNextSteps();
+  closeBudgetModal();
+});
+
+function budgetSpendThisMonth(store, budgetId) {
+  const mk = currentMonthKey();
+  return (store.money.txns || [])
+    .filter(t => t.type === "spend" && t.budgetId === budgetId && monthKeyFromISO(t.dateISO) === mk)
+    .reduce((acc, t) => acc + Number(t.amount || 0), 0);
+}
+
+function addSpendPrompt(budgetId) {
+  const store = loadStore();
+  const budget = store.money.budgets.find(b => b.id === budgetId);
+  if (!budget) return;
+
+  const label = prompt(`Spend label for "${budget.name}" (e.g., Tesco / Fuel):`, "");
+  if (label === null) return;
+
+  const amtRaw = prompt("Amount:", "");
+  if (amtRaw === null) return;
+  const amt = Number(amtRaw);
+  if (!Number.isFinite(amt) || amt <= 0) {
+    alert("Please enter a positive number.");
+    return;
+  }
+
+  const dateISO = prompt("Date (YYYY-MM-DD) — leave blank for today:", "") || toISODate(startOfToday());
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) {
+    alert("Please use YYYY-MM-DD format.");
+    return;
+  }
+
+  store.money.txns.push(makeTxn({
+    type: "spend",
+    label: label.trim() || "Spend",
+    amount: amt,
+    dateISO,
+    budgetId: budgetId,
+  }));
+
+  store.money.txns = normaliseTxns(store.money.txns);
+  saveStore(store);
+
+  renderBudgets();
+  renderMoneyTxns();
+  renderNextSteps();
+}
+
+function renderBudgets() {
+  const store = loadStore();
+  const budgets = store.money.budgets || [];
+
+  if (badgeBudgets) {
+    if (!budgets.length) {
+      badgeBudgets.className = "badge badge--neutral";
+      badgeBudgets.textContent = "Empty";
+    } else {
+      const overspent = budgets.filter(b => {
+        const spent = budgetSpendThisMonth(store, b.id);
+        return Number(b.monthlyLimit || 0) > 0 && spent > Number(b.monthlyLimit || 0);
+      }).length;
+
+      badgeBudgets.className = overspent ? "badge badge--danger" : "badge badge--ok";
+      badgeBudgets.textContent = `${budgets.length} budget${budgets.length === 1 ? "" : "s"}`;
+    }
+  }
+
+  if (!listBudgets) return;
+
+  listBudgets.innerHTML = "";
+
+  if (!budgets.length) {
+    emptyBudgets?.removeAttribute("hidden");
+    return;
+  }
+  emptyBudgets?.setAttribute("hidden", "true");
+
+  const sorted = [...budgets].sort((a, b) => {
+    if (a.priority !== b.priority) return a.priority === "high" ? -1 : 1;
+    return String(a.name).localeCompare(String(b.name));
+  });
+
+  for (const b of sorted) {
+    const spent = budgetSpendThisMonth(store, b.id);
+    const limit = Number(b.monthlyLimit || 0);
+    const pct = limit > 0 ? Math.max(0, Math.min(100, (spent / limit) * 100)) : 0;
+
+    const status =
+      limit <= 0 ? "badge--neutral" :
+      spent > limit ? "badge--danger" :
+      spent > (0.8 * limit) ? "badge--warn" :
+      "badge--ok";
+
+    const li = document.createElement("li");
+    li.className = "list__item list__item--neutral";
+    li.innerHTML = `
+      <div class="fund-row" style="width:100%;">
+        <div class="fund-top">
+          <div class="fund-meta">
+            <div class="fund-name">${escapeHtml(b.name)}</div>
+            <div class="fund-sub">
+              This month: ${escapeHtml(fmtMoney(spent))} • Limit: ${escapeHtml(limit > 0 ? fmtMoney(limit) : "—")}
+              ${b.notes?.trim() ? ` • ${escapeHtml(b.notes.trim())}` : ""}
+            </div>
+          </div>
+          <div class="fund-actions">
+            <button class="mini-btn" type="button" data-budget-action="spend" data-id="${b.id}">Add spend</button>
+            <button class="mini-btn" type="button" data-budget-action="edit" data-id="${b.id}">Edit</button>
+            <button class="mini-btn mini-btn--danger" type="button" data-budget-action="delete" data-id="${b.id}">Delete</button>
+            <span class="badge ${status}">${limit > 0 ? `${Math.round(pct)}%` : "No limit"}</span>
+          </div>
+        </div>
+
+        ${limit > 0 ? `
+          <div class="progress">
+            <div class="progress__bar" style="width:${pct}%"></div>
+          </div>
+        ` : ``}
+      </div>
+    `;
+    listBudgets.appendChild(li);
+  }
+}
+
+document.querySelector('[data-cat-card="money"]')?.addEventListener("click", (e) => {
+  const bbtn = e.target.closest("button[data-budget-action]");
+  if (!bbtn) return;
+
+  const action = bbtn.getAttribute("data-budget-action");
+  const id = bbtn.getAttribute("data-id");
+  if (!action || !id) return;
+
+  const store = loadStore();
+  const idx = store.money.budgets.findIndex(b => b.id === id);
+  if (idx === -1) return;
+
+  const budget = store.money.budgets[idx];
+
+  if (action === "edit") {
+    openBudgetModal("edit", budget);
+    return;
+  }
+  if (action === "delete") {
+    if (!confirm("Delete this budget?")) return;
+    store.money.budgets.splice(idx, 1);
+    // remove linked txns? keep them but orphaned is messy -> remove
+    store.money.txns = (store.money.txns || []).filter(t => t.budgetId !== id);
+    store.money.budgets = normaliseBudgets(store.money.budgets);
+    store.money.txns = normaliseTxns(store.money.txns);
+    saveStore(store);
+    renderBudgets();
+    renderMoneyTxns();
+    renderNextSteps();
+    return;
+  }
+  if (action === "spend") {
+    addSpendPrompt(id);
+  }
+});
+
+// Optional: render last txns (if you add UL in HTML)
+function renderMoneyTxns() {
+  if (!moneyTxnsList) return;
+
+  const store = loadStore();
+  const txns = store.money.txns || [];
+  moneyTxnsList.innerHTML = "";
+
+  if (!txns.length) {
+    moneyTxnsEmpty?.removeAttribute("hidden");
+    return;
+  }
+  moneyTxnsEmpty?.setAttribute("hidden", "true");
+
+  const sorted = [...txns].sort((a, b) => (b.dateISO || "").localeCompare(a.dateISO || ""));
+  for (const t of sorted.slice(0, 12)) {
+    const li = document.createElement("li");
+    li.className = "list__item list__item--neutral";
+    li.innerHTML = `
+      <div class="list__main">
+        <div class="list__title">${escapeHtml(t.label)}</div>
+        <div class="list__meta">${escapeHtml(t.dateISO)} • ${escapeHtml(t.type)} • ${escapeHtml(fmtMoney(t.amount))}</div>
+      </div>
+    `;
+    moneyTxnsList.appendChild(li);
+  }
+}
+
+// =========================
+// Part I: Global Search
+// =========================
+const globalSearchModal = document.getElementById("globalSearchModal");
+const globalSearchBackdrop = globalSearchModal?.querySelector(".modal__backdrop");
+const btnCloseGlobalSearch = document.getElementById("btnCloseGlobalSearch");
+const btnGlobalSearchDone = document.getElementById("btnGlobalSearchDone");
+const globalSearchInput = document.getElementById("globalSearchInput");
+const globalSearchResults = document.getElementById("globalSearchResults");
+const globalSearchEmpty = document.getElementById("globalSearchEmpty");
+
+// Add a button somewhere with id="btnGlobalSearch"
+const btnGlobalSearch = document.getElementById("btnGlobalSearch");
+
+function openGlobalSearch() {
+  globalSearchModal?.setAttribute("aria-hidden", "false");
+  globalSearchModal?.classList.add("is-open");
+  if (globalSearchInput) {
+    globalSearchInput.value = "";
+    globalSearchInput.focus();
+  }
+  renderGlobalSearchResults("");
+}
+
+function closeGlobalSearch() {
+  globalSearchModal?.setAttribute("aria-hidden", "true");
+  globalSearchModal?.classList.remove("is-open");
+}
+
+btnGlobalSearch?.addEventListener("click", openGlobalSearch);
+btnCloseGlobalSearch?.addEventListener("click", closeGlobalSearch);
+btnGlobalSearchDone?.addEventListener("click", closeGlobalSearch);
+globalSearchBackdrop?.addEventListener("click", closeGlobalSearch);
+
+globalSearchInput?.addEventListener("input", () => {
+  renderGlobalSearchResults(globalSearchInput.value || "");
+});
+
+function searchEverything(queryRaw) {
+  const q = String(queryRaw || "").trim().toLowerCase();
+  if (!q) return [];
+
+  const out = [];
+  const store = loadStore();
+
+  // Life Admin
+  const items = loadItems();
+  for (const it of items) {
+    const hay = `${it.name} ${it.details || ""} ${it.category}`.toLowerCase();
+    if (!hay.includes(q)) continue;
+    out.push({
+      type: "admin",
+      title: it.name,
+      meta: `Life Admin • ${it.category}${it.dueDateISO ? " • " + it.dueDateISO : ""}`,
+      id: it.id,
+      score: 90,
+    });
+  }
+
+  // Future Home
+  try {
+    const home = loadHome();
+    const rooms = home.rooms || {};
+    for (const rk of Object.keys(rooms)) {
+      const r = rooms[rk];
+      for (const kind of ["essentials", "extras"]) {
+        for (const it of (r[kind] || [])) {
+          const hay = `${r.title} ${kind} ${it.name} ${it.notes || ""}`.toLowerCase();
+          if (!hay.includes(q)) continue;
+          out.push({
+            type: "home",
+            title: it.name,
+            meta: `Future Home • ${r.title} • ${kind}`,
+            roomKey: rk,
+            kind,
+            id: it.id,
+            score: 70,
+          });
+        }
+      }
+    }
+  } catch {}
+
+  // Skills
+  try {
+    const skills = getSkills();
+    const cats = skills.categories || {};
+    for (const ck of Object.keys(cats)) {
+      const cat = cats[ck];
+      for (const it of (cat.items || [])) {
+        const hay = `${ck} ${it.name} ${it.notes || ""}`.toLowerCase();
+        if (!hay.includes(q)) continue;
+        out.push({
+          type: "skills",
+          title: it.name,
+          meta: `Life Skills • ${ck}`,
+          categoryKey: ck,
+          id: it.id,
+          score: 60,
+        });
+      }
+    }
+  } catch {}
+
+  // Money
+  const funds = store.money?.funds || [];
+  for (const f of funds) {
+    const hay = `${f.name} ${f.notes || ""}`.toLowerCase();
+    if (!hay.includes(q)) continue;
+    out.push({
+      type: "money",
+      title: f.name,
+      meta: `Money • Fund`,
+      id: f.id,
+      score: 80,
+    });
+  }
+
+  return out.sort((a, b) => b.score - a.score).slice(0, 20);
+}
+
+function renderGlobalSearchResults(queryRaw) {
+  if (!globalSearchResults) return;
+
+  const results = searchEverything(queryRaw);
+  globalSearchResults.innerHTML = "";
+
+  if (!results.length) {
+    globalSearchEmpty?.removeAttribute("hidden");
+    return;
+  }
+  globalSearchEmpty?.setAttribute("hidden", "true");
+
+  for (const r of results) {
+    const li = document.createElement("li");
+    li.className = "list__item list__item--neutral";
+
+    li.innerHTML = `
+      <div class="list__main">
+        <div class="list__title">${escapeHtml(r.title)}</div>
+        <div class="list__meta">${escapeHtml(r.meta)}</div>
+      </div>
+      <div class="row-actions">
+        <button class="mini-btn" type="button"
+          data-gs-open="${r.type}"
+          data-id="${escapeHtml(r.id)}"
+          data-roomkey="${escapeHtml(r.roomKey || "")}"
+          data-kind="${escapeHtml(r.kind || "")}"
+          data-cat="${escapeHtml(r.categoryKey || "")}">
+          Open
+        </button>
+      </div>
+    `;
+    globalSearchResults.appendChild(li);
+  }
+}
+
+globalSearchResults?.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-gs-open]");
+  if (!btn) return;
+
+  const type = btn.getAttribute("data-gs-open");
+  const id = btn.getAttribute("data-id");
+
+  if (type === "admin") {
+    const item = loadItems().find((x) => x.id === id);
+    if (!item) return;
+    closeGlobalSearch();
+    setActiveView("admin");
+    openModal("edit", item);
+    return;
+  }
+
+  if (type === "money") {
+    const store = loadStore();
+    const fund = (store.money?.funds || []).find((f) => f.id === id);
+    if (!fund) return;
+    closeGlobalSearch();
+    setActiveView("admin");
+    openFundModal("edit", fund);
+    return;
+  }
+
+  if (type === "home") {
+    const roomKey = btn.getAttribute("data-roomkey");
+    if (!roomKey) return;
+    closeGlobalSearch();
+    setActiveView("home");
+    openRoom(roomKey);
+    return;
+  }
+
+  if (type === "skills") {
+    const cat = btn.getAttribute("data-cat");
+    if (!cat) return;
+    closeGlobalSearch();
+    setActiveView("skills");
+    openSkillsCategory(cat);
+    return;
+  }
+});
+
 
     // Funds list (separate storage)
     renderMoney();
@@ -2787,6 +3672,32 @@ function renderSkills() {
     }
   });
 
+  // =========================
+// Part L: Toast helper
+// =========================
+const toastWrap = document.getElementById("toastWrap");
+
+function toast(type, title, msg, ms = 2600) {
+  if (!toastWrap) return;
+
+  const el = document.createElement("div");
+  el.className = `toast toast--${type || "ok"}`;
+  el.innerHTML = `
+    <div class="toast__dot" aria-hidden="true"></div>
+    <div style="min-width:0;">
+      <p class="toast__title">${escapeHtml(title || "Done")}</p>
+      ${msg ? `<p class="toast__msg">${escapeHtml(msg)}</p>` : ""}
+    </div>
+  `;
+
+  toastWrap.appendChild(el);
+
+  setTimeout(() => {
+    el.remove();
+  }, ms);
+}
+
+
 
   // =========================
   // EXPORT (entire store)
@@ -2847,6 +3758,7 @@ function renderSkills() {
         renderRoomsGrid();
         renderSkills();
         renderNextSteps(); // ✅
+        applyPrivacyMode();
 
         alert("Imported Life Setup store.");
       } catch {
@@ -2952,22 +3864,60 @@ function renderSkills() {
   // SETTINGS PLACEHOLDER
   // =========================
   document.getElementById("btnSettings")?.addEventListener("click", () => {
-    alert("Settings coming soon: templates, backups, notifications, money preferences.");
-  });
+  const store = loadStore();
+
+  const calmAuto = confirm("Enable Calm Mode auto-toggle? OK = yes, Cancel = no");
+  const thresholdRaw = prompt("Calm threshold (urgent items count):", String(store.settings.calmThreshold ?? 3));
+  if (thresholdRaw === null) return;
+
+  const th = Number(thresholdRaw);
+  if (!Number.isFinite(th) || th < 0) {
+    alert("Threshold must be 0 or a positive number.");
+    return;
+  }
+
+  const currency = prompt("Currency code (GBP / USD / EUR):", String(store.money.currency ?? "GBP"));
+  if (currency === null) return;
+
+  store.settings.calmModeAuto = calmAuto;
+  store.settings.calmThreshold = th;
+  store.money.currency = String(currency).toUpperCase().trim() || "GBP";
+
+  store.settings = normaliseSettings(store.settings);
+  saveStore(store);
+
+  renderAdmin();
+  renderRoomsGrid();
+  renderHomeSummary();
+  renderBudgets();
+  renderMoney();
+  renderMoneyTxns();
+  renderNextSteps();
+  applyPrivacyMode();
+
+  toast("ok", "Saved", "Your settings have been updated.");
+});
 
 
   // =========================
   // BOOT (Part B)
   // =========================
   setActiveView("admin");
-  setRecurrenceUI(itemForm?.recurrence?.value || "none");
+setRecurrenceUI(itemForm?.recurrence?.value || "none");
 
-  loadHome();
+loadHome();
 getSkills();
 
-  renderAdmin();
-  renderRoomsGrid();
-  renderHomeSummary();
-  renderSkills();
-  renderNextSteps(); // ✅
+applyDefaultUIFromSettings();
+
+renderAdmin();
+renderRoomsGrid();
+renderHomeSummary();
+renderSkills();
+renderBudgets();
+renderMoney();
+renderMoneyTxns();
+renderNextSteps();
+applyPrivacyMode();
+
 })();
