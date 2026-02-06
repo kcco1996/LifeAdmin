@@ -1607,10 +1607,14 @@
         funds.splice(idx, 1);
       }
 
-      if (fundAction === "edit") openFundModal("edit", funds[idx]);
+    if (fundAction === "edit") {
+  openFundModal("edit", funds[idx]);
+  return; // ✅ don't rerender while opening modal
+}
 
-      saveStore(store);
-      renderAdmin();
+saveStore(store);
+renderAdmin();
+
     }
   });
 
@@ -2778,12 +2782,6 @@
     toast("Sample data added");
   });
 
- const LS_KEYS = {
-  lifeAdmin: "lifeSetup.lifeAdmin.items.v5",
-  futureHome: "lifeSetup.futureHome.v1",
-  lifeSkills: "lifeSetup.lifeSkills.v1",
-  money: "lifeSetup.money.v1",
-};
 
 function readAllModulesFromLocal() {
   const out = {};
@@ -2794,14 +2792,9 @@ function readAllModulesFromLocal() {
   return out;
 }
 
-function writeAllModulesToLocal(modules) {
-  for (const [k, key] of Object.entries(LS_KEYS)) {
-    if (modules?.[k] == null) continue;
-    localStorage.setItem(key, JSON.stringify(modules[k]));
-  }
-}
 
-// ---- Cloud UI ----
+
+// ---- Cloud Sync (single-store: LS_STORE_KEY) ----
 const btnLogin = document.getElementById("btnLogin");
 const btnLogout = document.getElementById("btnLogout");
 const btnPull = document.getElementById("btnPull");
@@ -2812,14 +2805,15 @@ let fbUser = null;
 
 function cloudDocRef(uid) {
   const f = window.__firebase;
-  return f.doc(f.db, "users", uid, "app", "state");
+  // Store one payload (your real store) per user
+  return f.doc(f.db, "users", uid, "apps", "life-admin");
 }
 
 function setCloudUI(signedIn) {
-  btnLogin && (btnLogin.hidden = signedIn);
-  btnLogout && (btnLogout.hidden = !signedIn);
-  btnPull && (btnPull.hidden = !signedIn);
-  btnPush && (btnPush.hidden = !signedIn);
+  if (btnLogin) btnLogin.hidden = signedIn;
+  if (btnLogout) btnLogout.hidden = !signedIn;
+  if (btnPull) btnPull.hidden = !signedIn;
+  if (btnPush) btnPush.hidden = !signedIn;
 
   if (cloudStatus) {
     cloudStatus.textContent = signedIn
@@ -2836,24 +2830,31 @@ async function cloudPull() {
   if (!snap.exists()) return alert("No cloud data yet. Push once to create it.");
 
   const data = snap.data();
-  if (data?.modules) {
-    writeAllModulesToLocal(data.modules);
-    renderAdmin();
-    alert("Pulled from cloud.");
-  } else {
-    alert("Cloud data exists but has no modules.");
-  }
+  if (!data?.store) return alert("Cloud data exists but has no store payload.");
+
+  // Normalize and save into the one true store key
+  const store = normaliseStore(data.store);
+  saveStore(store);
+
+  // Re-render everything
+  applyDefaultUIFromSettings();
+  applyMoneyVisibilityFromSettings();
+  renderAdmin();
+  renderHome();
+  renderSkills();
+
+  alert("Pulled from cloud.");
 }
 
 async function cloudPush() {
   if (!fbUser) return alert("Please sign in first.");
   const f = window.__firebase;
 
-  const modules = readAllModulesFromLocal();
+  const store = loadStore(); // your real store
 
   await f.setDoc(
     cloudDocRef(fbUser.uid),
-    { updatedAt: f.serverTimestamp(), appVersion: "1.0", modules },
+    { updatedAt: f.serverTimestamp(), appVersion: "1.0", store },
     { merge: true }
   );
 
@@ -2870,21 +2871,26 @@ function initFirebaseAuth() {
   });
 
   btnLogin?.addEventListener("click", async () => {
-    try { await f.signInWithPopup(f.auth, f.provider); }
-    catch (err) { alert("Sign-in failed: " + (err?.message || "unknown")); }
+    try {
+      await f.signInWithPopup(f.auth, f.provider);
+    } catch (err) {
+      alert("Sign-in failed: " + (err?.message || "unknown"));
+    }
   });
 
   btnLogout?.addEventListener("click", async () => {
-    try { await f.signOut(f.auth); }
-    catch (err) { alert("Sign-out failed: " + (err?.message || "unknown")); }
+    try {
+      await f.signOut(f.auth);
+    } catch (err) {
+      alert("Sign-out failed: " + (err?.message || "unknown"));
+    }
   });
 
-  btnPull?.addEventListener("click", () => cloudPull().catch(e => alert(e?.message || e)));
-  btnPush?.addEventListener("click", () => cloudPush().catch(e => alert(e?.message || e)));
+  btnPull?.addEventListener("click", () => cloudPull().catch((e) => alert(e?.message || e)));
+  btnPush?.addEventListener("click", () => cloudPush().catch((e) => alert(e?.message || e)));
 
   setCloudUI(false);
 }
-
 
   // =========================
   // BOOT
