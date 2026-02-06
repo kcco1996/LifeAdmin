@@ -2778,6 +2778,114 @@
     toast("Sample data added");
   });
 
+ const LS_KEYS = {
+  lifeAdmin: "lifeSetup.lifeAdmin.items.v5",
+  futureHome: "lifeSetup.futureHome.v1",
+  lifeSkills: "lifeSetup.lifeSkills.v1",
+  money: "lifeSetup.money.v1",
+};
+
+function readAllModulesFromLocal() {
+  const out = {};
+  for (const [k, key] of Object.entries(LS_KEYS)) {
+    const raw = localStorage.getItem(key);
+    out[k] = raw ? JSON.parse(raw) : null;
+  }
+  return out;
+}
+
+function writeAllModulesToLocal(modules) {
+  for (const [k, key] of Object.entries(LS_KEYS)) {
+    if (modules?.[k] == null) continue;
+    localStorage.setItem(key, JSON.stringify(modules[k]));
+  }
+}
+
+// ---- Cloud UI ----
+const btnLogin = document.getElementById("btnLogin");
+const btnLogout = document.getElementById("btnLogout");
+const btnPull = document.getElementById("btnPull");
+const btnPush = document.getElementById("btnPush");
+const cloudStatus = document.getElementById("cloudStatus");
+
+let fbUser = null;
+
+function cloudDocRef(uid) {
+  const f = window.__firebase;
+  return f.doc(f.db, "users", uid, "app", "state");
+}
+
+function setCloudUI(signedIn) {
+  btnLogin && (btnLogin.hidden = signedIn);
+  btnLogout && (btnLogout.hidden = !signedIn);
+  btnPull && (btnPull.hidden = !signedIn);
+  btnPush && (btnPush.hidden = !signedIn);
+
+  if (cloudStatus) {
+    cloudStatus.textContent = signedIn
+      ? `Cloud: signed in • ${fbUser?.email || "account"}`
+      : "Cloud: not signed in";
+  }
+}
+
+async function cloudPull() {
+  if (!fbUser) return alert("Please sign in first.");
+  const f = window.__firebase;
+
+  const snap = await f.getDoc(cloudDocRef(fbUser.uid));
+  if (!snap.exists()) return alert("No cloud data yet. Push once to create it.");
+
+  const data = snap.data();
+  if (data?.modules) {
+    writeAllModulesToLocal(data.modules);
+    renderAdmin();
+    alert("Pulled from cloud.");
+  } else {
+    alert("Cloud data exists but has no modules.");
+  }
+}
+
+async function cloudPush() {
+  if (!fbUser) return alert("Please sign in first.");
+  const f = window.__firebase;
+
+  const modules = readAllModulesFromLocal();
+
+  await f.setDoc(
+    cloudDocRef(fbUser.uid),
+    { updatedAt: f.serverTimestamp(), appVersion: "1.0", modules },
+    { merge: true }
+  );
+
+  alert("Pushed to cloud.");
+}
+
+function initFirebaseAuth() {
+  const f = window.__firebase;
+  if (!f) return;
+
+  f.onAuthStateChanged(f.auth, (user) => {
+    fbUser = user || null;
+    setCloudUI(!!fbUser);
+  });
+
+  btnLogin?.addEventListener("click", async () => {
+    try { await f.signInWithPopup(f.auth, f.provider); }
+    catch (err) { alert("Sign-in failed: " + (err?.message || "unknown")); }
+  });
+
+  btnLogout?.addEventListener("click", async () => {
+    try { await f.signOut(f.auth); }
+    catch (err) { alert("Sign-out failed: " + (err?.message || "unknown")); }
+  });
+
+  btnPull?.addEventListener("click", () => cloudPull().catch(e => alert(e?.message || e)));
+  btnPush?.addEventListener("click", () => cloudPush().catch(e => alert(e?.message || e)));
+
+  setCloudUI(false);
+}
+
+
   // =========================
   // BOOT
   // =========================
@@ -2797,6 +2905,8 @@
     renderHome();
     renderSkills();
     renderNextSteps(store.lifeAdmin.items);
+
+    initFirebaseAuth();
 
     toast("Ready");
   }

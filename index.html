@@ -81,6 +81,21 @@
         <button class="ghost-btn" type="button" id="btnExport">
           <span aria-hidden="true">⬇️</span> Export
         </button>
+        <button class="ghost-btn" type="button" id="btnLogin">
+  <span aria-hidden="true">🔐</span> Sign in
+</button>
+<button class="ghost-btn" type="button" id="btnLogout" hidden>
+  <span aria-hidden="true">🔓</span> Sign out
+</button>
+
+<button class="ghost-btn" type="button" id="btnPull" hidden>
+  <span aria-hidden="true">☁️</span> Pull from cloud
+</button>
+<button class="ghost-btn" type="button" id="btnPush" hidden>
+  <span aria-hidden="true">⬆️</span> Push to cloud
+</button>
+
+<p class="muted muted--small" id="cloudStatus" style="margin:8px 0 0;"></p>
       </div>
     </aside>
 
@@ -1469,6 +1484,34 @@
       </div>
     </div>
   </div>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCi3R-VbBnPXEHnpuOL19WmsKl-_Ptjuys",
+  authDomain: "lifeadminkc.firebaseapp.com",
+  projectId: "lifeadminkc",
+  storageBucket: "lifeadminkc.firebasestorage.app",
+  messagingSenderId: "1053092215166",
+  appId: "1:1053092215166:web:854daa5ba6140badbbdb2f"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // Bridge for your existing non-module script.js
+  window.__firebase = {
+    auth, db, provider,
+    signInWithPopup, signOut, onAuthStateChanged,
+    doc, getDoc, setDoc, serverTimestamp
+  };
+</script>
+
 
   <script src="script.js"></script>
   <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
