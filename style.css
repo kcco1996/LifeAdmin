@@ -1291,3 +1291,271 @@ select:not(#modal select) option{
 @media (max-width: 900px) {
   .room-detail__cols { grid-template-columns: 1fr; }
 }
+
+/* =========================================================
+   Life Admin — style.css (M → S additions)
+   Paste this at the VERY END of your existing style.css
+   (do not remove your current CSS — this is an add-on)
+   ========================================================= */
+
+/* =========================
+   Part N — Search highlight
+   ========================= */
+.search-results{
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: min(520px, calc(100vw - 24px));
+  max-height: 420px;
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), var(--panel);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+  padding: 10px;
+  z-index: 1000;
+}
+
+.search-results__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  padding: 6px 6px 10px;
+}
+
+.search-results .list__item{
+  cursor:pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.search-results .list__item:hover{
+  transform: translateY(-1px);
+  border-color: rgba(255,138,31,0.22);
+  background: rgba(255,255,255,0.05);
+}
+
+/* Highlighted item after navigating from search */
+.is-search-hit{
+  border-color: rgba(255,138,31,0.40) !important;
+  box-shadow: 0 0 0 3px rgba(255,138,31,0.14), var(--shadow) !important;
+  background: rgba(255,138,31,0.10) !important;
+}
+.is-search-hit::before{ background: rgba(255,138,31,0.95) !important; }
+
+/* Optional “pulse” animation (safe, respects reduced motion) */
+@keyframes hitPulse{
+  0%{ box-shadow: 0 0 0 0 rgba(255,138,31,0.25); }
+  100%{ box-shadow: 0 0 0 10px rgba(255,138,31,0.0); }
+}
+.is-search-hit.is-pulse{
+  animation: hitPulse 900ms ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .is-search-hit.is-pulse{ animation: none !important; }
+}
+
+/* =========================
+   Part M — Backup history UI
+   ========================= */
+#backupHistoryList .list__item{
+  align-items: flex-start;
+}
+
+.backup-row{
+  display:flex;
+  gap: 12px;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+
+.backup-meta{
+  display:flex;
+  flex-direction:column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.backup-title{
+  font-weight: 850;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.backup-sub{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.backup-actions{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
+
+/* =========================
+   Part P — Notification status
+   ========================= */
+#notifPermissionMsg{
+  line-height: 1.45;
+}
+
+#btnRequestNotifPermission[disabled],
+#btnTestNotification[disabled],
+#btnPreviewBundle[disabled]{
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================
+   Part Q — Integrity & recovery
+   ========================= */
+#integrityBadge.badge--danger{
+  border-color: rgba(255,91,91,0.45);
+  background: rgba(255,91,91,0.14);
+}
+#integrityBadge.badge--warn{
+  border-color: rgba(255,176,32,0.40);
+  background: rgba(255,176,32,0.14);
+}
+
+/* Recovery / confirm modals (same structure as your existing modal) */
+#confirmRestoreModal .modal__dialog,
+#recoveryModal .modal__dialog{
+  width: min(640px, calc(100% - 24px));
+}
+
+/* =========================
+   Part R — Future Home ownership/buying
+   ========================= */
+
+/* Make “Owned / Next to buy / Planned” chips consistent if you render them */
+.home-tag{
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.86);
+  white-space: nowrap;
+}
+
+.home-tag--owned{
+  border-color: rgba(56,217,150,0.35);
+  background: rgba(56,217,150,0.12);
+}
+.home-tag--next{
+  border-color: rgba(255,176,32,0.35);
+  background: rgba(255,176,32,0.12);
+}
+.home-tag--planned{
+  border-color: rgba(127,138,163,0.35);
+  background: rgba(127,138,163,0.12);
+}
+
+/* Shopping list card within Home */
+#homeShoppingCard .list__item{
+  cursor: default;
+}
+
+.shopping-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+}
+
+.shopping-main{
+  min-width: 0;
+}
+
+.shopping-title{
+  font-weight: 850;
+  font-size: 13px;
+  overflow-wrap:anywhere;
+  word-break: break-word;
+}
+
+.shopping-meta{
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.shopping-cost{
+  font-weight: 850;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0.95;
+}
+
+.shopping-actions{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
+
+/* =========================
+   Part S — Skills growth blocks
+   ========================= */
+#skillsMilestones{
+  gap: 10px;
+}
+
+.milestone-pill{
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.88);
+  white-space: nowrap;
+}
+.milestone-pill--ok{
+  border-color: rgba(56,217,150,0.35);
+  background: rgba(56,217,150,0.12);
+}
+.milestone-pill--neutral{
+  border-color: rgba(127,138,163,0.35);
+  background: rgba(127,138,163,0.12);
+}
+
+#skillsTrendCanvas{
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.12);
+}
+
+/* =========================
+   Dashboard intelligence cards (Part O)
+   ========================= */
+#thisWeekList .list__item,
+#focusSuggestionList .list__item,
+#monthlyWinsList .list__item{
+  background: rgba(0,0,0,0.10);
+}
+
+/* Subtle “good vibe” emphasis for monthly wins */
+#monthlyWinsSummary .money-chip{
+  border-color: rgba(56,217,150,0.22);
+  background: rgba(56,217,150,0.08);
+}
+
+/* =========================
+   Safety: hide duplicates if any remain
+   (If you accidentally kept both old/new Home blocks,
+    this prevents totally broken layouts.)
+   ========================= */
+
+/* If both exist, prefer the newer roomDetail */
+#roomPanel{ display:none !important; }
+
+/* If you accidentally duplicated #homeStats/#roomsGrid in HTML,
+   only the first will be used by JS; duplicates can still exist.
+   This can’t fully “fix” duplicate IDs, but reduces visual chaos. */
