@@ -1559,3 +1559,449 @@ select:not(#modal select) option{
 /* If you accidentally duplicated #homeStats/#roomsGrid in HTML,
    only the first will be used by JS; duplicates can still exist.
    This can’t fully “fix” duplicate IDs, but reduces visual chaos. */
+
+   /* =========================================================
+   Life Admin — Part T → Z UI styles
+   Paste at the VERY END of style.css
+   ========================================================= */
+
+/* =========================
+   Global helper tokens
+   ========================= */
+:root{
+  --soft: rgba(255,255,255,0.04);
+  --soft-2: rgba(255,255,255,0.06);
+  --soft-3: rgba(255,255,255,0.08);
+
+  --kbd: 0 0 0 3px rgba(255,138,31,0.14);
+  --glass: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+}
+
+/* =========================
+   U.2 Reduced motion (manual toggle)
+   Add/remove .reduce-motion on <body>
+   ========================= */
+.reduce-motion *{
+  transition: none !important;
+  animation: none !important;
+  scroll-behavior: auto !important;
+}
+
+/* =========================
+   U.3 Simplify UI (overwhelm guardrails)
+   Add/remove .simplify-ui on <body>
+   - hides non-essential/extra panels
+   ========================= */
+.simplify-ui .card--stat .card__hint,
+.simplify-ui .admin-alerts,
+.simplify-ui #monthlyWinsSummary,
+.simplify-ui #focusSuggestionList,
+.simplify-ui #skillsTrendCanvas,
+.simplify-ui .muted--pad{
+  display:none !important;
+}
+
+/* Calm Mode can also soften contrast */
+.calm-mode{
+  --shadow: 0 10px 26px rgba(0,0,0,0.30);
+}
+.calm-mode .card,
+.calm-mode .topbar{
+  background: var(--glass), var(--panel-2);
+}
+.calm-mode .list__item{
+  background: rgba(0,0,0,0.09);
+}
+
+/* =========================
+   T.1 Money month picker + overview
+   ========================= */
+.money-toolbar{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom: 10px;
+}
+
+.money-toolbar__left{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+}
+
+.money-month{
+  display:flex;
+  gap: 8px;
+  align-items:center;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+}
+.money-month label{
+  font-size: 12px;
+  color: rgba(255,255,255,0.78);
+}
+.money-month select{
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.money-kpis{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.money-kpi{
+  display:flex;
+  flex-direction:column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  min-width: 160px;
+}
+.money-kpi__label{
+  font-size: 12px;
+  color: var(--muted);
+}
+.money-kpi__value{
+  font-weight: 900;
+  letter-spacing: .2px;
+  font-size: 16px;
+}
+.money-kpi__value.ok{ color: var(--ok); }
+.money-kpi__value.warn{ color: var(--warn); }
+.money-kpi__value.danger{ color: var(--danger); }
+
+/* =========================
+   T.2 Transactions table
+   ========================= */
+.table{
+  width:100%;
+  border-collapse: collapse;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.10);
+}
+
+.table th, .table td{
+  padding: 10px 10px;
+  text-align:left;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  vertical-align: top;
+}
+
+.table th{
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+  background: rgba(255,255,255,0.03);
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.table td .muted{
+  font-size: 12px;
+}
+
+.table tr:hover td{
+  background: rgba(255,255,255,0.03);
+}
+
+.amount{
+  font-weight: 900;
+  white-space: nowrap;
+}
+.amount.neg{ color: var(--danger); }
+.amount.pos{ color: var(--ok); }
+.amount.neutral{ color: rgba(255,255,255,0.88); }
+
+/* Transaction filters row */
+.tx-filters{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+  margin-bottom: 10px;
+}
+.tx-filters .select select{
+  border-radius: 12px;
+}
+
+/* =========================
+   T.3 Goal forecasting callout
+   ========================= */
+.forecast{
+  border-radius: 16px;
+  border: 1px solid rgba(255,138,31,0.18);
+  background: rgba(255,138,31,0.06);
+  padding: 12px;
+}
+.forecast__title{
+  margin: 0;
+  font-weight: 900;
+  font-size: 13px;
+}
+.forecast__text{
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.80);
+  line-height: 1.4;
+}
+.forecast__text strong{ color: var(--text); }
+
+/* =========================
+   V. Update banner (PWA update flow) + offline badge
+   ========================= */
+.update-banner{
+  display:none;
+  position: sticky;
+  top: 12px;
+  z-index: 11000;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,176,32,0.22);
+  background: rgba(255,176,32,0.08);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+.update-banner.is-visible{ display:flex; }
+.update-banner__content{
+  display:flex;
+  gap: 12px;
+  align-items:flex-start;
+  justify-content:space-between;
+  width:100%;
+}
+.update-banner__title{
+  margin: 0;
+  font-weight: 900;
+  font-size: 13px;
+}
+.update-banner__msg{
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.35;
+}
+.update-banner__actions{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
+
+.net-badge{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+  white-space: nowrap;
+}
+.net-badge .dot{ width: 8px; height: 8px; }
+.net-badge.is-offline{ border-color: rgba(255,91,91,0.30); background: rgba(255,91,91,0.10); }
+
+/* =========================
+   W. Privacy warnings / safety cards
+   ========================= */
+.warn-card{
+  border-radius: 16px;
+  border: 1px solid rgba(255,176,32,0.26);
+  background: rgba(255,176,32,0.07);
+  padding: 12px;
+}
+.warn-card__title{
+  margin: 0;
+  font-weight: 900;
+  font-size: 13px;
+}
+.warn-card__text{
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.4;
+}
+.warn-card__text strong{ color: var(--text); }
+
+/* =========================
+   X. Notifications settings panel
+   ========================= */
+.notif-settings{
+  display:grid;
+  gap: 12px;
+}
+
+.segment{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.seg-btn{
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.88);
+  font-size: 12px;
+  cursor:pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+  user-select:none;
+}
+.seg-btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.06); }
+.seg-btn.is-active{
+  border-color: rgba(255,138,31,0.35);
+  background: rgba(255,138,31,0.10);
+  box-shadow: 0 0 0 3px rgba(255,138,31,0.10);
+}
+
+.quiet-hours{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+}
+.quiet-hours .field__control{
+  width: 140px;
+}
+
+/* Calm Mode reduces notif emphasis visually */
+.calm-mode .seg-btn.is-active{
+  box-shadow: none;
+}
+
+/* =========================
+   Y. Vault locked UI (encrypted vault)
+   ========================= */
+.vault-shell{
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.10);
+  padding: 14px;
+}
+
+.vault-locked{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,91,91,0.22);
+  background: rgba(255,91,91,0.08);
+  padding: 12px;
+}
+.vault-locked__title{
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+}
+.vault-locked__text{
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.4;
+}
+
+.vault-unlocked{
+  display:grid;
+  gap: 10px;
+}
+
+.vault-item{
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.10);
+  padding: 12px;
+}
+.vault-item__title{
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+}
+.vault-item__meta{
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+/* Encrypted blob display (for export/import UX) */
+.vault-blob{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 10px;
+  overflow:auto;
+  max-height: 240px;
+  color: rgba(255,255,255,0.86);
+}
+
+/* =========================
+   Z. Cloud sync UI (Firebase)
+   ========================= */
+.sync-row{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.sync-status{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+  white-space: nowrap;
+}
+.sync-status .dot{ width: 8px; height: 8px; }
+
+.sync-status.is-on{ border-color: rgba(56,217,150,0.30); background: rgba(56,217,150,0.10); }
+.sync-status.is-off{ border-color: rgba(127,138,163,0.28); background: rgba(127,138,163,0.10); }
+.sync-status.is-warn{ border-color: rgba(255,176,32,0.30); background: rgba(255,176,32,0.10); }
+
+.conflict-badge{
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,176,32,0.35);
+  background: rgba(255,176,32,0.12);
+  color: rgba(255,255,255,0.90);
+  white-space: nowrap;
+}
+
+/* =========================
+   Accessibility polish
+   ========================= */
+/* Make focus more visible on dark surfaces */
+*:focus-visible{
+  box-shadow: var(--kbd);
+}
+
+/* Bigger tap targets in simplify mode */
+.simplify-ui .mini-btn,
+.simplify-ui .ghost-btn,
+.simplify-ui .primary-btn{
+  min-height: 44px;
+}

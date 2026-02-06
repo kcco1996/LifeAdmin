@@ -37,7 +37,7 @@
         <div class="brand__mark" aria-hidden="true">🏠</div>
         <div class="brand__text">
           <div class="brand__name">Life Admin</div>
-          <div class="brand__tag">Admin • Home • Skills • Money</div>
+          <div class="brand__tag">Admin • Home • Skills • Money • Vault</div>
         </div>
       </div>
 
@@ -60,6 +60,12 @@
         <button class="nav__item" data-view="money" type="button">
           <span class="nav__icon" aria-hidden="true">💷</span>
           <span class="nav__label">Money</span>
+        </button>
+
+        <!-- ✅ Part Y/W: Vault is its own section -->
+        <button class="nav__item" data-view="vault" type="button">
+          <span class="nav__icon" aria-hidden="true">🔒</span>
+          <span class="nav__label">Vault</span>
         </button>
 
         <button class="nav__item" data-view="settings" type="button">
@@ -115,8 +121,14 @@
             </div>
           </div>
 
-          <!-- Part N hook: used by JS to restore focus/scroll when returning from search -->
+          <!-- Part N hook -->
           <input type="hidden" id="searchReturnContext" value="">
+
+          <!-- ✅ Part V: online/offline badge -->
+          <div class="net-badge" id="netBadge" title="Network status">
+            <span class="dot dot--green" id="netDot" aria-hidden="true"></span>
+            <span id="netText">Online</span>
+          </div>
 
           <div class="pill" id="overallStatus">
             <span class="dot dot--green" id="overallDot" aria-hidden="true"></span>
@@ -131,12 +143,25 @@
         </div>
       </header>
 
+      <!-- ✅ Part V: PWA update prompt banner (shown by JS when new SW is waiting) -->
+      <div class="update-banner" id="updateBanner" role="status" aria-live="polite">
+        <div class="update-banner__content">
+          <div>
+            <p class="update-banner__title">Update available</p>
+            <p class="update-banner__msg">A newer version is ready. Reload to apply it.</p>
+          </div>
+          <div class="update-banner__actions">
+            <button class="ghost-btn ghost-btn--sm" type="button" id="btnDismissUpdate">Later</button>
+            <button class="primary-btn" type="button" id="btnApplyUpdate">Reload</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Content -->
       <section class="content">
 
         <!-- DASHBOARD (Next Steps + Intelligence) -->
         <div class="grid" id="nextStepsWrap">
-          <!-- Next Steps (existing) -->
           <article class="card nextsteps">
             <div class="card__header">
               <h2 class="card__title">Next Steps</h2>
@@ -166,7 +191,6 @@
             </p>
           </article>
 
-          <!-- ✅ Part O: Smart “This Week” view -->
           <article class="card">
             <div class="card__header">
               <h2 class="card__title">This Week</h2>
@@ -183,7 +207,6 @@
             </p>
           </article>
 
-          <!-- ✅ Part O: Focus suggestion -->
           <article class="card">
             <div class="card__header">
               <h2 class="card__title">Focus Suggestion</h2>
@@ -196,7 +219,6 @@
             </p>
           </article>
 
-          <!-- ✅ Part O: Monthly wins -->
           <article class="card">
             <div class="card__header">
               <h2 class="card__title">Monthly Wins</h2>
@@ -362,20 +384,21 @@
               <p class="muted muted--pad" id="emptyMoneyFunds" hidden>
                 No funds yet. Add one like “Emergency Fund” or “House Deposit”.
               </p>
+
+              <p class="muted muted--pad">
+                Tip: Use the Money page for monthly planning + transactions + forecasting.
+              </p>
             </article>
           </div>
         </div>
 
-        <!-- VIEW: FUTURE HOME (Part H cleaned: single system, unique IDs) -->
+        <!-- VIEW: FUTURE HOME -->
         <div class="view" id="view-home" data-view-root="home">
-
-          <!-- HOME GRID WRAP (stats + room cards) -->
           <div id="homeGridWrap" class="home-grid-wrap">
             <section id="homeStats" class="stats-grid"></section>
             <section class="rooms-grid" id="roomsGrid"></section>
           </div>
 
-          <!-- ✅ Part R: Shopping list view (global, not inside room detail) -->
           <article class="card" id="homeShoppingCard" style="margin-top:12px;">
             <div class="card__header">
               <h2 class="card__title">Shopping List</h2>
@@ -414,7 +437,6 @@
             </p>
           </article>
 
-          <!-- ROOM DETAIL (hidden until you click a room) -->
           <section id="roomDetail" class="room-detail" aria-hidden="true">
             <div class="room-detail__top">
               <button id="btnRoomBack" class="mini-btn" type="button">← Back</button>
@@ -457,8 +479,6 @@
         <!-- VIEW: LIFE SKILLS -->
         <div class="view" id="view-skills" data-view-root="skills">
           <div class="grid grid--panels">
-
-            <!-- ✅ Part S: Skills growth system (must be its own card, not nested) -->
             <article class="card">
               <div class="card__header">
                 <h2 class="card__title">Growth</h2>
@@ -531,11 +551,63 @@
           </div>
         </div>
 
-        <!-- VIEW: MONEY -->
+        <!-- VIEW: MONEY (✅ Part T: monthly planning + transactions + forecasting surfaces) -->
         <div class="view" id="view-money" data-view-root="money">
-          <div class="grid grid--stats" id="moneyTopStats"></div>
+          <!-- T.1 Monthly overview -->
+          <article class="card" style="margin-bottom:14px;">
+            <div class="card__header">
+              <h2 class="card__title">Monthly Overview</h2>
+              <span class="badge badge--neutral" id="moneyMonthBadge">Current</span>
+            </div>
+
+            <div class="money-toolbar">
+              <div class="money-toolbar__left">
+                <div class="money-month">
+                  <label for="moneyMonth">Month</label>
+                  <select id="moneyMonth" aria-label="Choose month">
+                    <!-- JS fills month options -->
+                  </select>
+                </div>
+
+                <button class="ghost-btn ghost-btn--sm" type="button" id="btnMoneySetIncome">
+                  <span aria-hidden="true">✍️</span> Set income
+                </button>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-end;">
+                <button class="mini-btn" type="button" id="btnMoneyQuickAddTx">+ Transaction</button>
+              </div>
+            </div>
+
+            <div class="money-kpis" id="moneyKpis">
+              <div class="money-kpi">
+                <div class="money-kpi__label">Income</div>
+                <div class="money-kpi__value" id="kpiIncome">£0</div>
+              </div>
+              <div class="money-kpi">
+                <div class="money-kpi__label">Budgeted</div>
+                <div class="money-kpi__value" id="kpiBudgeted">£0</div>
+              </div>
+              <div class="money-kpi">
+                <div class="money-kpi__label">Spent</div>
+                <div class="money-kpi__value" id="kpiSpent">£0</div>
+              </div>
+              <div class="money-kpi">
+                <div class="money-kpi__label">Net remaining</div>
+                <div class="money-kpi__value" id="kpiRemaining">£0</div>
+              </div>
+            </div>
+
+            <div class="forecast" id="moneyForecastWrap" hidden>
+              <p class="forecast__title">Forecast</p>
+              <p class="forecast__text" id="moneyForecastText">
+                If you add <strong>£X/month</strong>, you’ll hit your target by <strong>—</strong>.
+              </p>
+            </div>
+          </article>
 
           <div class="grid grid--panels">
+            <!-- Existing funds -->
             <article class="card">
               <div class="card__header">
                 <h2 class="card__title">Future Funds</h2>
@@ -550,8 +622,13 @@
               <p class="muted muted--pad" id="fundsEmpty" hidden>
                 No funds yet. Add your first one like “House Deposit” or “Emergency”.
               </p>
+
+              <p class="muted muted--pad">
+                ✅ Part T.3: Each fund can display an estimated completion date based on average monthly contributions.
+              </p>
             </article>
 
+            <!-- Existing budgets -->
             <article class="card">
               <div class="card__header">
                 <h2 class="card__title">Budgets</h2>
@@ -568,9 +645,124 @@
               </p>
             </article>
           </div>
+
+          <!-- T.2 Transactions -->
+          <article class="card" style="margin-top:14px;">
+            <div class="card__header">
+              <h2 class="card__title">Transactions</h2>
+              <span class="badge badge--neutral" id="txBadge">—</span>
+            </div>
+
+            <div class="tx-filters">
+              <div class="select">
+                <select id="txMonthFilter" aria-label="Filter transactions by month">
+                  <!-- JS fills month options -->
+                </select>
+              </div>
+              <div class="select">
+                <select id="txCategoryFilter" aria-label="Filter transactions by category">
+                  <option value="all" selected>All categories</option>
+                  <!-- JS fills from budgets/categories -->
+                </select>
+              </div>
+
+              <div class="row-actions" style="margin-left:auto;">
+                <button class="mini-btn" type="button" id="btnTxAdd">+ Add transaction</button>
+              </div>
+            </div>
+
+            <table class="table" aria-label="Transactions table">
+              <thead>
+                <tr>
+                  <th style="width:120px;">Date</th>
+                  <th style="width:160px;">Category</th>
+                  <th>Note</th>
+                  <th style="width:120px;">Amount</th>
+                  <th style="width:140px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="txTbody">
+                <!-- JS renders rows -->
+              </tbody>
+            </table>
+
+            <p class="muted muted--pad" id="txEmpty" hidden>
+              No transactions yet. Add one and budgets will update “spent” automatically.
+            </p>
+          </article>
         </div>
 
-        <!-- VIEW: SETTINGS -->
+        <!-- VIEW: VAULT (✅ Part Y/W) -->
+        <div class="view" id="view-vault" data-view-root="vault">
+          <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Encrypted Vault</h2>
+                <span class="badge badge--neutral" id="vaultStatusBadge">Locked</span>
+              </div>
+
+              <div class="warn-card" style="margin-bottom:12px;">
+                <p class="warn-card__title">Safety note</p>
+                <p class="warn-card__text">
+                  Store document/policy/reference numbers only. <strong>No passwords</strong> and <strong>no bank card details</strong>.
+                  Your passphrase can’t be recovered.
+                </p>
+              </div>
+
+              <div class="vault-shell">
+                <!-- Locked state -->
+                <div class="vault-locked" id="vaultLocked">
+                  <p class="vault-locked__title">Vault is locked</p>
+                  <p class="vault-locked__text">Enter your passphrase to unlock. It is never stored.</p>
+
+                  <div class="form__row" style="grid-template-columns: 1fr 180px;">
+                    <label class="field">
+                      <span class="field__label">Passphrase</span>
+                      <input class="field__control" id="vaultPassphrase" type="password" autocomplete="off" />
+                    </label>
+                    <div class="field" style="justify-content:flex-end;">
+                      <span class="field__label" style="opacity:0;">Action</span>
+                      <button class="primary-btn" type="button" id="btnVaultUnlock">Unlock</button>
+                    </div>
+                  </div>
+
+                  <div class="row-actions" style="justify-content:flex-start;">
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnVaultInit">Create new vault</button>
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnVaultImportBlob">Import encrypted blob</button>
+                  </div>
+
+                  <p class="muted muted--pad" id="vaultUnlockMsg" hidden></p>
+                </div>
+
+                <!-- Unlocked state -->
+                <div class="vault-unlocked" id="vaultUnlocked" hidden>
+                  <div class="sync-row">
+                    <div class="pill">
+                      <span class="dot dot--green" aria-hidden="true"></span>
+                      <span id="vaultOpenText">Unlocked</span>
+                    </div>
+                    <div class="row-actions">
+                      <button class="ghost-btn ghost-btn--sm" type="button" id="btnVaultLockNow">Lock now</button>
+                      <button class="mini-btn" type="button" id="btnVaultAddItem">+ Add vault item</button>
+                    </div>
+                  </div>
+
+                  <div id="vaultList"></div>
+
+                  <hr class="sep" />
+
+                  <div class="row-actions" style="justify-content:flex-end;">
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnVaultExportBlob">Export encrypted blob</button>
+                  </div>
+
+                  <div class="vault-blob" id="vaultBlobPreview" hidden></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- VIEW: SETTINGS (✅ Part U/V/W/X/Z surfaces) -->
         <div class="view" id="view-settings" data-view-root="settings">
           <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
             <article class="card" style="padding:12px;">
@@ -579,11 +771,18 @@
                 <span class="badge badge--neutral">Preferences</span>
               </div>
 
+              <!-- U: Reduced overwhelm + reduced motion toggles -->
               <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px;">
                 <label class="toggle">
                   <input id="setCalmDefault" type="checkbox" />
                   <span class="toggle__box" aria-hidden="true"></span>
                   <span class="toggle__label">Calm Mode by default</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setSimplifyUI" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Simplify UI (reduced overwhelm)</span>
                 </label>
 
                 <label class="toggle">
@@ -603,59 +802,160 @@
                   <span class="toggle__box" aria-hidden="true"></span>
                   <span class="toggle__label">High contrast</span>
                 </label>
+
+                <label class="toggle">
+                  <input id="setPrivacyMode" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Privacy mode (blur amounts)</span>
+                </label>
               </div>
 
               <hr class="sep" />
 
+              <!-- X: Notifications -->
               <div class="card__header" style="margin-top:4px;">
                 <h3 class="card__title">Notifications</h3>
-                <span class="badge badge--neutral">Quiet hours</span>
+                <span class="badge badge--neutral">Gentle nudges</span>
               </div>
 
-              <!-- Enable + quiet hours -->
-              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px;">
-                <label class="toggle">
-                  <input id="setNotifications" type="checkbox" />
-                  <span class="toggle__box" aria-hidden="true"></span>
-                  <span class="toggle__label">Enable notifications</span>
-                </label>
+              <div class="notif-settings">
+                <div>
+                  <div class="muted" style="margin-bottom:6px;">Reminder level</div>
+                  <div class="segment" role="tablist" aria-label="Notification level">
+                    <button class="seg-btn is-active" type="button" data-notif-level="off" id="notifLevelOff">Off</button>
+                    <button class="seg-btn" type="button" data-notif-level="urgent" id="notifLevelUrgent">Only urgent</button>
+                    <button class="seg-btn" type="button" data-notif-level="all" id="notifLevelAll">All due soon</button>
+                  </div>
+                  <p class="muted muted--pad" style="margin-top:6px;">
+                    Calm Mode reduces notifications automatically. Max 1 per day unless urgent.
+                  </p>
+                </div>
 
-                <div class="form__row" style="grid-template-columns: 1fr 1fr; gap:10px;">
-                  <label class="field">
+                <div class="quiet-hours">
+                  <label class="field" style="min-width:160px;">
                     <span class="field__label">Quiet from</span>
                     <input class="field__control" id="setQuietFrom" type="time" />
                   </label>
-                  <label class="field">
+                  <label class="field" style="min-width:160px;">
                     <span class="field__label">Quiet to</span>
                     <input class="field__control" id="setQuietTo" type="time" />
                   </label>
-                </div>
-              </div>
 
-              <!-- ✅ Part P: Permission/status/tools -->
-              <div class="card" style="padding:12px; margin-top:12px;">
-                <div class="card__header">
-                  <h3 class="card__title">Notification Status</h3>
-                  <span class="badge badge--neutral" id="notifPermissionBadge">Unknown</span>
+                  <label class="toggle" style="margin-left:auto;">
+                    <input id="setNotifications" type="checkbox" />
+                    <span class="toggle__box" aria-hidden="true"></span>
+                    <span class="toggle__label">Enable notifications</span>
+                  </label>
                 </div>
 
-                <p class="muted muted--pad" id="notifPermissionMsg">
-                  Notifications are optional. You can enable them for gentle reminders only.
-                </p>
+                <div class="card" style="padding:12px;">
+                  <div class="card__header">
+                    <h3 class="card__title">Notification Status</h3>
+                    <span class="badge badge--neutral" id="notifPermissionBadge">Unknown</span>
+                  </div>
 
-                <div class="row-actions" style="justify-content:flex-start; gap:10px; flex-wrap:wrap;">
-                  <button class="mini-btn" type="button" id="btnRequestNotifPermission">Enable browser notifications</button>
-                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnTestNotification">Send test</button>
-                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnPreviewBundle">Preview bundle</button>
+                  <p class="muted muted--pad" id="notifPermissionMsg">
+                    Notifications are optional. You can enable them for gentle reminders only.
+                  </p>
+
+                  <div class="row-actions" style="justify-content:flex-start; gap:10px; flex-wrap:wrap;">
+                    <button class="mini-btn" type="button" id="btnRequestNotifPermission">Enable browser notifications</button>
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnTestNotification">Send test</button>
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnPreviewBundle">Preview bundle</button>
+                  </div>
                 </div>
-
-                <p class="muted muted--pad">
-                  Calm Mode reduces reminders. Quiet hours prevent late-night alerts.
-                </p>
               </div>
 
               <hr class="sep" />
 
+              <!-- W: Safety warnings -->
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Privacy & Safety</h3>
+                <span class="badge badge--warn">Important</span>
+              </div>
+
+              <div class="grid" style="grid-template-columns: 1fr; gap:12px;">
+                <div class="warn-card">
+                  <p class="warn-card__title">Important Info rules</p>
+                  <p class="warn-card__text">
+                    Don’t store bank details, passwords, or card numbers anywhere in Life Admin.
+                    Use the Vault for non-secret reference numbers only.
+                  </p>
+                </div>
+
+                <div class="warn-card">
+                  <p class="warn-card__title">Vault passphrase</p>
+                  <p class="warn-card__text">
+                    Your passphrase is never stored and can’t be recovered. If you forget it, the vault stays locked.
+                  </p>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <!-- Y/W: Vault auto-lock preference -->
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Vault Auto-Lock</h3>
+                <span class="badge badge--neutral">Optional</span>
+              </div>
+
+              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px;">
+                <label class="toggle">
+                  <input id="setVaultAutoLock" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Auto-lock vault after idle</span>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Idle minutes</span>
+                  <input class="field__control" id="setVaultAutoLockMins" type="number" min="1" step="1" placeholder="e.g., 5" />
+                </label>
+
+                <div class="row-actions" style="justify-content:flex-start;">
+                  <button class="mini-btn" type="button" id="btnVaultLockFromSettings">Lock vault now</button>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <!-- Z: Cloud sync (Firebase) surfaces -->
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Cloud Sync (Multi-Device)</h3>
+                <span class="badge badge--neutral" id="cloudBadge">Local-only</span>
+              </div>
+
+              <div class="card" style="padding:12px;">
+                <div class="sync-row">
+                  <div class="sync-status is-off" id="syncStatus">
+                    <span class="dot dot--red" id="syncDot" aria-hidden="true"></span>
+                    <span id="syncText">Sync off</span>
+                  </div>
+
+                  <label class="toggle">
+                    <input id="setCloudSync" type="checkbox" />
+                    <span class="toggle__box" aria-hidden="true"></span>
+                    <span class="toggle__label">Enable cloud sync</span>
+                  </label>
+                </div>
+
+                <div class="row-actions" style="justify-content:flex-start; margin-top:10px; gap:10px; flex-wrap:wrap;">
+                  <button class="mini-btn" type="button" id="btnSignInGoogle">Sign in with Google</button>
+                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnSignOut" disabled>Sign out</button>
+                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnSyncNow" disabled>Sync now</button>
+                </div>
+
+                <p class="muted muted--pad">
+                  Vault is stored as an encrypted blob only. Conflicts: most recently updated wins.
+                </p>
+
+                <div class="row-actions" style="justify-content:flex-start;">
+                  <span class="conflict-badge" id="conflictBadge" hidden>Conflict detected</span>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <!-- Data / backup (your existing block kept) -->
               <div class="card__header" style="margin-top:4px;">
                 <h3 class="card__title">Data</h3>
                 <span class="badge badge--neutral">Backup</span>
@@ -667,7 +967,6 @@
                 <button class="ghost-btn ghost-btn--sm" type="button" id="btnResetAll">Reset all data</button>
               </div>
 
-              <!-- ✅ Part M: Backup history + auto backup status -->
               <div class="card" style="padding:12px; margin-top:12px;">
                 <div class="card__header">
                   <h3 class="card__title">Backup History</h3>
@@ -691,7 +990,6 @@
                 </p>
               </div>
 
-              <!-- ✅ Part Q: Data integrity status -->
               <div class="card" style="padding:12px; margin-top:12px;">
                 <div class="card__header">
                   <h3 class="card__title">Data Integrity</h3>
@@ -722,6 +1020,10 @@
   <!-- Hidden file input used by imports -->
   <input id="fileImport" type="file" accept="application/json" hidden />
 
+  <!-- ✅ NOTE: Your existing modals remain unchanged below.
+       (I’m leaving them as-is so you don’t lose working behaviour.)
+  -->
+
   <!-- Modal: Future Home Add/Edit Item -->
   <div class="modal" id="homeItemModal" aria-hidden="true">
     <div class="modal__backdrop"></div>
@@ -747,7 +1049,6 @@
           </label>
         </div>
 
-        <!-- ✅ Part R: Owned + Next to buy -->
         <div class="form__row">
           <label class="field">
             <span class="field__label">Priority</span>
@@ -1104,7 +1405,7 @@
     </div>
   </div>
 
-  <!-- ✅ Confirm Restore Modal -->
+  <!-- Confirm Restore Modal -->
   <div class="modal" id="confirmRestoreModal" aria-hidden="true">
     <div class="modal__backdrop" data-close-confirm-restore="true"></div>
 
@@ -1142,7 +1443,7 @@
     </div>
   </div>
 
-  <!-- ✅ Recovery Prompt Modal (Data corruption / missing fields) -->
+  <!-- Recovery Prompt Modal -->
   <div class="modal" id="recoveryModal" aria-hidden="true">
     <div class="modal__backdrop" data-close-recovery="true"></div>
 

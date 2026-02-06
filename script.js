@@ -2,32 +2,28 @@
   "use strict";
 
   // =========================
-  // ROUTER (Admin/Home/Skills)
+  // ROUTER (Admin/Home/Skills/Money/Settings)
   // =========================
   const navButtons = Array.from(document.querySelectorAll(".nav__item"));
   const views = {
     admin: document.getElementById("view-admin"),
     home: document.getElementById("view-home"),
     skills: document.getElementById("view-skills"),
+    money: document.getElementById("view-money"),
+    settings: document.getElementById("view-settings"),
   };
-
-  // Simple dev-friendly error surfacing (remove later if you want)
-  window.addEventListener("error", (e) => {
-    alert("JS Error: " + (e.message || "unknown"));
-  });
-  window.addEventListener("unhandledrejection", (e) => {
-    alert("Promise Error: " + (e.reason?.message || e.reason || "unknown"));
-  });
 
   const pageTitle = document.getElementById("pageTitle");
   const pageSubtitle = document.getElementById("pageSubtitle");
-  const btnMenu = document.getElementById("btnMenu");
   const sidebar = document.querySelector(".sidebar");
+  const btnMenu = document.getElementById("btnMenu");
 
   const viewMeta = {
     admin: { title: "Life Admin", subtitle: "Keep your real-world life organised with calm, smart nudges." },
     home: { title: "Future Home", subtitle: "Plan furniture essentials first, then extras when you're ready." },
     skills: { title: "Life Skills", subtitle: "Everyday living skills with progress you can actually see." },
+    money: { title: "Money", subtitle: "Future funds, budgets, and simple tracking that stays calm." },
+    settings: { title: "Settings", subtitle: "Preferences, notifications, backups, and data health." },
   };
 
   function setActiveView(viewKey) {
@@ -43,18 +39,12 @@
       const v = btn.dataset.view;
       setActiveView(v);
 
-      // ✅ Force Home to refresh instantly when opened
-      if (v === "home") {
-        try { renderHome(); } catch {}
-      }
-      // ✅ Force Skills to refresh instantly when opened
-      if (v === "skills") {
-        try { renderSkills(); } catch {}
-      }
-      // ✅ Force Admin to refresh instantly when opened
-      if (v === "admin") {
-        try { renderAdmin(); } catch {}
-      }
+      // Force refresh on open
+      if (v === "home") { try { renderHome(); } catch {} }
+      if (v === "skills") { try { renderSkills(); } catch {} }
+      if (v === "admin") { try { renderAdmin(); } catch {} }
+      if (v === "money") { try { renderMoney(); } catch {} }
+      if (v === "settings") { try { renderSettings(); } catch {} }
     })
   );
   btnMenu?.addEventListener("click", () => sidebar?.classList.toggle("is-open"));
@@ -243,6 +233,7 @@
       target: 0,
       current: 0,
       monthlyGoal: 0,
+      targetDate: null,
       notes: "",
       createdAtISO: new Date().toISOString(),
       updatedAtISO: new Date().toISOString(),
@@ -268,6 +259,7 @@
       label: String(label ?? "").trim(),
       amount: Number(amount ?? 0),
       dateISO: String(dateISO ?? toISODate(startOfToday())),
+
       fundId: fundId ? String(fundId) : null,
       budgetId: budgetId ? String(budgetId) : null,
       createdAtISO: new Date().toISOString(),
@@ -300,6 +292,9 @@
     };
   }
 
+    // =========================
+  // NORMALISERS
+  // =========================
   function normaliseBudgets(budgets) {
     if (!Array.isArray(budgets)) return [];
     const nowISO = new Date().toISOString();
@@ -425,6 +420,7 @@
   function normaliseFunds(funds) {
     if (!Array.isArray(funds)) return [];
     const nowISO = new Date().toISOString();
+
     return funds
       .map((f) => {
         const name = String(f?.name ?? "").trim();
@@ -434,6 +430,9 @@
         const current = Number(f?.current ?? 0);
         const monthlyGoal = Number(f?.monthlyGoal ?? 0);
 
+        const td = f?.targetDate;
+        const targetDate = td && /^\d{4}-\d{2}-\d{2}$/.test(String(td)) ? String(td) : null;
+
         return {
           id: String(f?.id ?? uid()),
           name,
@@ -441,6 +440,7 @@
           target: Number.isFinite(target) && target >= 0 ? target : 0,
           current: Number.isFinite(current) && current >= 0 ? current : 0,
           monthlyGoal: Number.isFinite(monthlyGoal) && monthlyGoal >= 0 ? monthlyGoal : 0,
+          targetDate,
           notes: String(f?.notes ?? ""),
           createdAtISO: String(f?.createdAtISO ?? nowISO),
           updatedAtISO: String(f?.updatedAtISO ?? nowISO),
@@ -459,9 +459,10 @@
       funds: normaliseFunds(s?.money?.funds),
       budgets: normaliseBudgets(s?.money?.budgets),
       txns: normaliseTxns(s?.money?.txns),
-      paydayISO: (s?.money?.paydayISO && /^\d{4}-\d{2}-\d{2}$/.test(String(s.money.paydayISO)))
-        ? String(s.money.paydayISO)
-        : null,
+      paydayISO:
+        s?.money?.paydayISO && /^\d{4}-\d{2}-\d{2}$/.test(String(s.money.paydayISO))
+          ? String(s.money.paydayISO)
+          : null,
     };
 
     base.settings = normaliseSettings(s?.settings);
@@ -473,6 +474,9 @@
     return base;
   }
 
+  // =========================
+  // STORE LOAD/SAVE + MIGRATION
+  // =========================
   function saveStore(store) {
     localStorage.setItem(LS_STORE_KEY, JSON.stringify(store));
   }
@@ -578,14 +582,14 @@
   const overallDot = document.getElementById("overallDot");
   const statusText = document.getElementById("statusText");
 
-  // Money panel DOM
+  // Money panel DOM (Admin view Money panel)
   const badgeMoney = document.getElementById("badgeMoney");
   const moneySummary = document.getElementById("moneySummary");
   const btnAddFund = document.getElementById("btnAddFund");
   const listMoneyFunds = document.getElementById("listMoneyFunds");
   const emptyMoneyFunds = document.getElementById("emptyMoneyFunds");
 
-  // Budgets DOM
+  // Budgets DOM (Admin view Budgets)
   const badgeBudgets = document.getElementById("badgeBudgets");
   const listBudgets = document.getElementById("listBudgets");
   const emptyBudgets = document.getElementById("emptyBudgets");
@@ -638,6 +642,20 @@
   const nextStepsWeek = document.getElementById("nextStepsWeek");
   const emptyNextToday = document.getElementById("emptyNextToday");
   const emptyNextWeek = document.getElementById("emptyNextWeek");
+
+  // =========================
+  // MONEY VIEW DOM
+  // =========================
+  const moneyTopStats = document.getElementById("moneyTopStats");
+  const fundsList = document.getElementById("fundsList");
+  const fundsEmpty = document.getElementById("fundsEmpty");
+  const fundsBadge = document.getElementById("fundsBadge");
+  const btnMoneyAddFund = document.getElementById("btnMoneyAddFund");
+
+  const budgetsList = document.getElementById("budgetsList");
+  const budgetsEmpty = document.getElementById("budgetsEmpty");
+  const budgetsBadge = document.getElementById("budgetsBadge");
+  const btnMoneyAddBudget = document.getElementById("btnMoneyAddBudget");
 
   // =========================
   // UI STATE
@@ -754,24 +772,78 @@
 
     switch (templateKey) {
       case "carInsurance":
-        return { ...base, category: "renewal", name: "Car insurance", details: "Compare quotes • check auto-renew", recurrence: "yearly", priority: "high", dueDateISO: addYearsISO(todayISO, 1) };
+        return {
+          ...base,
+          category: "renewal",
+          name: "Car insurance",
+          details: "Compare quotes • check auto-renew",
+          recurrence: "yearly",
+          priority: "high",
+          dueDateISO: addYearsISO(todayISO, 1),
+        };
       case "mot":
-        return { ...base, category: "vehicle", name: "MOT", details: "Book early for a convenient date", recurrence: "yearly", priority: "high", dueDateISO: addYearsISO(todayISO, 1) };
+        return {
+          ...base,
+          category: "vehicle",
+          name: "MOT",
+          details: "Book early for a convenient date",
+          recurrence: "yearly",
+          priority: "high",
+          dueDateISO: addYearsISO(todayISO, 1),
+        };
       case "carService":
-        return { ...base, category: "vehicle", name: "Car service", details: "Full/Interim (note mileage)", recurrence: "yearly", priority: "normal", dueDateISO: addYearsISO(todayISO, 1) };
+        return {
+          ...base,
+          category: "vehicle",
+          name: "Car service",
+          details: "Full/Interim (note mileage)",
+          recurrence: "yearly",
+          priority: "normal",
+          dueDateISO: addYearsISO(todayISO, 1),
+        };
       case "passport":
-        return { ...base, category: "renewal", name: "Passport expiry", details: "Some countries require 6 months validity", recurrence: "none", priority: "normal" };
+        return {
+          ...base,
+          category: "renewal",
+          name: "Passport expiry",
+          details: "Some countries require 6 months validity",
+          recurrence: "none",
+          priority: "normal",
+        };
       case "travelInsurance":
-        return { ...base, category: "renewal", name: "Travel insurance", details: "Check cover for the trip dates", recurrence: "none", priority: "normal" };
+        return {
+          ...base,
+          category: "renewal",
+          name: "Travel insurance",
+          details: "Check cover for the trip dates",
+          recurrence: "none",
+          priority: "normal",
+        };
       case "phoneContract":
-        return { ...base, category: "account", name: "Phone contract", details: "Consider SIM-only options", recurrence: "monthly", priority: "normal", dueDateISO: addMonthsISO(todayISO, 1) };
+        return {
+          ...base,
+          category: "account",
+          name: "Phone contract",
+          details: "Consider SIM-only options",
+          recurrence: "monthly",
+          priority: "normal",
+          dueDateISO: addMonthsISO(todayISO, 1),
+        };
       case "subscriptionReview":
-        return { ...base, category: "account", name: "Subscription review", details: "Cancel anything unused", recurrence: "custom", customDays: 90, priority: "normal", dueDateISO: addDaysISO(todayISO, 90) };
+        return {
+          ...base,
+          category: "account",
+          name: "Subscription review",
+          details: "Cancel anything unused",
+          recurrence: "custom",
+          customDays: 90,
+          priority: "normal",
+          dueDateISO: addDaysISO(todayISO, 90),
+        };
       default:
         return null;
     }
   }
-
   // =========================
   // MODAL (Life Admin items)
   // =========================
@@ -853,6 +925,14 @@
   btnCloseFundModal?.addEventListener("click", closeFundModal);
   btnCancelFund?.addEventListener("click", closeFundModal);
   fundBackdrop?.addEventListener("click", closeFundModal);
+
+  // =========================
+  // MODAL (Budget) — close handler used by Escape
+  // =========================
+  function closeBudgetModal() {
+    budgetModal?.setAttribute("aria-hidden", "true");
+    budgetModal?.classList.remove("is-open");
+  }
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modal?.classList.contains("is-open")) closeModal();
@@ -951,7 +1031,18 @@
         closeModal();
         return;
       }
-      items[idx] = { ...items[idx], category, name, dueDateISO, details, reminderProfile, priority, recurrence, customDays, updatedAtISO: nowISO };
+      items[idx] = {
+        ...items[idx],
+        category,
+        name,
+        dueDateISO,
+        details,
+        reminderProfile,
+        priority,
+        recurrence,
+        customDays,
+        updatedAtISO: nowISO,
+      };
     } else {
       items.push({
         id: uid(),
@@ -1290,9 +1381,11 @@
     for (const a of alerts) {
       const li = document.createElement("li");
       const strip =
-        a.badge.cls.includes("danger") ? "list__item--red" :
-        a.badge.cls.includes("warn") ? "list__item--amber" :
-        "list__item--green";
+        a.badge.cls.includes("danger")
+          ? "list__item--red"
+          : a.badge.cls.includes("warn")
+          ? "list__item--amber"
+          : "list__item--green";
 
       li.className = `list__item ${strip}`;
       li.innerHTML = `
@@ -1313,7 +1406,7 @@
   // PART D — NEXT STEPS
   // =========================
   function buildNextSteps(allItems) {
-    const active = allItems.filter(i => !i.archived);
+    const active = allItems.filter((i) => !i.archived);
 
     const today = [];
     const week = [];
@@ -1329,8 +1422,8 @@
       }
     }
 
-    today.sort((a,b)=>daysUntil(a.dueDateISO)-daysUntil(b.dueDateISO));
-    week.sort((a,b)=>daysUntil(a.dueDateISO)-daysUntil(b.dueDateISO));
+    today.sort((a, b) => daysUntil(a.dueDateISO) - daysUntil(b.dueDateISO));
+    week.sort((a, b) => daysUntil(a.dueDateISO) - daysUntil(b.dueDateISO));
 
     return { today, week };
   }
@@ -1344,10 +1437,10 @@
     nextStepsWeek.innerHTML = "";
 
     if (!today.length) emptyNextToday?.removeAttribute("hidden");
-    else emptyNextToday?.setAttribute("hidden","true");
+    else emptyNextToday?.setAttribute("hidden", "true");
 
     if (!week.length) emptyNextWeek?.removeAttribute("hidden");
-    else emptyNextWeek?.setAttribute("hidden","true");
+    else emptyNextWeek?.setAttribute("hidden", "true");
 
     const makeRow = (item) => {
       const d = daysUntil(item.dueDateISO);
@@ -1356,7 +1449,7 @@
       li.innerHTML = `
         <div class="list__main">
           <div class="list__title">${escapeHtml(item.name)}</div>
-          <div class="list__meta">${fmtDueText(d)} • ${gentleNudge(item,d)}</div>
+          <div class="list__meta">${fmtDueText(d)} • ${gentleNudge(item, d)}</div>
         </div>
         <div class="row-actions">
           <button class="mini-btn" data-action="edit" data-id="${item.id}">Open</button>
@@ -1365,8 +1458,8 @@
       return li;
     };
 
-    today.forEach(i => nextStepsToday.appendChild(makeRow(i)));
-    week.forEach(i => nextStepsWeek.appendChild(makeRow(i)));
+    today.forEach((i) => nextStepsToday.appendChild(makeRow(i)));
+    week.forEach((i) => nextStepsWeek.appendChild(makeRow(i)));
 
     const total = today.length + week.length;
     if (badgeNextSteps) {
@@ -1376,23 +1469,23 @@
   }
 
   // =========================
-  // MONEY — FUNDS
+  // MONEY — FUNDS (Admin panel list)
   // =========================
   function renderFunds() {
-  if (!listMoneyFunds) return; // ✅ guard if HTML doesn't have Money section yet
+    if (!listMoneyFunds) return; // ✅ guard if HTML doesn't have Money section yet
 
-  const store = loadStore();
-  const funds = store.money.funds || [];
-  listMoneyFunds.innerHTML = "";
+    const store = loadStore();
+    const funds = store.money.funds || [];
+    listMoneyFunds.innerHTML = "";
 
-  if (!funds.length) {
-    emptyMoneyFunds?.removeAttribute("hidden");
-    return;
-  }
-  emptyMoneyFunds?.setAttribute("hidden","true");
+    if (!funds.length) {
+      emptyMoneyFunds?.removeAttribute("hidden");
+      return;
+    }
+    emptyMoneyFunds?.setAttribute("hidden", "true");
 
     for (const f of funds) {
-      const pct = f.target ? Math.min(100, Math.round((f.current/f.target)*100)) : 0;
+      const pct = f.target ? Math.min(100, Math.round((f.current / f.target) * 100)) : 0;
 
       const li = document.createElement("li");
       li.className = "list__item list__item--green";
@@ -1413,31 +1506,31 @@
   }
 
   // =========================
-  // MONEY — BUDGETS
+  // MONEY — BUDGETS (Admin panel list)
   // =========================
- function renderBudgets() {
-  if (!listBudgets) return; // ✅ guard if HTML doesn't have Budgets section yet
+  function renderBudgets() {
+    if (!listBudgets) return; // ✅ guard if HTML doesn't have Budgets section yet
 
-  const store = loadStore();
-  const budgets = store.money.budgets || [];
-  const txns = store.money.txns || [];
+    const store = loadStore();
+    const budgets = store.money.budgets || [];
+    const txns = store.money.txns || [];
 
-  listBudgets.innerHTML = "";
+    listBudgets.innerHTML = "";
 
-  if (!budgets.length) {
-    emptyBudgets?.removeAttribute("hidden");
-    return;
-  }
-  emptyBudgets?.setAttribute("hidden","true");
+    if (!budgets.length) {
+      emptyBudgets?.removeAttribute("hidden");
+      return;
+    }
+    emptyBudgets?.setAttribute("hidden", "true");
 
     const month = currentMonthKey();
 
     for (const b of budgets) {
       const spent = txns
-        .filter(t => t.budgetId === b.id && t.type==="spend" && monthKeyFromISO(t.dateISO)===month)
-        .reduce((sum,t)=>sum+t.amount,0);
+        .filter((t) => t.budgetId === b.id && t.type === "spend" && monthKeyFromISO(t.dateISO) === month)
+        .reduce((sum, t) => sum + t.amount, 0);
 
-      const pct = b.monthlyLimit ? Math.min(100, Math.round((spent/b.monthlyLimit)*100)) : 0;
+      const pct = b.monthlyLimit ? Math.min(100, Math.round((spent / b.monthlyLimit) * 100)) : 0;
 
       const li = document.createElement("li");
       li.className = "list__item list__item--amber";
@@ -1457,7 +1550,7 @@
   }
 
   // =========================
-  // LIFE ADMIN ROW ACTIONS
+  // LIFE ADMIN ROW ACTIONS + FUND ACTIONS (Admin view)
   // =========================
   document.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
@@ -1465,54 +1558,56 @@
 
     const id = btn.dataset.id;
     const action = btn.dataset.action;
+
+    // Life Admin item actions
     if (action && id) {
       const items = loadItems();
-      const idx = items.findIndex(i=>i.id===id);
-      if (idx===-1) return;
+      const idx = items.findIndex((i) => i.id === id);
+      if (idx === -1) return;
 
       const item = items[idx];
 
-      if (action==="edit") openModal("edit", item);
+      if (action === "edit") openModal("edit", item);
 
-      if (action==="delete") {
+      if (action === "delete") {
         if (!confirm("Delete this item?")) return;
-        items.splice(idx,1);
+        items.splice(idx, 1);
         saveItems(items);
         renderAdmin();
       }
 
-      if (action==="archive" || action==="unarchive") {
-        item.archived = action==="archive";
+      if (action === "archive" || action === "unarchive") {
+        item.archived = action === "archive";
         item.updatedAtISO = new Date().toISOString();
         saveItems(items);
         renderAdmin();
       }
 
-      if (action==="done") {
+      if (action === "done") {
         item.doneCount++;
         item.updatedAtISO = new Date().toISOString();
-        if (item.recurrence==="monthly") item.dueDateISO = addMonthsISO(item.dueDateISO,1);
-        else if (item.recurrence==="yearly") item.dueDateISO = addYearsISO(item.dueDateISO,1);
-        else if (item.recurrence==="custom") item.dueDateISO = addDaysISO(item.dueDateISO,item.customDays||30);
+        if (item.recurrence === "monthly") item.dueDateISO = addMonthsISO(item.dueDateISO, 1);
+        else if (item.recurrence === "yearly") item.dueDateISO = addYearsISO(item.dueDateISO, 1);
+        else if (item.recurrence === "custom") item.dueDateISO = addDaysISO(item.dueDateISO, item.customDays || 30);
         saveItems(items);
         renderAdmin();
       }
     }
 
-    // Fund actions
+    // Fund actions (Admin panel)
     const fundAction = btn.dataset.fundAction;
     if (fundAction && id) {
       const store = loadStore();
       const funds = store.money.funds;
-      const idx = funds.findIndex(f=>f.id===id);
-      if (idx===-1) return;
+      const idx = funds.findIndex((f) => f.id === id);
+      if (idx === -1) return;
 
-      if (fundAction==="delete") {
+      if (fundAction === "delete") {
         if (!confirm("Delete this fund?")) return;
-        funds.splice(idx,1);
+        funds.splice(idx, 1);
       }
 
-      if (fundAction==="edit") openFundModal("edit", funds[idx]);
+      if (fundAction === "edit") openFundModal("edit", funds[idx]);
 
       saveStore(store);
       renderAdmin();
@@ -1537,10 +1632,10 @@
 
     const filtered = applyFilterAndSort(items);
 
-    const renewals = filtered.filter(i=>i.category==="renewal");
-    const accounts = filtered.filter(i=>i.category==="account");
-    const vehicle = filtered.filter(i=>i.category==="vehicle");
-    const info = filtered.filter(i=>i.category==="info");
+    const renewals = filtered.filter((i) => i.category === "renewal");
+    const accounts = filtered.filter((i) => i.category === "account");
+    const vehicle = filtered.filter((i) => i.category === "vehicle");
+    const info = filtered.filter((i) => i.category === "info");
 
     renderStats(store.lifeAdmin.items);
     renderSmartAlerts(store.lifeAdmin.items);
@@ -1563,26 +1658,31 @@
 
     setOverallPill(computeOverallStatus(store.lifeAdmin.items));
 
+    // Admin panel Money widgets
     renderFunds();
     renderBudgets();
   }
-
-    // ============================================================
+  // ============================================================
   // SECTION 4/5 — HOME (Part E) + SKILLS (Part F) + GLOBAL SEARCH
   // ============================================================
 
   // =========================
   // TOAST (small notifications)
   // =========================
-  const toastEl = document.getElementById("toast");
-  let toastTimer = null;
+  const toastWrap = document.getElementById("toastWrap");
 
   function toast(msg) {
-    if (!toastEl) return;
-    toastEl.textContent = msg;
-    toastEl.classList.add("is-on");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove("is-on"), 2200);
+    if (!toastWrap) return;
+
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = msg;
+
+    toastWrap.appendChild(el);
+
+    // auto-hide
+    setTimeout(() => el.classList.add("is-off"), 1800);
+    setTimeout(() => el.remove(), 2400);
   }
 
   // =========================
@@ -1675,8 +1775,8 @@
     const eTotal = essentials.length || 0;
     const xTotal = extras.length || 0;
 
-    const ePlanned = essentials.filter(i => !!i.planned).length;
-    const xPlanned = extras.filter(i => !!i.planned).length;
+    const ePlanned = essentials.filter((i) => !!i.planned).length;
+    const xPlanned = extras.filter((i) => !!i.planned).length;
 
     const eCost = essentials.reduce((a, i) => a + Number(i.cost || 0), 0);
     const xCost = extras.reduce((a, i) => a + Number(i.cost || 0), 0);
@@ -1689,7 +1789,12 @@
 
   function calcOverallHomeStats(rooms) {
     const keys = Object.keys(rooms || {});
-    let eTotal = 0, xTotal = 0, ePlanned = 0, xPlanned = 0, eCost = 0, xCost = 0;
+    let eTotal = 0,
+      xTotal = 0,
+      ePlanned = 0,
+      xPlanned = 0,
+      eCost = 0,
+      xCost = 0;
 
     for (const k of keys) {
       const r = rooms[k];
@@ -1818,8 +1923,8 @@
     room.notes = String(homeRoomNotes?.value ?? "");
     saveHomeRooms(rooms);
 
-    renderHomeStats();   // ✅ add
-    renderRoomsGrid();   // ✅ keep
+    renderHomeStats();
+    renderRoomsGrid();
 
     toast("Room notes saved");
   });
@@ -1830,12 +1935,13 @@
     const plannedOnly = !!chkPlannedOnly?.checked;
 
     if (q) {
-      out = out.filter(i =>
-        String(i.name || "").toLowerCase().includes(q) ||
-        String(i.notes || "").toLowerCase().includes(q)
+      out = out.filter(
+        (i) =>
+          String(i.name || "").toLowerCase().includes(q) ||
+          String(i.notes || "").toLowerCase().includes(q)
       );
     }
-    if (plannedOnly) out = out.filter(i => !!i.planned);
+    if (plannedOnly) out = out.filter((i) => !!i.planned);
 
     // priority high first
     out.sort((a, b) => {
@@ -1887,8 +1993,8 @@
       return li;
     };
 
-    e.forEach(it => essentialsList?.appendChild(mkRow(it, "essentials")));
-    x.forEach(it => extrasList?.appendChild(mkRow(it, "extras")));
+    e.forEach((it) => essentialsList?.appendChild(mkRow(it, "essentials")));
+    x.forEach((it) => extrasList?.appendChild(mkRow(it, "extras")));
   }
 
   function promptHomeItem(base = null, title = "Add item") {
@@ -1940,7 +2046,7 @@
 
     saveHomeRooms(rooms);
     renderHomeStats();
-    renderRoomsGrid(); // ✅ keep grid accurate
+    renderRoomsGrid();
     renderRoomLists();
     toast("Essential added");
   });
@@ -1959,7 +2065,7 @@
 
     saveHomeRooms(rooms);
     renderHomeStats();
-    renderRoomsGrid(); // ✅ keep grid accurate
+    renderRoomsGrid();
     renderRoomLists();
     toast("Extra added");
   });
@@ -1981,8 +2087,8 @@
     const room = rooms[activeRoomKey];
     if (!room) return;
 
-    const arr = kind === "essentials" ? (room.essentials || []) : (room.extras || []);
-    const idx = arr.findIndex(x => x.id === id);
+    const arr = kind === "essentials" ? room.essentials || [] : room.extras || [];
+    const idx = arr.findIndex((x) => x.id === id);
     if (idx === -1) return;
 
     if (action === "delete") {
@@ -1993,7 +2099,7 @@
 
       saveHomeRooms(rooms);
       renderHomeStats();
-      renderRoomsGrid(); // ✅ keep grid accurate
+      renderRoomsGrid();
       renderRoomLists();
       toast("Item deleted");
       return;
@@ -2006,7 +2112,7 @@
 
       saveHomeRooms(rooms);
       renderHomeStats();
-      renderRoomsGrid(); // ✅ keep grid accurate
+      renderRoomsGrid();
       renderRoomLists();
       toast(arr[idx].planned ? "Marked planned" : "Marked not planned");
       return;
@@ -2022,7 +2128,7 @@
 
       saveHomeRooms(rooms);
       renderHomeStats();
-      renderRoomsGrid(); // ✅ keep grid accurate
+      renderRoomsGrid();
       renderRoomLists();
       toast("Item updated");
     }
@@ -2077,16 +2183,16 @@
   }
 
   function skillScore(levelKey) {
-    const idx = SKILL_LEVELS.findIndex(x => x.key === levelKey);
+    const idx = SKILL_LEVELS.findIndex((x) => x.key === levelKey);
     return idx < 0 ? 0 : idx;
   }
 
   function calcSkillsStats(categories) {
     const cats = Object.values(categories || {});
-    const all = cats.flatMap(c => Array.isArray(c.items) ? c.items : []);
+    const all = cats.flatMap((c) => (Array.isArray(c.items) ? c.items : []));
     const total = all.length || 0;
-    const started = all.filter(i => i.level !== "ns").length;
-    const avg = total ? (all.reduce((a, i) => a + skillScore(i.level), 0) / total) : 0;
+    const started = all.filter((i) => i.level !== "ns").length;
+    const avg = total ? all.reduce((a, i) => a + skillScore(i.level), 0) / total : 0;
     return { total, started, avg: Math.round(avg * 10) / 10 };
   }
 
@@ -2118,11 +2224,11 @@
       const keys = Object.keys(categories);
       const current = skillsCategorySelect.value || "All";
 
-      skillsCategorySelect.innerHTML = `<option value="All">All</option>` +
-        keys.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join("");
+      skillsCategorySelect.innerHTML =
+        `<option value="All">All</option>` +
+        keys.map((k) => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join("");
 
-      // restore selection if possible
-      if ([...skillsCategorySelect.options].some(o => o.value === current)) {
+      if ([...skillsCategorySelect.options].some((o) => o.value === current)) {
         skillsCategorySelect.value = current;
       }
     }
@@ -2132,7 +2238,7 @@
     if (!skillsList) return;
 
     const categories = getSkillsCategories();
-    const catFilter = (skillsCategorySelect?.value || "All");
+    const catFilter = skillsCategorySelect?.value || "All";
     const q = (skillsSearch?.value || "").trim().toLowerCase();
 
     const rows = [];
@@ -2149,7 +2255,6 @@
       }
     }
 
-    // sort: lowest level first, then name
     rows.sort((a, b) => {
       const sa = skillScore(a.it.level);
       const sb = skillScore(b.it.level);
@@ -2162,8 +2267,8 @@
       const li = document.createElement("li");
       li.className = "list__item list__item--neutral";
 
-      const levelOptions = SKILL_LEVELS.map(l =>
-        `<option value="${l.key}" ${l.key === r.it.level ? "selected" : ""}>${escapeHtml(l.label)}</option>`
+      const levelOptions = SKILL_LEVELS.map(
+        (l) => `<option value="${l.key}" ${l.key === r.it.level ? "selected" : ""}>${escapeHtml(l.label)}</option>`
       ).join("");
 
       li.innerHTML = `
@@ -2239,7 +2344,7 @@
     const c = categories[cat];
     if (!c) return;
 
-    const idx = (c.items || []).findIndex(x => x.id === id);
+    const idx = (c.items || []).findIndex((x) => x.id === id);
     if (idx === -1) return;
 
     c.items[idx] = { ...c.items[idx], level, updatedAtISO: new Date().toISOString() };
@@ -2263,7 +2368,7 @@
     const c = categories[cat];
     if (!c) return;
 
-    const idx = (c.items || []).findIndex(x => x.id === id);
+    const idx = (c.items || []).findIndex((x) => x.id === id);
     if (idx === -1) return;
 
     if (action === "delete") {
@@ -2354,13 +2459,13 @@
     // Skills
     const categories = getSkillsCategories();
     for (const [cat, c] of Object.entries(categories)) {
-      for (const s of (c.items || [])) {
+      for (const s of c.items || []) {
         const hay = `${s.name} ${s.notes || ""}`.toLowerCase();
         if (hay.includes(query)) {
           results.push({
             type: "skills",
             title: s.name,
-            subtitle: `${cat} • ${SKILL_LEVELS.find(l => l.key === s.level)?.label || "Not started"}`,
+            subtitle: `${cat} • ${SKILL_LEVELS.find((l) => l.key === s.level)?.label || "Not started"}`,
             cat,
             id: s.id,
             score: 1,
@@ -2369,8 +2474,7 @@
       }
     }
 
-    // sort by score then title
-    results.sort((a, b) => (b.score - a.score) || String(a.title).localeCompare(String(b.title)));
+    results.sort((a, b) => b.score - a.score || String(a.title).localeCompare(String(b.title)));
     return results.slice(0, 10);
   }
 
@@ -2390,7 +2494,9 @@
       return;
     }
 
-    globalResults.innerHTML = res.map(r => `
+    globalResults.innerHTML = res
+      .map(
+        (r) => `
       <button type="button" class="global-results__row"
         data-gs-type="${escapeHtml(r.type)}"
         data-gs-id="${escapeHtml(r.id)}"
@@ -2399,7 +2505,9 @@
         <div class="gr__title">${escapeHtml(r.title)}</div>
         <div class="gr__sub">${escapeHtml(r.subtitle)}</div>
       </button>
-    `).join("");
+    `
+      )
+      .join("");
 
     setGlobalResultsOpen(true);
   }
@@ -2419,11 +2527,10 @@
 
     const type = row.getAttribute("data-gs-type");
     const id = row.getAttribute("data-gs-id");
-
     if (!type || !id) return;
 
     if (type === "admin") {
-      const item = loadItems().find(x => x.id === id);
+      const item = loadItems().find((x) => x.id === id);
       if (!item) return;
       setActiveView("admin");
       openModal("edit", item);
@@ -2436,7 +2543,7 @@
       if (!roomKey) return;
 
       setActiveView("home");
-      renderHome();           // ✅ IMPORTANT: ensure Home UI is in the right state
+      renderHome();
       showRoomDetail(roomKey);
 
       setGlobalResultsOpen(false);
@@ -2445,7 +2552,6 @@
 
     if (type === "skills") {
       setActiveView("skills");
-      // highlight by setting search
       if (skillsSearch) {
         skillsSearch.value = row.querySelector(".gr__title")?.textContent || "";
         renderSkillsList();
@@ -2632,8 +2738,9 @@
     // add a couple of spends in this month
     const mk = currentMonthKey();
     const someDate = mk + "-05";
-    const foodId = store.money.budgets.find(b => b.name.toLowerCase() === "food")?.id || store.money.budgets[0]?.id;
-    const transportId = store.money.budgets.find(b => b.name.toLowerCase() === "transport")?.id || store.money.budgets[1]?.id;
+    const foodId = store.money.budgets.find((b) => b.name.toLowerCase() === "food")?.id || store.money.budgets[0]?.id;
+    const transportId =
+      store.money.budgets.find((b) => b.name.toLowerCase() === "transport")?.id || store.money.budgets[1]?.id;
 
     if (foodId) {
       store.money.txns.push(makeTxn({ type: "spend", label: "Tesco", amount: 45.2, dateISO: someDate, budgetId: foodId }));
@@ -2647,7 +2754,7 @@
     // Home: add costs on a couple of defaults so stats show something
     const rooms = store.home.rooms || defaultRooms();
     const pick = (arr, name, cost) => {
-      const it = arr.find(x => (x.name || "").toLowerCase().includes(name.toLowerCase()));
+      const it = arr.find((x) => (x.name || "").toLowerCase().includes(name.toLowerCase()));
       if (it) it.cost = cost;
       if (it) it.planned = true;
     };
@@ -2665,7 +2772,7 @@
     renderAdmin();
     renderHome();
     renderSkills();
-   renderNextSteps(store.lifeAdmin.items);
+    renderNextSteps(store.lifeAdmin.items);
     applyMoneyVisibilityFromSettings();
 
     toast("Sample data added");
@@ -2689,7 +2796,7 @@
     renderAdmin();
     renderHome();
     renderSkills();
-   renderNextSteps(store.lifeAdmin.items);
+    renderNextSteps(store.lifeAdmin.items);
 
     toast("Ready");
   }
