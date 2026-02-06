@@ -1379,15 +1379,17 @@
   // MONEY — FUNDS
   // =========================
   function renderFunds() {
-    const store = loadStore();
-    const funds = store.money.funds || [];
-    listMoneyFunds.innerHTML = "";
+  if (!listMoneyFunds) return; // ✅ guard if HTML doesn't have Money section yet
 
-    if (!funds.length) {
-      emptyMoneyFunds?.removeAttribute("hidden");
-      return;
-    }
-    emptyMoneyFunds?.setAttribute("hidden","true");
+  const store = loadStore();
+  const funds = store.money.funds || [];
+  listMoneyFunds.innerHTML = "";
+
+  if (!funds.length) {
+    emptyMoneyFunds?.removeAttribute("hidden");
+    return;
+  }
+  emptyMoneyFunds?.setAttribute("hidden","true");
 
     for (const f of funds) {
       const pct = f.target ? Math.min(100, Math.round((f.current/f.target)*100)) : 0;
@@ -1413,18 +1415,20 @@
   // =========================
   // MONEY — BUDGETS
   // =========================
-  function renderBudgets() {
-    const store = loadStore();
-    const budgets = store.money.budgets || [];
-    const txns = store.money.txns || [];
+ function renderBudgets() {
+  if (!listBudgets) return; // ✅ guard if HTML doesn't have Budgets section yet
 
-    listBudgets.innerHTML = "";
+  const store = loadStore();
+  const budgets = store.money.budgets || [];
+  const txns = store.money.txns || [];
 
-    if (!budgets.length) {
-      emptyBudgets?.removeAttribute("hidden");
-      return;
-    }
-    emptyBudgets?.setAttribute("hidden","true");
+  listBudgets.innerHTML = "";
+
+  if (!budgets.length) {
+    emptyBudgets?.removeAttribute("hidden");
+    return;
+  }
+  emptyBudgets?.setAttribute("hidden","true");
 
     const month = currentMonthKey();
 
@@ -2661,7 +2665,7 @@
     renderAdmin();
     renderHome();
     renderSkills();
-    renderNextSteps();
+   renderNextSteps(store.lifeAdmin.items);
     applyMoneyVisibilityFromSettings();
 
     toast("Sample data added");
@@ -2685,7 +2689,7 @@
     renderAdmin();
     renderHome();
     renderSkills();
-    renderNextSteps();
+   renderNextSteps(store.lifeAdmin.items);
 
     toast("Ready");
   }
