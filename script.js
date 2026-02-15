@@ -208,7 +208,7 @@ nextToBuy: false,
       utility: mk(
         "Storage/Utility",
         ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
-        ["Storage boxes", "Label maker", "Suitcases", "Extra shelves", "Bike rack / wall mounts"]
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
       ),
     };
   }
