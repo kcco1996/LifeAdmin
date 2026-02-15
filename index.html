@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Life Admin</title>
+
+  <!-- iOS Home Screen web-clip sometimes drops the trailing slash and GitHub Pages can 404. -->
+  <script>
+    (function () {
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+      if (!isStandalone) return;
+
+      const p = location.pathname;
+      const isRepoRoot = p.endsWith("/LifeAdmin") && !p.endsWith("/LifeAdmin/");
+      if (isRepoRoot) location.replace(p + "/" + location.search + location.hash);
+    })();
+  </script>
+
+  <!-- Icons -->
+  <link rel="icon" href="assets/icons/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180x180.png">
+
+  <!-- PWA -->
+  <link rel="manifest" href="assets/icons/manifest.webmanifest">
+  <meta name="theme-color" content="#ff8a1f">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Primary">
+      <div class="brand">
+        <div class="brand__mark" aria-hidden="true">🏠</div>
+        <div class="brand__text">
+          <div class="brand__name">Life Admin</div>
+          <div class="brand__tag">Admin • Home • Skills • Money </div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Sections">
+        <button class="nav__item is-active" data-view="admin" type="button">
+          <span class="nav__icon" aria-hidden="true">🧾</span>
+          <span class="nav__label">Life Admin</span>
+        </button>
+
+        <button class="nav__item" data-view="home" type="button">
+          <span class="nav__icon" aria-hidden="true">🏡</span>
+          <span class="nav__label">Future Home</span>
+        </button>
+
+        <button class="nav__item" data-view="skills" type="button">
+          <span class="nav__icon" aria-hidden="true">🧠</span>
+          <span class="nav__label">Life Skills</span>
+        </button>
+
+<button class="nav__item" data-view="groceries" type="button">
+  <span class="nav__icon" aria-hidden="true">🛒</span>
+  <span class="nav__label">Groceries</span>
+</button>
+
+        <button class="nav__item" data-view="money" type="button">
+          <span class="nav__icon" aria-hidden="true">💷</span>
+          <span class="nav__label">Money</span>
+        </button>
+
+        <button class="nav__item" data-view="settings" type="button">
+          <span class="nav__icon" aria-hidden="true">⚙️</span>
+          <span class="nav__label">Settings</span>
+        </button>
+      </nav>
+
+
+      <div class="sidebar__footer">
+        <button class="ghost-btn" type="button" id="btnSettings">
+          <span aria-hidden="true">⚙️</span> Settings
+        </button>
+
+        <button class="ghost-btn" type="button" id="btnExport">
+          <span aria-hidden="true">⬇️</span> Export
+        </button>
+
+        <button class="ghost-btn" type="button" id="btnLogin">
+          <span aria-hidden="true">🔐</span> Sign in
+        </button>
+
+        <button class="ghost-btn" type="button" id="btnLogout" hidden>
+          <span aria-hidden="true">🔓</span> Sign out
+        </button>
+
+        <button class="ghost-btn" type="button" id="btnPull" hidden>
+          <span aria-hidden="true">☁️</span> Pull from cloud
+        </button>
+
+        <button class="ghost-btn" type="button" id="btnPush" hidden>
+          <span aria-hidden="true">⬆️</span> Push to cloud
+        </button>
+
+        <p class="muted muted--small" id="cloudStatus" style="margin:8px 0 0;"></p>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar__left">
+          <button class="icon-btn" id="btnMenu" aria-label="Open menu" type="button">☰</button>
+          <div>
+            <h1 class="page-title" id="pageTitle">Life Admin</h1>
+            <p class="page-subtitle" id="pageSubtitle">
+              Keep your real-world life organised with calm, smart nudges.
+            </p>
+          </div>
+        </div>
+
+        <div class="topbar__right">
+          <!-- Global search -->
+          <div class="search" style="min-width:260px; position:relative;">
+            <span class="search__icon" aria-hidden="true">🔎</span>
+            <input
+              id="globalSearch"
+              class="search__input"
+              type="search"
+              placeholder="Search everything… (passport, sofa, emergency fund)"
+              autocomplete="off"
+            />
+
+            <div class="search-results" id="globalSearchResults" hidden>
+              <div class="search-results__header">
+                <span class="muted">Results</span>
+                <span class="badge badge--neutral" id="globalSearchCount">0</span>
+              </div>
+              <ul class="list" id="globalSearchList"></ul>
+              <p class="muted muted--pad" id="globalSearchEmpty" hidden>No matches. Try a different word.</p>
+            </div>
+          </div>
+
+          <input type="hidden" id="searchReturnContext" value="">
+
+          <div class="net-badge" id="netBadge" title="Network status">
+            <span class="dot dot--green" id="netDot" aria-hidden="true"></span>
+            <span id="netText">Online</span>
+          </div>
+
+          <div class="pill" id="overallStatus">
+            <span class="dot dot--green" id="overallDot" aria-hidden="true"></span>
+            <span id="statusText">All good</span>
+          </div>
+
+          <button class="ghost-btn ghost-btn--sm" type="button" id="btnTools">
+            <span aria-hidden="true">🧰</span> Tools
+          </button>
+
+          <button class="primary-btn" type="button" id="btnAdd">+ Add</button>
+        </div>
+      </header>
+
+      <!-- PWA update banner -->
+      <div class="update-banner" id="updateBanner" role="status" aria-live="polite">
+        <div class="update-banner__content">
+          <div>
+            <p class="update-banner__title">Update available</p>
+            <p class="update-banner__msg">A newer version is ready. Reload to apply it.</p>
+          </div>
+          <div class="update-banner__actions">
+            <button class="ghost-btn ghost-btn--sm" type="button" id="btnDismissUpdate">Later</button>
+            <button class="primary-btn" type="button" id="btnApplyUpdate">Reload</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <section class="content">
+
+       
+
+        <!-- VIEW: LIFE ADMIN -->
+        <div class="view is-visible" id="view-admin" data-view-root="admin">
+          <div class="admin-controls">
+            <div class="admin-controls__left">
+              <div class="search">
+                <span class="search__icon" aria-hidden="true">🔎</span>
+                <input
+                  id="adminSearch"
+                  class="search__input"
+                  type="search"
+                  placeholder="Search life admin… (insurance, MOT, passport…)"
+                  autocomplete="off"
+                />
+              </div>
+
+               <!-- DASHBOARD -->
+        <div class="grid" id="nextStepsWrap">
+          <article class="card nextsteps">
+            <div class="card__header">
+              <h2 class="card__title">Next Steps</h2>
+              <span class="badge badge--neutral" id="badgeNextSteps">—</span>
+            </div>
+
+            <div class="nextsteps__cols">
+              <div class="nextsteps__col">
+                <div class="nextsteps__label">Today</div>
+                <ul class="list" id="nextStepsToday"></ul>
+                <p class="muted muted--pad" id="emptyNextToday" hidden>
+                  Nothing pressing today — you’re in a good place.
+                </p>
+              </div>
+
+              <div class="nextsteps__col">
+                <div class="nextsteps__label">This week</div>
+                <ul class="list" id="nextStepsWeek"></ul>
+                <p class="muted muted--pad" id="emptyNextWeek" hidden>
+                  No obvious prep needed this week.
+                </p>
+              </div>
+            </div>
+
+            <p class="muted muted--pad">
+              These are gentle suggestions — small steps that reduce stress later.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card__header">
+              <h2 class="card__title">This Week</h2>
+              <span class="badge badge--neutral" id="badgeThisWeek">—</span>
+            </div>
+
+            <ul class="list" id="thisWeekList"></ul>
+            <p class="muted muted--pad" id="emptyThisWeek" hidden>
+              Nothing due in the next 7 days — nice.
+            </p>
+
+            <p class="muted muted--pad">
+              Pulls from Life Admin deadlines and Money items (e.g. upcoming bills/goals).
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card__header">
+              <h2 class="card__title">Focus Suggestion</h2>
+              <span class="badge badge--ok" id="badgeFocus">Gentle</span>
+            </div>
+
+            <ul class="list" id="focusSuggestionList"></ul>
+            <p class="muted muted--pad" id="emptyFocusSuggestion" hidden>
+              You’re well balanced right now — keep cruising.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card__header">
+              <h2 class="card__title">Monthly Wins</h2>
+              <span class="badge badge--neutral" id="badgeMonthlyWins">—</span>
+            </div>
+
+            <div class="money-summary" id="monthlyWinsSummary"></div>
+            <ul class="list" id="monthlyWinsList"></ul>
+
+            <p class="muted muted--pad">
+              Tracks small wins like skills gained, items planned, and savings added.
+            </p>
+          </article>
+        </div>
+
+              <div class="chips" role="tablist" aria-label="Life Admin filters">
+                <button class="chip is-active" type="button" data-admin-filter="all">All</button>
+                <button class="chip" type="button" data-admin-filter="renewal">Renewals</button>
+                <button class="chip" type="button" data-admin-filter="account">Accounts</button>
+                <button class="chip" type="button" data-admin-filter="vehicle">Vehicle</button>
+                <button class="chip" type="button" data-admin-filter="info">Info</button>
+                <button class="chip" type="button" data-admin-filter="money">Money</button>
+              </div>
+            </div>
+
+            <div class="admin-controls__right">
+              <label class="toggle">
+                <input id="chkFocusWeek" type="checkbox" />
+                <span class="toggle__box" aria-hidden="true"></span>
+                <span class="toggle__label">This week</span>
+              </label>
+
+              <label class="toggle">
+                <input id="chkArchived" type="checkbox" />
+                <span class="toggle__box" aria-hidden="true"></span>
+                <span class="toggle__label">Show archived</span>
+              </label>
+
+              <label class="toggle">
+                <input id="chkCalmMode" type="checkbox" />
+                <span class="toggle__box" aria-hidden="true"></span>
+                <span class="toggle__label">Calm mode</span>
+              </label>
+
+              <div class="select">
+                <select id="selSort" aria-label="Sort">
+                  <option value="dueSoonest" selected>Due date (soonest)</option>
+                  <option value="dueLatest">Due date (latest)</option>
+                  <option value="createdNewest">Created (newest)</option>
+                  <option value="createdOldest">Created (oldest)</option>
+                  <option value="nameAZ">Name (A–Z)</option>
+                  <option value="nameZA">Name (Z–A)</option>
+                </select>
+              </div>
+
+              <div class="select">
+                <select id="selTemplate" aria-label="Quick add template">
+                  <option value="" selected>+ Quick add…</option>
+                  <option value="carInsurance">Car insurance</option>
+                  <option value="mot">MOT</option>
+                  <option value="carService">Car service</option>
+                  <option value="passport">Passport expiry</option>
+                  <option value="travelInsurance">Travel insurance</option>
+                  <option value="phoneContract">Phone contract</option>
+                  <option value="subscriptionReview">Subscription review</option>
+                </select>
+              </div>
+
+              <button class="ghost-btn ghost-btn--sm" type="button" id="btnSampleData">Add sample data</button>
+              <button class="ghost-btn ghost-btn--sm" type="button" id="btnImport">Import</button>
+            </div>
+          </div>
+
+          <div class="grid grid--stats" id="adminStats"></div>
+
+          <div class="grid grid--panels admin-panels">
+            <article class="card admin-alerts">
+              <div class="card__header">
+                <h2 class="card__title">Smart Alerts</h2>
+                <span class="badge badge--neutral" id="badgeAlerts">—</span>
+              </div>
+
+              <ul class="list" id="listAlerts"></ul>
+
+              <p class="muted muted--pad" id="emptyAlerts" hidden>
+                No alerts right now — you’re in a good place.
+              </p>
+            </article>
+
+            <article class="card" data-cat-card="renewal">
+              <div class="card__header">
+                <h2 class="card__title">Renewals &amp; Deadlines</h2>
+                <span class="badge badge--neutral" id="badgeRenewals">—</span>
+              </div>
+              <ul class="list" id="listRenewals"></ul>
+              <p class="muted muted--pad" id="emptyRenewals" hidden>
+                Nothing here yet. Add your first renewal to get gentle reminders.
+              </p>
+            </article>
+
+            <article class="card" data-cat-card="account">
+              <div class="card__header">
+                <h2 class="card__title">Accounts &amp; Services</h2>
+                <span class="badge badge--neutral" id="badgeAccounts">—</span>
+              </div>
+              <ul class="list" id="listAccounts"></ul>
+              <p class="muted muted--pad" id="emptyAccounts" hidden>
+                Add things like phone contracts, subscriptions, utilities, etc.
+              </p>
+            </article>
+
+            <article class="card" data-cat-card="info">
+              <div class="card__header">
+                <h2 class="card__title">Important Info (Quick Ref)</h2>
+                <span class="badge badge--neutral" id="badgeInfo">—</span>
+              </div>
+              <ul class="list" id="listInfo"></ul>
+              <p class="muted muted--pad" id="emptyInfo" hidden>
+                Non-sensitive notes like “passport stored in desk drawer”.
+              </p>
+            </article>
+
+            <article class="card" data-cat-card="vehicle">
+              <div class="card__header">
+                <h2 class="card__title">Vehicle</h2>
+                <span class="badge badge--neutral" id="badgeVehicle">—</span>
+              </div>
+              <ul class="list" id="listVehicle"></ul>
+              <p class="muted muted--pad" id="emptyVehicle" hidden>
+                Add MOT, service, tyre checks — anything you want reminders for.
+              </p>
+            </article>
+
+            <article class="card" data-cat-card="money">
+              <div class="card__header">
+                <h2 class="card__title">Money &amp; Future Fund</h2>
+                <span class="badge badge--neutral" id="badgeMoney">—</span>
+              </div>
+
+              <div class="money-summary" id="moneySummary"></div>
+
+              <div class="money-actions">
+                <button class="mini-btn" type="button" id="btnAddFund">+ Add fund</button>
+              </div>
+
+              <ul class="list" id="listMoneyFunds"></ul>
+
+              <p class="muted muted--pad" id="emptyMoneyFunds" hidden>
+                No funds yet. Add one like “Emergency Fund” or “House Deposit”.
+              </p>
+
+              <p class="muted muted--pad">
+                Tip: Use the Money page for monthly planning + transactions + forecasting.
+              </p>
+            </article>
+          </div>
+        </div>
+
+        <!-- VIEW: FUTURE HOME -->
+        <div class="view" id="view-home" data-view-root="home">
+          <div id="homeGridWrap" class="home-grid-wrap">
+            <section id="homeStats" class="stats-grid"></section>
+            <section class="rooms-grid" id="roomsGrid"></section>
+          </div>
+
+          <article class="card" id="homeShoppingCard" style="margin-top:12px;">
+            <div class="card__header">
+              <h2 class="card__title">Shopping List</h2>
+              <span class="badge badge--neutral" id="homeShoppingBadge">—</span>
+            </div>
+
+            <div class="admin-controls" style="margin: 0 0 10px;">
+              <div class="admin-controls__left">
+                <div class="select">
+                  <select id="selShoppingSort" aria-label="Shopping sort">
+                    <option value="priority" selected>Priority</option>
+                    <option value="costLow">Cost (low → high)</option>
+                    <option value="costHigh">Cost (high → low)</option>
+                    <option value="roomAZ">Room (A–Z)</option>
+                  </select>
+                </div>
+              </div>
+
+<div class="admin-controls__right">
+  <label class="toggle">
+    <input type="checkbox" id="chkShoppingEssentialsOnly">
+    <span class="toggle__box" aria-hidden="true"></span>
+    <span class="toggle__label">Essentials only</span>
+  </label>
+  </div>
+
+  <label class="toggle">
+    <input type="checkbox" id="chkShoppingNextOnly">
+    <span class="toggle__box" aria-hidden="true"></span>
+    <span class="toggle__label">Next to buy</span>
+  </label>
+
+  <!-- optional: only if you REALLY want a mini bubble -->
+  <span id="homeShoppingMiniBadge" class="pill-count">0</span>
+</div>
+
+            <ul class="list" id="homeShoppingList"></ul>
+            <p class="muted muted--pad" id="homeShoppingEmpty" hidden>
+              Nothing to buy right now — either you own everything or nothing is planned.
+            </p>
+          </article>
+
+          <section id="roomDetail" class="room-detail" aria-hidden="true">
+            <div class="room-detail__top">
+              <button id="btnRoomBack" class="mini-btn" type="button">← Back</button>
+              <h2 id="roomTitle" style="margin:0;"></h2>
+            </div>
+
+            <div class="room-detail__controls">
+              <input id="homeSearch" class="input" placeholder="Search items..." />
+              <label class="check">
+                <input id="chkPlannedOnly" type="checkbox" />
+                Planned only
+              </label>
+            </div>
+
+            <div class="room-detail__notes">
+              <textarea id="homeRoomNotes" class="textarea" placeholder="Room notes..."></textarea>
+              <button id="btnSaveRoomNotes" class="mini-btn" type="button">Save notes</button>
+            </div>
+
+            <div class="room-detail__cols">
+              <div class="room-col">
+                <div class="room-col__head">
+                  <h3>Essentials</h3>
+                  <button id="btnAddEssential" class="mini-btn" type="button">+ Add</button>
+                </div>
+                <ul id="essentialsList" class="list"></ul>
+              </div>
+
+              <div class="room-col">
+                <div class="room-col__head">
+                  <h3>Extras</h3>
+                  <button id="btnAddExtra" class="mini-btn" type="button">+ Add</button>
+                </div>
+                <ul id="extrasList" class="list"></ul>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIEW: LIFE SKILLS -->
+        <div class="view" id="view-skills" data-view-root="skills">
+          <div class="grid grid--panels">
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Growth</h2>
+                <span class="badge badge--neutral" id="skillsGrowthBadge">—</span>
+              </div>
+
+              <div class="money-summary" id="skillsSuggestionsSummary"></div>
+
+              <h3 style="margin: 8px 0 6px;">Suggested next skills</h3>
+              <ul class="list" id="skillsSuggestionsList"></ul>
+              <p class="muted muted--pad" id="skillsSuggestionsEmpty" hidden>
+                No suggestions right now — add a few skills and I’ll guide the next step.
+              </p>
+
+              <hr class="sep" />
+
+              <h3 style="margin: 8px 0 6px;">Milestones</h3>
+              <div class="chips" id="skillsMilestones"></div>
+
+              <hr class="sep" />
+
+              <h3 style="margin: 8px 0 6px;">Confidence trend</h3>
+              <canvas id="skillsTrendCanvas" height="140" aria-label="Skills confidence trend"></canvas>
+              <p class="muted muted--pad">
+                A simple trend of your confidence progress over time.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Life Skills Progress</h2>
+                <span class="badge badge--neutral" id="skillsBadge">—</span>
+              </div>
+
+              <div class="money-summary" id="skillsSummary"></div>
+
+              <form class="inline-add" id="formAddSkill">
+                <select class="field__control" name="category">
+                  <option value="Cooking">Cooking</option>
+                  <option value="Cleaning">Cleaning</option>
+                  <option value="Laundry">Laundry</option>
+                  <option value="Personal Admin">Personal Admin</option>
+                  <option value="Health">Health</option>
+                  <option value="Home Basics">Home Basics</option>
+                </select>
+                <input class="field__control" name="name" placeholder="Add a skill (e.g., Cook pasta properly)" />
+                <button class="mini-btn" type="submit" id="btnAddSkill">Add</button>
+              </form>
+
+              <div class="chips" id="skillsFilterChips" style="margin-top:10px;">
+                <button class="chip is-active" type="button" data-skill-filter="all">All</button>
+                <button class="chip" type="button" data-skill-filter="Cooking">Cooking</button>
+                <button class="chip" type="button" data-skill-filter="Cleaning">Cleaning</button>
+                <button class="chip" type="button" data-skill-filter="Laundry">Laundry</button>
+                <button class="chip" type="button" data-skill-filter="Personal Admin">Personal Admin</button>
+                <button class="chip" type="button" data-skill-filter="Health">Health</button>
+                <button class="chip" type="button" data-skill-filter="Home Basics">Home Basics</button>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Skills</h2>
+                <span class="badge badge--neutral" id="skillsCountBadge">—</span>
+              </div>
+
+              <ul class="list" id="skillsList"></ul>
+              <p class="muted muted--pad" id="skillsEmpty" hidden>No skills yet — add one above.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="view" id="view-groceries" data-view-root="groceries">
+  <div class="page__header">
+    <h2 class="page__title">Groceries</h2>
+    <div class="page__actions">
+      <button class="ghost-btn" type="button" id="btnGroceriesClearBought">Clear bought</button>
+      <button class="ghost-btn" type="button" id="btnGroceriesReset">Reset</button>
+    </div>
+  </div>
+
+  <!-- Weekly card (optional but nice) -->
+  <div class="card">
+    <div class="card__header">
+      <div>
+        <div class="card__title">This Week</div>
+        <div class="muted" id="groceriesWeekMeta">0 items • £0 budget</div>
+      </div>
+      <span class="badge badge--neutral" id="groceriesWeekBadge">—</span>
+    </div>
+
+    <div class="card__body grid2">
+      <label class="field">
+        <span class="field__label">Shop</span>
+        <select id="groceriesShop">
+          <option value="Tesco">Tesco</option>
+          <option value="Sainsbury's">Sainsbury's</option>
+          <option value="Aldi">Aldi</option>
+          <option value="Lidl">Lidl</option>
+          <option value="Asda">Asda</option>
+          <option value="Morrisons">Morrisons</option>
+          <option value="Other">Other</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Budget (£)</span>
+        <input id="groceriesBudget" inputmode="decimal" placeholder="e.g. 40" />
+      </label>
+    </div>
+  </div>
+
+  <!-- Add item -->
+  <div class="card">
+    <div class="card__header">
+      <div class="card__title">Add item</div>
+      <span class="badge badge--neutral" id="groceriesActiveCount">0</span>
+    </div>
+
+    <div class="card__body">
+      <div class="add-row">
+        <input id="groceriesName" placeholder="Add grocery item…" autocomplete="off" />
+        <select id="groceriesCategory">
+          <option>Fruit & Veg</option>
+          <option>Meat</option>
+          <option>Fish</option>
+          <option>Dairy</option>
+          <option>Freezer</option>
+          <option>Cupboard</option>
+          <option>Snacks</option>
+          <option>Drinks</option>
+          <option>Household</option>
+          <option>Pet</option>
+          <option>Other</option>
+        </select>
+        <button class="primary-btn" type="button" id="btnGroceriesAdd">Add</button>
+      </div>
+
+      <div class="filters-row">
+        <div class="chip-group" id="groceriesFilters">
+          <button class="chip is-active" type="button" data-filter="All">All</button>
+          <button class="chip" type="button" data-filter="Fruit & Veg">Fruit & Veg</button>
+          <button class="chip" type="button" data-filter="Meat">Meat</button>
+          <button class="chip" type="button" data-filter="Fish">Fish</button>
+          <button class="chip" type="button" data-filter="Dairy">Dairy</button>
+          <button class="chip" type="button" data-filter="Household">Household</button>
+          <button class="chip" type="button" data-filter="Pet">Pet</button>
+        </div>
+
+        <select id="groceriesSort" class="mini-select">
+          <option value="recent">Sort: Recent</option>
+          <option value="alpha">Sort: A–Z</option>
+          <option value="category">Sort: Category</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active list -->
+  <div class="card">
+    <div class="card__header">
+      <div class="card__title">Shopping list</div>
+      <span class="badge badge--neutral" id="groceriesListBadge">0</span>
+    </div>
+    <div class="card__body">
+      <ul class="list" id="groceriesList"></ul>
+      <div class="empty muted" id="groceriesEmpty" hidden>No items yet. Add your first one above.</div>
+    </div>
+  </div>
+
+  <!-- Bought list -->
+  <div class="card">
+    <div class="card__header">
+      <div class="card__title">Bought this trip</div>
+      <span class="badge badge--neutral" id="groceriesBoughtBadge">0</span>
+    </div>
+    <div class="card__body">
+      <ul class="list" id="groceriesBoughtList"></ul>
+      <div class="empty muted" id="groceriesBoughtEmpty" hidden>No bought items yet.</div>
+    </div>
+  </div>
+</div>
+
+
+        <!-- VIEW: MONEY -->
+        <div class="view" id="view-money" data-view-root="money">
+          <article class="card" style="margin-bottom:14px;">
+            <div class="card__header">
+              <h2 class="card__title">Monthly Overview</h2>
+              <span class="badge badge--neutral" id="moneyMonthBadge">Current</span>
+            </div>
+
+            <div class="money-toolbar">
+              <div class="money-toolbar__left">
+                <div class="money-month">
+                  <label for="moneyMonth">Month</label>
+                  <select id="moneyMonth" aria-label="Choose month"></select>
+                </div>
+
+                <button class="ghost-btn ghost-btn--sm" type="button" id="btnMoneySetIncome">
+                  <span aria-hidden="true">✍️</span> Set income
+                </button>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-end;">
+                <button class="mini-btn" type="button" id="btnMoneyQuickAddTx">+ Transaction</button>
+              </div>
+            </div>
+
+            <div class="money-kpis" id="moneyKpis">
+              <div class="money-kpi">
+                <div class="money-kpi__label">Income</div>
+                <div class="money-kpi__value" id="kpiIncome">£0</div>
+              </div>
+              <div class="money-kpi">
+                <div class="money-kpi__label">Budgeted</div>
+                <div class="money-kpi__value" id="kpiBudgeted">£0</div>
+              </div>
+              <div class="money-kpi">
+                <div class="money-kpi__label">Spent</div>
+                <div class="money-kpi__value" id="kpiSpent">£0</div>
+              </div>
+              <div class="money-kpi">
+                <div class="money-kpi__label">Net remaining</div>
+                <div class="money-kpi__value" id="kpiRemaining">£0</div>
+              </div>
+            </div>
+
+            <div class="forecast" id="moneyForecastWrap" hidden>
+              <p class="forecast__title">Forecast</p>
+              <p class="forecast__text" id="moneyForecastText">
+                If you add <strong>£X/month</strong>, you’ll hit your target by <strong>—</strong>.
+              </p>
+            </div>
+          </article>
+
+          <div class="grid grid--panels">
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Future Funds</h2>
+                <span class="badge badge--neutral" id="fundsBadge">—</span>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-end;">
+                <button class="mini-btn" type="button" id="btnMoneyAddFund">+ Add fund</button>
+              </div>
+
+              <ul class="list" id="fundsList"></ul>
+              <p class="muted muted--pad" id="fundsEmpty" hidden>
+                No funds yet. Add your first one like “House Deposit” or “Emergency”.
+              </p>
+            </article>
+
+            <article class="card">
+              <div class="card__header">
+                <h2 class="card__title">Budgets</h2>
+                <span class="badge badge--neutral" id="budgetsBadge">—</span>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-end;">
+                <button class="mini-btn" type="button" id="btnMoneyAddBudget">+ Add budget</button>
+              </div>
+
+              <ul class="list" id="budgetsList"></ul>
+              <p class="muted muted--pad" id="budgetsEmpty" hidden>
+                No budgets yet. Start with “Food”, “Travel”, “Subscriptions”.
+              </p>
+            </article>
+          </div>
+
+          <article class="card" style="margin-top:14px;">
+            <div class="card__header">
+              <h2 class="card__title">Transactions</h2>
+              <span class="badge badge--neutral" id="txBadge">—</span>
+            </div>
+
+            <div class="tx-filters">
+              <div class="select">
+                <select id="txMonthFilter" aria-label="Filter transactions by month"></select>
+              </div>
+              <div class="select">
+                <select id="txCategoryFilter" aria-label="Filter transactions by category">
+                  <option value="all" selected>All categories</option>
+                </select>
+              </div>
+
+              <div class="row-actions" style="margin-left:auto;">
+                <button class="mini-btn" type="button" id="btnTxAdd">+ Add transaction</button>
+              </div>
+            </div>
+
+            <table class="table" aria-label="Transactions table">
+              <thead>
+                <tr>
+                  <th style="width:120px;">Date</th>
+                  <th style="width:160px;">Category</th>
+                  <th>Note</th>
+                  <th style="width:120px;">Amount</th>
+                  <th style="width:140px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="txTbody"></tbody>
+            </table>
+
+            <p class="muted muted--pad" id="txEmpty" hidden>
+              No transactions yet. Add one and budgets will update “spent” automatically.
+            </p>
+          </article>
+        </div>
+
+        <!-- VIEW: SETTINGS -->
+        <div class="view" id="view-settings" data-view-root="settings">
+          <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
+            <article class="card" style="padding:12px;">
+              <div class="card__header">
+                <h2 class="card__title">Settings</h2>
+                <span class="badge badge--neutral">Preferences</span>
+              </div>
+
+              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px;">
+                <label class="toggle">
+                  <input id="setCalmDefault" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Calm Mode by default</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setSimplifyUI" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Simplify UI (reduced overwhelm)</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setAnimations" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Animations</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setReducedMotion" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Reduced motion</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setHighContrast" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">High contrast</span>
+                </label>
+
+                <label class="toggle">
+                  <input id="setPrivacyMode" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Privacy mode (blur amounts)</span>
+                </label>
+              </div>
+
+              <hr class="sep" />
+
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Notifications</h3>
+                <span class="badge badge--neutral">Gentle nudges</span>
+              </div>
+
+              <div class="notif-settings">
+                <div>
+                  <div class="muted" style="margin-bottom:6px;">Reminder level</div>
+                  <div class="segment" role="tablist" aria-label="Notification level">
+                    <button class="seg-btn is-active" type="button" data-notif-level="off" id="notifLevelOff">Off</button>
+                    <button class="seg-btn" type="button" data-notif-level="urgent" id="notifLevelUrgent">Only urgent</button>
+                    <button class="seg-btn" type="button" data-notif-level="all" id="notifLevelAll">All due soon</button>
+                  </div>
+                  <p class="muted muted--pad" style="margin-top:6px;">
+                    Calm Mode reduces notifications automatically. Max 1 per day unless urgent.
+                  </p>
+                </div>
+
+                <div class="quiet-hours">
+                  <label class="field" style="min-width:160px;">
+                    <span class="field__label">Quiet from</span>
+                    <input class="field__control" id="setQuietFrom" type="time" />
+                  </label>
+                  <label class="field" style="min-width:160px;">
+                    <span class="field__label">Quiet to</span>
+                    <input class="field__control" id="setQuietTo" type="time" />
+                  </label>
+
+                  <label class="toggle" style="margin-left:auto;">
+                    <input id="setNotifications" type="checkbox" />
+                    <span class="toggle__box" aria-hidden="true"></span>
+                    <span class="toggle__label">Enable notifications</span>
+                  </label>
+                </div>
+
+                <div class="card" style="padding:12px;">
+                  <div class="card__header">
+                    <h3 class="card__title">Notification Status</h3>
+                    <span class="badge badge--neutral" id="notifPermissionBadge">Unknown</span>
+                  </div>
+
+                  <p class="muted muted--pad" id="notifPermissionMsg">
+                    Notifications are optional. You can enable them for gentle reminders only.
+                  </p>
+
+                  <div class="row-actions" style="justify-content:flex-start; gap:10px; flex-wrap:wrap;">
+                    <button class="mini-btn" type="button" id="btnRequestNotifPermission">Enable browser notifications</button>
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnTestNotification">Send test</button>
+                    <button class="ghost-btn ghost-btn--sm" type="button" id="btnPreviewBundle">Preview bundle</button>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Privacy & Safety</h3>
+                <span class="badge badge--warn">Important</span>
+              </div>
+
+              <div class="grid" style="grid-template-columns: 1fr; gap:12px;">
+                <div class="warn-card">
+                  <p class="warn-card__title">Important Info rules</p>
+                  <p class="warn-card__text">
+                    Don’t store bank details, passwords, or card numbers anywhere in Life Admin.
+                    Use the Vault for non-secret reference numbers only.
+                  </p>
+                </div>
+
+                <div class="warn-card">
+                  <p class="warn-card__title">Vault passphrase</p>
+                  <p class="warn-card__text">
+                    Your passphrase is never stored and can’t be recovered. If you forget it, the vault stays locked.
+                  </p>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Vault Auto-Lock</h3>
+                <span class="badge badge--neutral">Optional</span>
+              </div>
+
+              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px;">
+                <label class="toggle">
+                  <input id="setVaultAutoLock" type="checkbox" />
+                  <span class="toggle__box" aria-hidden="true"></span>
+                  <span class="toggle__label">Auto-lock vault after idle</span>
+                </label>
+
+                <label class="field">
+                  <span class="field__label">Idle minutes</span>
+                  <input class="field__control" id="setVaultAutoLockMins" type="number" min="1" step="1" placeholder="e.g., 5" />
+                </label>
+
+                <div class="row-actions" style="justify-content:flex-start;">
+                  <button class="mini-btn" type="button" id="btnVaultLockFromSettings">Lock vault now</button>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Cloud Sync (Multi-Device)</h3>
+                <span class="badge badge--neutral" id="cloudBadge">Local-only</span>
+              </div>
+
+              <div class="card" style="padding:12px;">
+                <div class="sync-row">
+                  <div class="sync-status is-off" id="syncStatus">
+                    <span class="dot dot--red" id="syncDot" aria-hidden="true"></span>
+                    <span id="syncText">Sync off</span>
+                  </div>
+
+                  <label class="toggle">
+                    <input id="setCloudSync" type="checkbox" />
+                    <span class="toggle__box" aria-hidden="true"></span>
+                    <span class="toggle__label">Enable cloud sync</span>
+                  </label>
+                </div>
+
+                <div class="row-actions" style="justify-content:flex-start; margin-top:10px; gap:10px; flex-wrap:wrap;">
+                  <button class="mini-btn" type="button" id="btnSignInGoogle">Sign in with Google</button>
+                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnSignOut" disabled>Sign out</button>
+                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnSyncNow" disabled>Sync now</button>
+                </div>
+
+                <p class="muted muted--pad">
+                  Vault is stored as an encrypted blob only. Conflicts: most recently updated wins.
+                </p>
+
+                <div class="row-actions" style="justify-content:flex-start;">
+                  <span class="conflict-badge" id="conflictBadge" hidden>Conflict detected</span>
+                </div>
+              </div>
+
+              <hr class="sep" />
+
+              <div class="card__header" style="margin-top:4px;">
+                <h3 class="card__title">Data</h3>
+                <span class="badge badge--neutral">Backup</span>
+              </div>
+
+              <div class="row-actions" style="justify-content:flex-start; gap:10px; flex-wrap:wrap;">
+                <button class="mini-btn" type="button" id="btnBackupAll">Backup all data</button>
+                <button class="mini-btn" type="button" id="btnRestoreAll">Restore backup</button>
+                <button class="ghost-btn ghost-btn--sm" type="button" id="btnResetAll">Reset all data</button>
+              </div>
+
+              <div class="card" style="padding:12px; margin-top:12px;">
+                <div class="card__header">
+                  <h3 class="card__title">Backup History</h3>
+                  <span class="badge badge--neutral" id="backupHistoryBadge">0</span>
+                </div>
+
+                <div class="money-summary" id="backupStatusSummary"></div>
+
+                <div class="row-actions" style="justify-content:flex-start; gap:10px; flex-wrap:wrap; margin-top:10px;">
+                  <button class="mini-btn" type="button" id="btnRunAutoBackupNow">Run auto-backup now</button>
+                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnClearBackupHistory">Clear history</button>
+                </div>
+
+                <ul class="list" id="backupHistoryList" style="margin-top:10px;"></ul>
+                <p class="muted muted--pad" id="backupHistoryEmpty" hidden>
+                  No backups yet. Auto-backups will appear here once the app has changes.
+                </p>
+
+                <p class="muted muted--pad">
+                  Backups are snapshots of <strong>Admin, Home, Skills, Money</strong>. Old backups auto-delete after the limit.
+                </p>
+              </div>
+
+              <div class="card" style="padding:12px; margin-top:12px;">
+                <div class="card__header">
+                  <h3 class="card__title">Data Integrity</h3>
+                  <span class="badge badge--ok" id="integrityBadge">OK</span>
+                </div>
+
+                <p class="muted muted--pad" id="integrityMessage">
+                  Your data looks healthy.
+                </p>
+
+                <div class="row-actions" style="justify-content:flex-start; gap:10px; flex-wrap:wrap;">
+                  <button class="mini-btn" type="button" id="btnRunIntegrityCheck">Run check</button>
+                  <button class="ghost-btn ghost-btn--sm" type="button" id="btnAttemptRecovery" hidden>Restore last backup</button>
+                </div>
+              </div>
+
+              <p class="muted muted--pad">
+                Tip: “Backup all data” exports everything. Restore merges safely where possible.
+              </p>
+            </article>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Hidden file input used by imports -->
+  <input id="fileImport" type="file" accept="application/json" hidden />
+  
+  <!-- Modals remain unchanged (as per your original) -->
+  <!-- Modal: Future Home Add/Edit Item -->
+  <div class="modal" id="homeItemModal" aria-hidden="true">
+    <div class="modal__backdrop"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="homeItemModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="homeItemModalTitle">Add item</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseHomeItemModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="homeItemForm" class="form" autocomplete="off">
+        <input type="hidden" name="kind" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Item name</span>
+            <input class="field__control" name="name" placeholder="e.g., Desk chair" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Estimated cost (£)</span>
+            <input class="field__control" name="cost" type="number" min="0" step="1" placeholder="e.g., 180" />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Priority</span>
+            <select class="field__control" name="priority" required>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Planned?</span>
+            <input type="checkbox" name="planned" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Owned?</span>
+            <input type="checkbox" name="owned" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Next to buy?</span>
+            <input type="checkbox" name="nextToBuy" />
+          </label>
+        </div>
+
+        <div class="form__row" style="grid-template-columns: 1fr;">
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input class="field__control" name="notes" placeholder="e.g., ergonomic, mesh back" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelHomeItemModal">Cancel</button>
+          <button class="primary-btn" type="submit">Save item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Tools -->
+  <div class="modal" id="toolsModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close-tools="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="toolsTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="toolsTitle">Tools</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseTools" aria-label="Close">✕</button>
+      </div>
+
+      <div class="form">
+        <div class="grid grid--panels" style="grid-template-columns: 1fr; gap:12px;">
+          <article class="card" style="padding:12px;">
+            <div class="card__header">
+              <h3 class="card__title">Backup & Restore</h3>
+              <span class="badge badge--neutral">JSON</span>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-start; gap:10px;">
+              <button class="mini-btn" type="button" id="btnExportAll">Export everything</button>
+              <button class="mini-btn" type="button" id="btnImportAll">Import everything</button>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-start; gap:10px; margin-top:10px; flex-wrap:wrap;">
+              <button class="mini-btn" type="button" id="btnExportAdmin">Export Life Admin</button>
+              <button class="mini-btn" type="button" id="btnExportHome">Export Future Home</button>
+              <button class="mini-btn" type="button" id="btnExportSkills">Export Life Skills</button>
+              <button class="mini-btn" type="button" id="btnExportMoney">Export Money</button>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-start; gap:10px; margin-top:10px; flex-wrap:wrap;">
+              <button class="mini-btn" type="button" id="btnImportAdmin">Import Life Admin</button>
+              <button class="mini-btn" type="button" id="btnImportHome">Import Future Home</button>
+              <button class="mini-btn" type="button" id="btnImportSkills">Import Life Skills</button>
+              <button class="mini-btn" type="button" id="btnImportMoney">Import Money</button>
+            </div>
+
+            <p class="muted muted--pad">
+              Tip: “Export everything” is your full backup. Section exports are handy if you want to move just one module..
+            </p>
+          </article>
+
+          <article class="card" style="padding:12px;">
+            <div class="card__header">
+              <h3 class="card__title">Future Home Templates</h3>
+              <span class="badge badge--neutral">Bulk add</span>
+            </div>
+
+            <div class="form__row" style="grid-template-columns: 1fr 200px;">
+              <label class="field">
+                <span class="field__label">Room</span>
+                <select class="field__control" id="selTemplateRoom">
+                  <option value="bedroom">Bedroom</option>
+                  <option value="kitchen">Kitchen</option>
+                  <option value="living">Living Room</option>
+                  <option value="bathroom">Bathroom</option>
+                  <option value="office">Office</option>
+                  <option value="utility">Storage/Utility</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Template</span>
+                <select class="field__control" id="selHomeTemplate">
+                  <option value="starter">Starter pack</option>
+                  <option value="fullEssentials">Full essentials</option>
+                  <option value="extrasBoost">Extras boost</option>
+                  <option value="workFromHome">Work-from-home upgrade</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="row-actions" style="justify-content:flex-end;">
+              <button class="primary-btn" type="button" id="btnApplyHomeTemplate">Apply to room</button>
+            </div>
+
+            <p class="muted muted--pad">
+              This adds missing items only (no duplicates). Nothing is deleted.
+            </p>
+          </article>
+
+          <article class="card" style="padding:12px;">
+            <div class="card__header">
+              <h3 class="card__title">Global Home Budget</h3>
+              <span class="badge badge--ok" id="badgeGlobalBudget">—</span>
+            </div>
+
+            <div class="money-summary" id="globalBudgetSummary"></div>
+
+            <div class="row-actions" style="justify-content:flex-end;">
+              <button class="ghost-btn ghost-btn--sm" type="button" id="btnRecalcBudget">Recalculate</button>
+            </div>
+
+            <p class="muted muted--pad">
+              This totals all room items (essentials + extras) using the costs you set.
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Money Fund Add/Edit -->
+  <div class="modal" id="fundModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="fundModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="fundModalTitle">Add Fund</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseFundModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="fundForm" class="form" autocomplete="off">
+        <input type="hidden" name="id" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Fund name</span>
+            <input class="field__control" name="name" placeholder="e.g., Emergency Fund" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Priority</span>
+            <select class="field__control" name="priority" required>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Target (£)</span>
+            <input class="field__control" name="target" type="number" min="0" step="0.01" placeholder="e.g., 5000" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Current (£)</span>
+            <input class="field__control" name="current" type="number" min="0" step="0.01" placeholder="e.g., 1200" />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Target date (optional)</span>
+            <input class="field__control" name="targetDate" type="date" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Monthly goal (£)</span>
+            <input class="field__control" name="monthlyGoal" type="number" min="0" step="0.01" placeholder="e.g., 150" />
+          </label>
+        </div>
+
+        <div class="form__row" style="grid-template-columns: 1fr;">
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input class="field__control" name="notes" placeholder="e.g., keep 3–6 months buffer" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelFund">Cancel</button>
+          <button class="primary-btn" type="submit">Save fund</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Money Budget Add/Edit -->
+  <div class="modal" id="budgetModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="budgetModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="budgetModalTitle">Add Budget</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseBudgetModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="budgetForm" class="form" autocomplete="off">
+        <input type="hidden" name="id" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Category</span>
+            <input class="field__control" name="name" placeholder="e.g., Food" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Monthly limit (£)</span>
+            <input class="field__control" name="limit" type="number" min="0" step="0.01" placeholder="e.g., 350" required />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Spent so far (£)</span>
+            <input class="field__control" name="spent" type="number" min="0" step="0.01" placeholder="e.g., 120" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Notes (optional)</span>
+            <input class="field__control" name="notes" placeholder="e.g., includes takeaways" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelBudget">Cancel</button>
+          <button class="primary-btn" type="submit">Save budget</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <!-- Modal: Money Transaction Add/Edit -->
+  <div class="modal" id="txModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="txModalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="txModalTitle">Add Transaction</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseTxModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="txForm" class="form" autocomplete="off">
+        <input type="hidden" name="id" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Date</span>
+            <input class="field__control" name="date" type="date" required />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Category</span>
+            <input class="field__control" name="category" placeholder="e.g., Food" required />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Amount (£)</span>
+            <input class="field__control" name="amount" type="number" step="0.01" required />
+            <span class="muted muted--small">Use positive for spending. (Optional: negative for income/returns)</span>
+          </label>
+        </div>
+
+        <div class="form__row" style="grid-template-columns: 1fr;">
+          <label class="field">
+            <span class="field__label">Note (optional)</span>
+            <input class="field__control" name="note" placeholder="e.g., Tesco shop" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelTx">Cancel</button>
+          <button class="primary-btn" type="submit">Save transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Modal: Life Admin Add/Edit -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="modalTitle">Add Life Admin Item</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseModal" aria-label="Close">✕</button>
+      </div>
+
+      <form id="itemForm" class="form" autocomplete="off">
+        <input type="hidden" name="id" />
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Category</span>
+            <select class="field__control" name="category" required>
+              <option value="renewal">Renewals &amp; Deadlines</option>
+              <option value="account">Accounts &amp; Services</option>
+              <option value="info">Important Info</option>
+              <option value="vehicle">Vehicle</option>
+              <option value="money">Money &amp; Future Fund</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Name</span>
+            <input class="field__control" name="name" placeholder="e.g., Car insurance" required />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Due date (optional)</span>
+            <input class="field__control" type="date" name="dueDate" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Provider / Notes (optional)</span>
+            <input class="field__control" name="details" placeholder="e.g., Admiral • auto-renew off" />
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Reminder style</span>
+            <select class="field__control" name="reminderProfile" required>
+              <option value="gentle">Gentle (default)</option>
+              <option value="careful">Careful (more time)</option>
+              <option value="tight">Tight (closer reminders)</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Priority</span>
+            <select class="field__control" name="priority" required>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form__row">
+          <label class="field">
+            <span class="field__label">Recurrence</span>
+            <select class="field__control" name="recurrence">
+              <option value="none">None</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+              <option value="custom">Custom (days)</option>
+            </select>
+          </label>
+
+          <label class="field" id="customDaysWrap" style="display:none;">
+            <span class="field__label">Custom days</span>
+            <input class="field__control" name="customDays" type="number" min="1" placeholder="e.g., 90" />
+          </label>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancel">Cancel</button>
+          <button class="primary-btn" type="submit">Save item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Restore Modal -->
+  <div class="modal" id="confirmRestoreModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close-confirm-restore="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="confirmRestoreTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="confirmRestoreTitle">Restore backup?</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseConfirmRestore" aria-label="Close">✕</button>
+      </div>
+
+      <div class="form">
+        <p class="muted muted--pad" id="confirmRestoreMessage">
+          This will replace your current data with the selected backup snapshot.
+        </p>
+
+        <div class="pill" style="margin:10px 0;">
+          <span class="dot dot--green" aria-hidden="true"></span>
+          <span id="confirmRestoreMeta">Backup: —</span>
+        </div>
+
+        <div class="form__actions">
+          <button class="ghost-btn" type="button" id="btnCancelConfirmRestore">Cancel</button>
+          <button class="primary-btn" type="button" id="btnConfirmRestoreNow">Restore</button>
+        </div>
+
+        <label class="toggle" style="margin-top:10px;">
+          <input id="chkPreRestoreSafetyBackup" type="checkbox" checked />
+          <span class="toggle__box" aria-hidden="true"></span>
+          <span class="toggle__label">Create safety backup first</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recovery Prompt Modal -->
+  <div class="modal" id="recoveryModal" aria-hidden="true">
+    <div class="modal__backdrop" data-close-recovery="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="recoveryTitle">
+      <div class="modal__header">
+        <h2 class="modal__title" id="recoveryTitle">We found a data issue</h2>
+        <button class="icon-btn icon-btn--sm" type="button" id="btnCloseRecovery" aria-label="Close">✕</button>
+      </div>
+
+      <div class="form">
+        <p class="muted muted--pad" id="recoveryMessage">
+          Some saved data looks malformed or incomplete. You can restore the most recent backup, or reset safely.
+        </p>
+
+        <div class="row-actions" style="justify-content:flex-end; gap:10px; flex-wrap:wrap;">
+          <button class="ghost-btn" type="button" id="btnRecoveryResetSafe">Reset safely</button>
+          <button class="mini-btn" type="button" id="btnRecoveryRestoreLast">Restore last backup</button>
+        </div>
+
+        <p class="muted muted--small">
+          Your app will always try to keep running — this just keeps it reliable.
+        </p>
+      </div>
+    </div>
+  </div>
+
+ 
+  <!-- Firebase bridge first -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCi3R-VbBnPXEHnpuOL19WmsKl-_Ptjuys",
+      authDomain: "lifeadminkc.firebaseapp.com",
+      projectId: "lifeadminkc",
+      storageBucket: "lifeadminkc.firebasestorage.app",
+      messagingSenderId: "1053092215166",
+      appId: "1:1053092215166:web:854daa5ba6140badbbdb2f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    // Bridge for your existing non-module script.js
+    window.__firebase = {
+      auth, db, provider,
+      signInWithPopup, signOut, onAuthStateChanged,
+      doc, getDoc, setDoc, serverTimestamp
+    };
+  </script>
+
+  <!-- Then your app logic -->
+  <script src="script.js" defer></script>
+  <script src="features-settings.js" defer></script>
+  <script src="features-dashboard.js" defer></script>
+  <script src="features-wins.js" defer></script>
+  <script src="features-groceries.js" defer></script>
+
+  <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
