@@ -137,17 +137,12 @@ async function pullNow() {
       const remoteAppStore = app.normaliseStore(data.appStore);
       app.saveStore(remoteAppStore);
     } else {
-      // fallback for older documents
       const remoteAppStore = app.normaliseStore(data);
       app.saveStore(remoteAppStore);
     }
 
     if (data.moneyStore) {
       localStorage.setItem("lifeadmin_money_v1", JSON.stringify(data.moneyStore));
-    }
-
-    if (cloudStatus) {
-      cloudStatus.textContent = `Last pulled OK • ${currentUser.email || "Google user"}`;
     }
 
     alert("Pulled from cloud.");
