@@ -4,227 +4,149 @@
   const fb = window.__firebase;
   const app = window.lifeAdminApp;
 
-  if (!fb || !app) {
-    console.warn("Cloud sync not started: Firebase bridge or app bridge missing.");
-    return;
-  }
+  if (!fb || !app) return;
 
   let currentUser = null;
-  let cloudSyncEnabled = localStorage.getItem("lifeAdmin.cloudSyncEnabled") === "true";
-  let unsubscribeSnapshot = null;
-  let isApplyingRemoteState = false;
 
-  const els = {
-    btnLogin: document.getElementById("btnLogin"),
-    btnLogout: document.getElementById("btnLogout"),
-    btnPull: document.getElementById("btnPull"),
-    btnPush: document.getElementById("btnPush"),
-    cloudStatus: document.getElementById("cloudStatus"),
+  const btnLogin = document.getElementById("btnLogin");
+  const btnLogout = document.getElementById("btnLogout");
+  const btnPush = document.getElementById("btnPush");
+  const btnPull = document.getElementById("btnPull");
+  const cloudStatus = document.getElementById("cloudStatus");
 
-    setCloudSync: document.getElementById("setCloudSync"),
-    btnSignInGoogle: document.getElementById("btnSignInGoogle"),
-    btnSignOut: document.getElementById("btnSignOut"),
-    btnSyncNow: document.getElementById("btnSyncNow"),
-    cloudBadge: document.getElementById("cloudBadge"),
-    syncText: document.getElementById("syncText"),
-    syncDot: document.getElementById("syncDot"),
-    syncStatus: document.getElementById("syncStatus")
-  };
+  const setCloudSync = document.getElementById("setCloudSync");
+  const btnSignInGoogle = document.getElementById("btnSignInGoogle");
+  const btnSignOut = document.getElementById("btnSignOut");
+  const btnSyncNow = document.getElementById("btnSyncNow");
+  const cloudBadge = document.getElementById("cloudBadge");
+  const syncText = document.getElementById("syncText");
+  const syncDot = document.getElementById("syncDot");
+  const syncStatus = document.getElementById("syncStatus");
 
-  function getDocRef(uid) {
+  function docRef(uid) {
     return fb.doc(fb.db, "users", uid, "lifeAdmin", "main");
   }
 
   function updateUi() {
     const signedIn = !!currentUser;
-    const active = signedIn && cloudSyncEnabled;
 
-    if (els.btnLogin) els.btnLogin.hidden = signedIn;
-    if (els.btnLogout) els.btnLogout.hidden = !signedIn;
-    if (els.btnPull) els.btnPull.hidden = !signedIn;
-    if (els.btnPush) els.btnPush.hidden = !signedIn;
+    if (btnLogin) btnLogin.hidden = signedIn;
+    if (btnLogout) btnLogout.hidden = !signedIn;
+    if (btnPush) btnPush.hidden = !signedIn;
+    if (btnPull) btnPull.hidden = !signedIn;
 
-    if (els.btnSignInGoogle) els.btnSignInGoogle.disabled = signedIn;
-    if (els.btnSignOut) els.btnSignOut.disabled = !signedIn;
-    if (els.btnSyncNow) els.btnSyncNow.disabled = !active;
-    if (els.setCloudSync) els.setCloudSync.checked = cloudSyncEnabled;
+    if (btnSignInGoogle) btnSignInGoogle.disabled = signedIn;
+    if (btnSignOut) btnSignOut.disabled = !signedIn;
+    if (btnSyncNow) btnSyncNow.disabled = !signedIn;
+
+    if (setCloudSync) setCloudSync.checked = signedIn;
 
     if (!signedIn) {
-      if (els.cloudStatus) els.cloudStatus.textContent = "Not signed in";
-      if (els.cloudBadge) els.cloudBadge.textContent = "Local-only";
-      if (els.syncText) els.syncText.textContent = "Sync off";
-      if (els.syncDot) els.syncDot.className = "dot dot--red";
-      if (els.syncStatus) els.syncStatus.className = "sync-status is-off";
+      if (cloudStatus) cloudStatus.textContent = "Not signed in";
+      if (cloudBadge) cloudBadge.textContent = "Local-only";
+      if (syncText) syncText.textContent = "Sync off";
+      if (syncDot) syncDot.className = "dot dot--red";
+      if (syncStatus) syncStatus.className = "sync-status is-off";
       return;
     }
 
-    if (!cloudSyncEnabled) {
-      if (els.cloudStatus) els.cloudStatus.textContent = `Signed in as ${currentUser.email || currentUser.displayName || "Google user"}`;
-      if (els.cloudBadge) els.cloudBadge.textContent = "Signed in";
-      if (els.syncText) els.syncText.textContent = "Sync off";
-      if (els.syncDot) els.syncDot.className = "dot dot--red";
-      if (els.syncStatus) els.syncStatus.className = "sync-status is-off";
-      return;
-    }
-
-    if (els.cloudStatus) els.cloudStatus.textContent = `Syncing as ${currentUser.email || currentUser.displayName || "Google user"}`;
-    if (els.cloudBadge) els.cloudBadge.textContent = "Cloud sync on";
-    if (els.syncText) els.syncText.textContent = "Sync on";
-    if (els.syncDot) els.syncDot.className = "dot dot--green";
-    if (els.syncStatus) els.syncStatus.className = "sync-status is-on";
+    if (cloudStatus) cloudStatus.textContent = `Signed in as ${currentUser.email || "Google user"}`;
+    if (cloudBadge) cloudBadge.textContent = "Cloud sync on";
+    if (syncText) syncText.textContent = "Sync on";
+    if (syncDot) syncDot.className = "dot dot--green";
+    if (syncStatus) syncStatus.className = "sync-status is-on";
   }
 
-  async function signInToCloud() {
+  async function signInNow() {
     try {
-      await fb.signInWithPopup(fb.auth, fb.provider);
+      const result = await fb.signInWithPopup(fb.auth, fb.provider);
+      currentUser = result.user;
+      updateUi();
+      await pushNow();
     } catch (err) {
-      console.error("Google sign-in failed:", err);
-      alert("Google sign-in failed.");
+      alert("Sign in failed: " + (err?.message || "unknown"));
     }
   }
 
-  async function signOutFromCloud() {
+  async function signOutNow() {
     try {
-      stopRealtimeSync();
       await fb.signOut(fb.auth);
+      currentUser = null;
+      updateUi();
     } catch (err) {
-      console.error("Sign out failed:", err);
-      alert("Sign out failed.");
+      alert("Sign out failed: " + (err?.message || "unknown"));
     }
   }
 
-  async function pullFromCloud() {
-    if (!currentUser) return;
-
-    try {
-      const snap = await fb.getDoc(getDocRef(currentUser.uid));
-
-      if (snap.exists()) {
-        const remote = app.normaliseStore(snap.data());
-        isApplyingRemoteState = true;
-        app.saveStore(remote);
-        app.rerenderAll();
-        isApplyingRemoteState = false;
-      } else {
-        await pushToCloud();
-      }
-    } catch (err) {
-      console.error("Cloud pull failed:", err);
-      alert("Could not load cloud data from Firebase.");
+  async function pushNow() {
+    if (!currentUser) {
+      alert("Please sign in first.");
+      return;
     }
-  }
-
-  async function pushToCloud() {
-    if (!currentUser || !cloudSyncEnabled || isApplyingRemoteState) return;
 
     try {
       const store = app.normaliseStore(app.loadStore());
-      const payload = {
-        ...store,
-        cloudMeta: {
-          updatedAt: Date.now(),
-          updatedBy: currentUser.uid,
-          email: currentUser.email || ""
+      await fb.setDoc(
+        docRef(currentUser.uid),
+        {
+          ...store,
+          cloudMeta: {
+            updatedAt: Date.now(),
+            updatedBy: currentUser.uid,
+            email: currentUser.email || ""
+          },
+          firestoreUpdatedAt: fb.serverTimestamp()
         },
-        firestoreUpdatedAt: fb.serverTimestamp()
-      };
-
-      await fb.setDoc(getDocRef(currentUser.uid), payload, { merge: true });
+        { merge: true }
+      );
     } catch (err) {
-      console.error("Cloud push failed:", err);
+      alert("Push failed: " + (err?.message || "unknown"));
     }
   }
 
-  function stopRealtimeSync() {
-    if (unsubscribeSnapshot) {
-      unsubscribeSnapshot();
-      unsubscribeSnapshot = null;
+  async function pullNow() {
+    if (!currentUser) {
+      alert("Please sign in first.");
+      return;
+    }
+
+    try {
+      const snap = await fb.getDoc(docRef(currentUser.uid));
+      if (!snap.exists()) {
+        alert("No cloud data found yet.");
+        return;
+      }
+
+      const remote = app.normaliseStore(snap.data());
+      app.saveStore(remote);
+      app.rerenderAll();
+    } catch (err) {
+      alert("Pull failed: " + (err?.message || "unknown"));
     }
   }
 
-  function startRealtimeSync() {
-    if (!currentUser || !cloudSyncEnabled) return;
+  fb.onAuthStateChanged(fb.auth, (user) => {
+    currentUser = user || null;
+    updateUi();
+  });
 
-    stopRealtimeSync();
+  btnLogin?.addEventListener("click", signInNow);
+  btnLogout?.addEventListener("click", signOutNow);
+  btnSignInGoogle?.addEventListener("click", signInNow);
+  btnSignOut?.addEventListener("click", signOutNow);
+  btnPush?.addEventListener("click", pushNow);
+  btnPull?.addEventListener("click", pullNow);
+  btnSyncNow?.addEventListener("click", pushNow);
 
-    unsubscribeSnapshot = fb.onSnapshot(
-      getDocRef(currentUser.uid),
-      (snap) => {
-        if (!snap.exists()) return;
+  setCloudSync?.addEventListener("change", async (e) => {
+    if (e.target.checked && !currentUser) {
+      await signInNow();
+    }
+  });
 
-        const remote = app.normaliseStore(snap.data());
-        const remoteTs = Number(remote?.cloudMeta?.updatedAt || 0);
-        const local = app.normaliseStore(app.loadStore());
-        const localTs = Number(local?.cloudMeta?.updatedAt || 0);
+  window.addEventListener("lifeadmin:datachanged", () => {
+    if (currentUser) pushNow();
+  });
 
-        if (remoteTs <= localTs) return;
-
-        isApplyingRemoteState = true;
-        app.saveStore(remote);
-        app.rerenderAll();
-        isApplyingRemoteState = false;
-      },
-      (err) => {
-        console.error("Realtime sync listener failed:", err);
-      }
-    );
-  }
-
-  function initButtons() {
-    els.btnLogin?.addEventListener("click", signInToCloud);
-    els.btnLogout?.addEventListener("click", signOutFromCloud);
-    els.btnSignInGoogle?.addEventListener("click", signInToCloud);
-    els.btnSignOut?.addEventListener("click", signOutFromCloud);
-    els.btnPull?.addEventListener("click", pullFromCloud);
-    els.btnPush?.addEventListener("click", pushToCloud);
-    els.btnSyncNow?.addEventListener("click", pushToCloud);
-
-    els.setCloudSync?.addEventListener("change", async (e) => {
-      cloudSyncEnabled = !!e.target.checked;
-      localStorage.setItem("lifeAdmin.cloudSyncEnabled", String(cloudSyncEnabled));
-
-      if (!cloudSyncEnabled) {
-        stopRealtimeSync();
-        updateUi();
-        return;
-      }
-
-      if (!currentUser) {
-        await signInToCloud();
-        return;
-      }
-
-      await pullFromCloud();
-      startRealtimeSync();
-      updateUi();
-    });
-  }
-
-  function initAutoPush() {
-    window.addEventListener("lifeadmin:datachanged", () => {
-      pushToCloud();
-    });
-  }
-
-  function initAuth() {
-    fb.onAuthStateChanged(fb.auth, async (user) => {
-      currentUser = user || null;
-      updateUi();
-
-      if (!currentUser) {
-        stopRealtimeSync();
-        return;
-      }
-
-      if (cloudSyncEnabled) {
-        await pullFromCloud();
-        startRealtimeSync();
-      }
-    });
-  }
-
-  initButtons();
-  initAutoPush();
-  initAuth();
   updateUi();
 })();
