@@ -62,7 +62,7 @@
       const result = await fb.signInWithPopup(fb.auth, fb.provider);
       currentUser = result.user;
       updateUi();
-      await pushNow();
+      await pullNow();
     } catch (err) {
       alert("Sign in failed: " + (err?.message || "unknown"));
     }
@@ -99,6 +99,7 @@
         },
         { merge: true }
       );
+      if (cloudStatus) cloudStatus.textContent = `Last pushed OK • ${currentUser.email || "Google user"}`;
     } catch (err) {
       alert("Push failed: " + (err?.message || "unknown"));
     }
@@ -120,6 +121,9 @@
       const remote = app.normaliseStore(snap.data());
       app.saveStore(remote);
       app.rerenderAll();
+
+      if (cloudStatus) cloudStatus.textContent = `Last pulled OK • ${currentUser.email || "Google user"}`;
+      alert("Pulled from cloud.");
     } catch (err) {
       alert("Pull failed: " + (err?.message || "unknown"));
     }
@@ -136,7 +140,7 @@
   btnSignOut?.addEventListener("click", signOutNow);
   btnPush?.addEventListener("click", pushNow);
   btnPull?.addEventListener("click", pullNow);
-  btnSyncNow?.addEventListener("click", pushNow);
+  btnSyncNow?.addEventListener("click", pullNow);
 
   setCloudSync?.addEventListener("change", async (e) => {
     if (e.target.checked && !currentUser) {
