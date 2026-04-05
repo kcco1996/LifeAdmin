@@ -78,56 +78,84 @@
     }
   }
 
-  async function pushNow() {
-    if (!currentUser) {
-      alert("Please sign in first.");
-      return;
+async function pushNow() {
+  if (!currentUser) {
+    alert("Please sign in first.");
+    return;
+  }
+
+  try {
+    const appStore = app.normaliseStore(app.loadStore());
+
+    let moneyStore = null;
+    try {
+      const raw = localStorage.getItem("lifeadmin_money_v1");
+      moneyStore = raw ? JSON.parse(raw) : null;
+    } catch {
+      moneyStore = null;
     }
 
-    try {
-      const store = app.normaliseStore(app.loadStore());
-      await fb.setDoc(
-        docRef(currentUser.uid),
-        {
-          ...store,
-          cloudMeta: {
-            updatedAt: Date.now(),
-            updatedBy: currentUser.uid,
-            email: currentUser.email || ""
-          },
-          firestoreUpdatedAt: fb.serverTimestamp()
+    await fb.setDoc(
+      docRef(currentUser.uid),
+      {
+        appStore,
+        moneyStore,
+        cloudMeta: {
+          updatedAt: Date.now(),
+          updatedBy: currentUser.uid,
+          email: currentUser.email || ""
         },
-        { merge: true }
-      );
-      if (cloudStatus) cloudStatus.textContent = `Last pushed OK • ${currentUser.email || "Google user"}`;
-    } catch (err) {
-      alert("Push failed: " + (err?.message || "unknown"));
+        firestoreUpdatedAt: fb.serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    if (cloudStatus) {
+      cloudStatus.textContent = `Last pushed OK • ${currentUser.email || "Google user"}`;
     }
+  } catch (err) {
+    alert("Push failed: " + (err?.message || "unknown"));
+  }
+}
+
+async function pullNow() {
+  if (!currentUser) {
+    alert("Please sign in first.");
+    return;
   }
 
-  async function pullNow() {
-    if (!currentUser) {
-      alert("Please sign in first.");
+  try {
+    const snap = await fb.getDoc(docRef(currentUser.uid));
+    if (!snap.exists()) {
+      alert("No cloud data found yet.");
       return;
     }
 
-    try {
-      const snap = await fb.getDoc(docRef(currentUser.uid));
-      if (!snap.exists()) {
-        alert("No cloud data found yet.");
-        return;
-      }
+    const data = snap.data();
 
-      const remote = app.normaliseStore(snap.data());
-      app.saveStore(remote);
-      app.rerenderAll();
-
-      if (cloudStatus) cloudStatus.textContent = `Last pulled OK • ${currentUser.email || "Google user"}`;
-      alert("Pulled from cloud.");
-    } catch (err) {
-      alert("Pull failed: " + (err?.message || "unknown"));
+    if (data.appStore) {
+      const remoteAppStore = app.normaliseStore(data.appStore);
+      app.saveStore(remoteAppStore);
+    } else {
+      // fallback for older documents
+      const remoteAppStore = app.normaliseStore(data);
+      app.saveStore(remoteAppStore);
     }
+
+    if (data.moneyStore) {
+      localStorage.setItem("lifeadmin_money_v1", JSON.stringify(data.moneyStore));
+    }
+
+    if (cloudStatus) {
+      cloudStatus.textContent = `Last pulled OK • ${currentUser.email || "Google user"}`;
+    }
+
+    alert("Pulled from cloud.");
+    location.reload();
+  } catch (err) {
+    alert("Pull failed: " + (err?.message || "unknown"));
   }
+}
 
   fb.onAuthStateChanged(fb.auth, (user) => {
     currentUser = user || null;
