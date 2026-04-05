@@ -144,7 +144,7 @@
 
   setCloudSync?.addEventListener("change", async (e) => {
     if (e.target.checked && !currentUser) {
-      await signInNow();
+      await pullNow ();
     }
   });
 
