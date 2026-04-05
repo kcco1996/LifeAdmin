@@ -1540,7 +1540,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCi3R-VbBnPXEHnpuOL19WmsKl-_Ptjuys",
@@ -1557,19 +1557,20 @@
     const provider = new GoogleAuthProvider();
 
     // Bridge for your existing non-module script.js
-    window.__firebase = {
-      auth, db, provider,
-      signInWithPopup, signOut, onAuthStateChanged,
-      doc, getDoc, setDoc, serverTimestamp
-    };
+window.__firebase = {
+  auth, db, provider,
+  signInWithPopup, signOut, onAuthStateChanged,
+  doc, getDoc, setDoc, serverTimestamp, onSnapshot
+};
   </script>
 
   <!-- Then your app logic -->
-  <script src="script.js" defer></script>
-  <script src="features-settings.js" defer></script>
-  <script src="features-dashboard.js" defer></script>
-  <script src="features-wins.js" defer></script>
-  <script src="features-groceries.js" defer></script>
+ <script src="script.js" defer></script>
+<script src="features-settings.js" defer></script>
+<script src="features-dashboard.js" defer></script>
+<script src="features-wins.js" defer></script>
+<script src="features-groceries.js" defer></script>
+<script src="features-cloud-sync.js" defer></script>
 
   <div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
 </body>

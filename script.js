@@ -556,9 +556,11 @@ nextToBuy: false,
   // =========================
   // STORE LOAD/SAVE + MIGRATION
   // =========================
-  function saveStore(store) {
-    localStorage.setItem(LS_STORE_KEY, JSON.stringify(store));
-  }
+function saveStore(store) {
+  const safeStore = normaliseStore(store);
+  localStorage.setItem(LS_STORE_KEY, JSON.stringify(safeStore));
+  window.dispatchEvent(new Event("lifeadmin:datachanged"));
+}
 
   function loadStore() {
     const raw = localStorage.getItem(LS_STORE_KEY);
@@ -3184,7 +3186,7 @@ skillsSearch?.addEventListener("input", () => renderSkills());
   // GLOBAL SEARCH (Admin + Home + Skills)
   // =========================
   const globalSearch = document.getElementById("globalSearch");
-  const globalResults = document.getElementById("globalResults");
+const globalResults = document.getElementById("globalSearchResults");
 
   function setGlobalResultsOpen(open) {
     if (!globalResults) return;
@@ -3350,7 +3352,7 @@ skillsSearch?.addEventListener("input", () => renderSkills());
   // EXPORT / IMPORT (JSON)
   // =========================
   const btnExport = document.getElementById("btnExport");
-  const btnImportJson = document.getElementById("btnImportJson");
+ const btnImportJson = document.getElementById("btnImport");
   const fileImport = document.getElementById("fileImport");
 
   function downloadJSON(filename, obj) {
@@ -3549,102 +3551,6 @@ skillsSearch?.addEventListener("input", () => renderSkills());
     toast("Sample data added");
   });
 
-  // =========================
-  // CLOUD SYNC (Firebase) — single-store (LS_STORE_KEY)
-  // Requires window.__firebase = { auth, db, provider, doc, getDoc, setDoc, onAuthStateChanged, signInWithPopup, signOut, serverTimestamp }
-  // =========================
-  const btnLogin = document.getElementById("btnLogin");
-  const btnLogout = document.getElementById("btnLogout");
-  const btnPull = document.getElementById("btnPull");
-  const btnPush = document.getElementById("btnPush");
-  const cloudStatus = document.getElementById("cloudStatus");
-
-  let fbUser = null;
-
-  function cloudDocRef(uid) {
-    const f = window.__firebase;
-    return f.doc(f.db, "users", uid, "apps", "life-admin");
-  }
-
-  function setCloudUI(signedIn) {
-    if (btnLogin) btnLogin.hidden = signedIn;
-    if (btnLogout) btnLogout.hidden = !signedIn;
-    if (btnPull) btnPull.hidden = !signedIn;
-    if (btnPush) btnPush.hidden = !signedIn;
-
-    if (cloudStatus) {
-      cloudStatus.textContent = signedIn
-        ? `Cloud: signed in • ${fbUser?.email || "account"}`
-        : "Cloud: not signed in";
-    }
-  }
-
-  async function cloudPull() {
-    if (!fbUser) return alert("Please sign in first.");
-    const f = window.__firebase;
-
-    const snap = await f.getDoc(cloudDocRef(fbUser.uid));
-    if (!snap.exists()) return alert("No cloud data yet. Push once to create it.");
-
-    const data = snap.data();
-    if (!data?.store) return alert("Cloud data exists but has no store payload.");
-
-    const store = normaliseStore(data.store);
-    saveStore(store);
-
-    applyDefaultUIFromSettings();
-    applyMoneyVisibilityFromSettings();
-    renderAdmin();
-    renderHome();
-    renderSkills();
-
-    alert("Pulled from cloud.");
-  }
-
-  async function cloudPush() {
-    if (!fbUser) return alert("Please sign in first.");
-    const f = window.__firebase;
-
-    const store = loadStore();
-    await f.setDoc(
-      cloudDocRef(fbUser.uid),
-      { updatedAt: f.serverTimestamp(), appVersion: "1.0", store },
-      { merge: true }
-    );
-
-    alert("Pushed to cloud.");
-  }
-
-  function initFirebaseAuth() {
-    const f = window.__firebase;
-    if (!f) return;
-
-    f.onAuthStateChanged(f.auth, (user) => {
-      fbUser = user || null;
-      setCloudUI(!!fbUser);
-    });
-
-    btnLogin?.addEventListener("click", async () => {
-      try {
-        await f.signInWithPopup(f.auth, f.provider);
-      } catch (err) {
-        alert("Sign-in failed: " + (err?.message || "unknown"));
-      }
-    });
-
-    btnLogout?.addEventListener("click", async () => {
-      try {
-        await f.signOut(f.auth);
-      } catch (err) {
-        alert("Sign-out failed: " + (err?.message || "unknown"));
-      }
-    });
-
-    btnPull?.addEventListener("click", () => cloudPull().catch((e) => alert(e?.message || e)));
-    btnPush?.addEventListener("click", () => cloudPush().catch((e) => alert(e?.message || e)));
-
-    setCloudUI(false);
-  }
   /* =========================
    MONEY MODULE (LocalStorage)
    ========================= */
@@ -4321,11 +4227,32 @@ function repairSkillsStructure() {
   renderSkills();   // ...
   renderNextSteps(store.lifeAdmin.items);
 
-  initFirebaseAuth();
-
   toast("Ready");
 }
 
+  // =========================
+  // APP BRIDGE FOR CLOUD SYNC
+  // =========================
+  window.lifeAdminApp = {
+    loadStore,
+    saveStore,
+    normaliseStore,
+    defaultStore,
+    renderAdmin,
+    renderHome,
+    renderSkills,
+    renderMoney,
+    renderGroceries: typeof renderGroceries === "function" ? renderGroceries : () => {},
+    renderSettings,
+    rerenderAll() {
+      try { renderAdmin(); } catch {}
+      try { renderHome(); } catch {}
+      try { renderSkills(); } catch {}
+      try { renderMoney(); } catch {}
+      try { if (typeof renderGroceries === "function") renderGroceries(); } catch {}
+      try { renderSettings(); } catch {}
+    }
+  };
 
   boot();
 
