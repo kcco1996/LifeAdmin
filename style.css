@@ -2165,3 +2165,25 @@ html.simplify-ui .muted { opacity: 0.9; }
   font-size: 0.95rem;
   line-height: 1.3;
 }
+
+.meal-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.meal-day-card {
+  min-height: 100%;
+}
+
+.meal-day-fields {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 980px) {
+  .meal-plan-grid {
+    grid-template-columns: 1fr;
+  }
+}

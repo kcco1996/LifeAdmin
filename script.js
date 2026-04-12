@@ -15,6 +15,20 @@
     home: document.getElementById("view-home"),
     skills: document.getElementById("view-skills"),
     money: document.getElementById("view-money"),
+    meals: {
+  version: 1,
+  selectedPreset: "",
+  weekLabel: "",
+  days: {
+    Monday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Tuesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Wednesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Thursday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Friday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Saturday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Sunday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+  },
+},
     groceries: document.getElementById("view-groceries"),
     settings: document.getElementById("view-settings"),
   };
@@ -29,6 +43,7 @@
     home: { title: "Future Home", subtitle: "Plan furniture essentials first, then extras when you're ready." },
     skills: { title: "Life Skills", subtitle: "Everyday living skills with progress you can actually see." },
     money: { title: "Money", subtitle: "Future funds, budgets, and simple tracking that stays calm." },
+    meals: { title: "Meal Planning",subtitle: "Plan breakfast, lunch, dinner and dessert for the week."},
     groceries: { title: "Groceries", subtitle: "Build a weekly shopping list and tick items off." },
     settings: { title: "Settings", subtitle: "Preferences, notifications, backups, and data health." },
   };
@@ -51,6 +66,7 @@
       if (v === "skills") { try { renderSkills(); } catch {} }
       if (v === "admin") { try { renderAdmin(); } catch {} }
       if (v === "money") { try { renderMoney(); } catch {} }
+       if (v === "meals") { try { renderMeals(); } catch {} }
       if (v === "groceries") { try { renderGroceries(); } catch {} }
       if (v === "settings") { try { renderSettings(); } catch {} }
     })
@@ -290,6 +306,8 @@ nextToBuy: false,
         paydayISO: null,
       },
 
+      meals: defaultMealPlan(),
+
          // ✅ Monthly Wins (events log)
     wins: {
       events: [], // { ts, type, label, delta }
@@ -306,6 +324,22 @@ nextToBuy: false,
       },
     };
   }
+
+
+  function defaultMealPlan() {
+  return {
+    weekStartISO: toISODate(startOfToday()),
+    days: {
+      monday:    { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      tuesday:   { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      wednesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      thursday:  { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      friday:    { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      saturday:  { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      sunday:    { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    }
+  };
+}
 
   // =========================
   // NORMALISERS
@@ -552,6 +586,68 @@ nextToBuy: false,
 
     return base;
   }
+
+  function getMeals() {
+  const store = loadStore();
+  if (!store.meals) {
+    store.meals = defaultMealPlan();
+    saveStore(store);
+  }
+  return store.meals;
+}
+
+function saveMeals(meals) {
+  const store = loadStore();
+  store.meals = meals;
+  saveStore(store);
+}
+
+function renderMeals() {
+  const meals = getMeals();
+
+  const wrap = document.getElementById("mealsGrid");
+  if (!wrap) return;
+
+  const dayOrder = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
+
+  wrap.innerHTML = dayOrder.map((day) => {
+    const d = meals.days[day] || { breakfast: "", lunch: "", dinner: "", dessert: "" };
+
+    return `
+      <article class="card meal-card">
+        <h3 class="meal-card__title">${day.charAt(0).toUpperCase() + day.slice(1)}</h3>
+
+        <label class="field">
+          <span>Breakfast</span>
+          <input type="text" data-meal-day="${day}" data-meal-type="breakfast" value="${escapeHtml(d.breakfast)}">
+        </label>
+
+        <label class="field">
+          <span>Lunch</span>
+          <input type="text" data-meal-day="${day}" data-meal-type="lunch" value="${escapeHtml(d.lunch)}">
+        </label>
+
+        <label class="field">
+          <span>Dinner</span>
+          <input type="text" data-meal-day="${day}" data-meal-type="dinner" value="${escapeHtml(d.dinner)}">
+        </label>
+
+        <label class="field">
+          <span>Dessert</span>
+          <input type="text" data-meal-day="${day}" data-meal-type="dessert" value="${escapeHtml(d.dessert)}">
+        </label>
+      </article>
+    `;
+  }).join("");
+}
 
   // =========================
   // STORE LOAD/SAVE + MIGRATION
@@ -3305,6 +3401,21 @@ const globalResults = document.getElementById("globalSearchResults");
     if (!inside) setGlobalResultsOpen(false);
   });
 
+  document.addEventListener("input", (e) => {
+  const input = e.target.closest("[data-meal-day][data-meal-type]");
+  if (!input) return;
+
+  const day = input.getAttribute("data-meal-day");
+  const type = input.getAttribute("data-meal-type");
+  if (!day || !type) return;
+
+  const meals = getMeals();
+  if (!meals.days[day]) return;
+
+  meals.days[day][type] = input.value;
+  saveMeals(meals);
+});
+
   globalResults?.addEventListener("click", (e) => {
     const row = e.target.closest("button[data-gs-type]");
     if (!row) return;
@@ -4224,6 +4335,7 @@ function repairSkillsStructure() {
 
   renderAdmin();
   renderHome();
+  renderMeals();
   renderSkills();   // ...
   renderNextSteps(store.lifeAdmin.items);
 
@@ -4233,26 +4345,28 @@ function repairSkillsStructure() {
   // =========================
   // APP BRIDGE FOR CLOUD SYNC
   // =========================
-  window.lifeAdminApp = {
-    loadStore,
-    saveStore,
-    normaliseStore,
-    defaultStore,
-    renderAdmin,
-    renderHome,
-    renderSkills,
-    renderMoney,
-    renderGroceries: typeof renderGroceries === "function" ? renderGroceries : () => {},
-    renderSettings,
-    rerenderAll() {
-      try { renderAdmin(); } catch {}
-      try { renderHome(); } catch {}
-      try { renderSkills(); } catch {}
-      try { renderMoney(); } catch {}
-      try { if (typeof renderGroceries === "function") renderGroceries(); } catch {}
-      try { renderSettings(); } catch {}
-    }
-  };
+window.lifeAdminApp = {
+  loadStore,
+  saveStore,
+  normaliseStore,
+  defaultStore,
+  renderAdmin,
+  renderHome,
+  renderSkills,
+  renderMoney,
+  renderMeals,
+  renderGroceries: typeof renderGroceries === "function" ? renderGroceries : () => {},
+  renderSettings,
+  rerenderAll() {
+    try { renderAdmin(); } catch {}
+    try { renderHome(); } catch {}
+    try { renderSkills(); } catch {}
+    try { renderMoney(); } catch {}
+    try { renderMeals(); } catch {}
+    try { if (typeof renderGroceries === "function") renderGroceries(); } catch {}
+    try { renderSettings(); } catch {}
+  }
+};
 
   boot();
 

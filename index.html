@@ -64,6 +64,11 @@
   <span class="nav__label">Groceries</span>
 </button>
 
+<button class="nav__item" data-view="meals" type="button">
+  <span class="nav__icon" aria-hidden="true">🍽️</span>
+  <span class="nav__label">Meal Planning</span>
+</button>
+
         <button class="nav__item" data-view="money" type="button">
           <span class="nav__icon" aria-hidden="true">💷</span>
           <span class="nav__label">Money</span>
@@ -686,6 +691,224 @@
   </div>
 </div>
 
+<!-- VIEW: MEAL PLANNING -->
+<div class="view" id="view-meals" data-view-root="meals">
+  <div class="page__header">
+    <h2 class="page__title">Meal Planning</h2>
+    <div class="page__actions">
+      <button class="ghost-btn" type="button" id="btnMealPlanApplyPreset">Apply preset</button>
+      <button class="ghost-btn" type="button" id="btnMealPlanClear">Clear week</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__header">
+      <div>
+        <div class="card__title">Preset Week</div>
+        <div class="muted">Fill the whole week instantly, then edit anything you want.</div>
+      </div>
+      <span class="badge badge--neutral" id="mealPlanPresetBadge">Preset</span>
+    </div>
+
+    <div class="card__body grid2">
+      <label class="field">
+        <span class="field__label">Cuisine week</span>
+        <select id="mealPlanPresetSelect">
+          <option value="">Choose a preset…</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Week label (optional)</span>
+        <input id="mealPlanWeekName" placeholder="e.g. Italian Week" />
+      </label>
+    </div>
+  </div>
+
+  <div class="meal-plan-grid" id="mealPlanGrid">
+    <!-- Monday -->
+    <div class="card meal-day-card" data-day="Monday">
+      <div class="card__header">
+        <div class="card__title">Monday</div>
+        <span class="badge badge--neutral">Day 1</span>
+      </div>
+      <div class="card__body meal-day-fields">
+        <label class="field">
+          <span class="field__label">Breakfast</span>
+          <input class="meal-input" data-day="Monday" data-meal="breakfast" placeholder="Breakfast..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Lunch</span>
+          <input class="meal-input" data-day="Monday" data-meal="lunch" placeholder="Lunch..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dinner</span>
+          <input class="meal-input" data-day="Monday" data-meal="dinner" placeholder="Dinner..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dessert</span>
+          <input class="meal-input" data-day="Monday" data-meal="dessert" placeholder="Dessert..." />
+        </label>
+      </div>
+    </div>
+
+    <!-- Tuesday -->
+    <div class="card meal-day-card" data-day="Tuesday">
+      <div class="card__header">
+        <div class="card__title">Tuesday</div>
+        <span class="badge badge--neutral">Day 2</span>
+      </div>
+      <div class="card__body meal-day-fields">
+        <label class="field">
+          <span class="field__label">Breakfast</span>
+          <input class="meal-input" data-day="Tuesday" data-meal="breakfast" placeholder="Breakfast..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Lunch</span>
+          <input class="meal-input" data-day="Tuesday" data-meal="lunch" placeholder="Lunch..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dinner</span>
+          <input class="meal-input" data-day="Tuesday" data-meal="dinner" placeholder="Dinner..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dessert</span>
+          <input class="meal-input" data-day="Tuesday" data-meal="dessert" placeholder="Dessert..." />
+        </label>
+      </div>
+    </div>
+
+    <!-- Wednesday -->
+    <div class="card meal-day-card" data-day="Wednesday">
+      <div class="card__header">
+        <div class="card__title">Wednesday</div>
+        <span class="badge badge--neutral">Day 3</span>
+      </div>
+      <div class="card__body meal-day-fields">
+        <label class="field">
+          <span class="field__label">Breakfast</span>
+          <input class="meal-input" data-day="Wednesday" data-meal="breakfast" placeholder="Breakfast..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Lunch</span>
+          <input class="meal-input" data-day="Wednesday" data-meal="lunch" placeholder="Lunch..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dinner</span>
+          <input class="meal-input" data-day="Wednesday" data-meal="dinner" placeholder="Dinner..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dessert</span>
+          <input class="meal-input" data-day="Wednesday" data-meal="dessert" placeholder="Dessert..." />
+        </label>
+      </div>
+    </div>
+
+    <!-- Thursday -->
+    <div class="card meal-day-card" data-day="Thursday">
+      <div class="card__header">
+        <div class="card__title">Thursday</div>
+        <span class="badge badge--neutral">Day 4</span>
+      </div>
+      <div class="card__body meal-day-fields">
+        <label class="field">
+          <span class="field__label">Breakfast</span>
+          <input class="meal-input" data-day="Thursday" data-meal="breakfast" placeholder="Breakfast..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Lunch</span>
+          <input class="meal-input" data-day="Thursday" data-meal="lunch" placeholder="Lunch..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dinner</span>
+          <input class="meal-input" data-day="Thursday" data-meal="dinner" placeholder="Dinner..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dessert</span>
+          <input class="meal-input" data-day="Thursday" data-meal="dessert" placeholder="Dessert..." />
+        </label>
+      </div>
+    </div>
+
+    <!-- Friday -->
+    <div class="card meal-day-card" data-day="Friday">
+      <div class="card__header">
+        <div class="card__title">Friday</div>
+        <span class="badge badge--neutral">Day 5</span>
+      </div>
+      <div class="card__body meal-day-fields">
+        <label class="field">
+          <span class="field__label">Breakfast</span>
+          <input class="meal-input" data-day="Friday" data-meal="breakfast" placeholder="Breakfast..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Lunch</span>
+          <input class="meal-input" data-day="Friday" data-meal="lunch" placeholder="Lunch..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dinner</span>
+          <input class="meal-input" data-day="Friday" data-meal="dinner" placeholder="Dinner..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dessert</span>
+          <input class="meal-input" data-day="Friday" data-meal="dessert" placeholder="Dessert..." />
+        </label>
+      </div>
+    </div>
+
+    <!-- Saturday -->
+    <div class="card meal-day-card" data-day="Saturday">
+      <div class="card__header">
+        <div class="card__title">Saturday</div>
+        <span class="badge badge--neutral">Day 6</span>
+      </div>
+      <div class="card__body meal-day-fields">
+        <label class="field">
+          <span class="field__label">Breakfast</span>
+          <input class="meal-input" data-day="Saturday" data-meal="breakfast" placeholder="Breakfast..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Lunch</span>
+          <input class="meal-input" data-day="Saturday" data-meal="lunch" placeholder="Lunch..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dinner</span>
+          <input class="meal-input" data-day="Saturday" data-meal="dinner" placeholder="Dinner..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dessert</span>
+          <input class="meal-input" data-day="Saturday" data-meal="dessert" placeholder="Dessert..." />
+        </label>
+      </div>
+    </div>
+
+    <!-- Sunday -->
+    <div class="card meal-day-card" data-day="Sunday">
+      <div class="card__header">
+        <div class="card__title">Sunday</div>
+        <span class="badge badge--neutral">Day 7</span>
+      </div>
+      <div class="card__body meal-day-fields">
+        <label class="field">
+          <span class="field__label">Breakfast</span>
+          <input class="meal-input" data-day="Sunday" data-meal="breakfast" placeholder="Breakfast..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Lunch</span>
+          <input class="meal-input" data-day="Sunday" data-meal="lunch" placeholder="Lunch..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dinner</span>
+          <input class="meal-input" data-day="Sunday" data-meal="dinner" placeholder="Dinner..." />
+        </label>
+        <label class="field">
+          <span class="field__label">Dessert</span>
+          <input class="meal-input" data-day="Sunday" data-meal="dessert" placeholder="Dessert..." />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
 
         <!-- VIEW: MONEY -->
         <div class="view" id="view-money" data-view-root="money">
@@ -1565,7 +1788,8 @@ window.__firebase = {
   </script>
 
   <!-- Then your app logic -->
- <script src="script.js" defer></script>
+<script src="features-meals.js" defer></script>
+<script src="script.js" defer></script>
 <script src="features-settings.js" defer></script>
 <script src="features-dashboard.js" defer></script>
 <script src="features-wins.js" defer></script>
