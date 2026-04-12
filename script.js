@@ -50,7 +50,11 @@
 
   function setActiveView(viewKey) {
     navButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.view === viewKey));
-    Object.keys(views).forEach((k) => views[k]?.classList.toggle("is-visible", k === viewKey));
+Object.keys(views).forEach((k) => {
+  if (views[k]) {
+    views[k].classList.toggle("is-visible", k === viewKey);
+  }
+});
     if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
     if (pageSubtitle) pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
     sidebar?.classList.remove("is-open");
