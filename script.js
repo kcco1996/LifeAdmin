@@ -15,20 +15,7 @@
     home: document.getElementById("view-home"),
     skills: document.getElementById("view-skills"),
     money: document.getElementById("view-money"),
-    meals: {
-  version: 1,
-  selectedPreset: "",
-  weekLabel: "",
-  days: {
-    Monday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
-    Tuesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
-    Wednesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
-    Thursday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
-    Friday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
-    Saturday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
-    Sunday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
-  },
-},
+meals: document.getElementById("view-meals"),
     groceries: document.getElementById("view-groceries"),
     settings: document.getElementById("view-settings"),
   };
@@ -48,17 +35,21 @@
     settings: { title: "Settings", subtitle: "Preferences, notifications, backups, and data health." },
   };
 
-  function setActiveView(viewKey) {
-    navButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.view === viewKey));
-Object.keys(views).forEach((k) => {
-  if (views[k]) {
-    views[k].classList.toggle("is-visible", k === viewKey);
-  }
-});
-    if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
-    if (pageSubtitle) pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
-    sidebar?.classList.remove("is-open");
-  }
+function setActiveView(viewKey) {
+  navButtons.forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.view === viewKey);
+  });
+
+  Object.keys(views).forEach((k) => {
+    const el = views[k];
+    if (!el) return;
+    el.classList.toggle("is-visible", k === viewKey);
+  });
+
+  if (pageTitle) pageTitle.textContent = viewMeta[viewKey]?.title ?? "Life Admin";
+  if (pageSubtitle) pageSubtitle.textContent = viewMeta[viewKey]?.subtitle ?? "";
+  sidebar?.classList.remove("is-open");
+}
 
   navButtons.forEach((btn) =>
     btn.addEventListener("click", () => {
@@ -310,7 +301,20 @@ nextToBuy: false,
         paydayISO: null,
       },
 
-      meals: defaultMealPlan(),
+    meals: {
+  version: 1,
+  selectedPreset: "",
+  weekLabel: "",
+  days: {
+    Monday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Tuesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Wednesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Thursday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Friday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Saturday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    Sunday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+  },
+},
 
          // ✅ Monthly Wins (events log)
     wins: {
@@ -423,6 +427,41 @@ nextToBuy: false,
 
     return out;
   }
+
+  function normaliseMeals(m) {
+  const out = {
+    version: 1,
+    selectedPreset: "",
+    weekLabel: "",
+    days: {
+      Monday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      Tuesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      Wednesday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      Thursday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      Friday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      Saturday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+      Sunday: { breakfast: "", lunch: "", dinner: "", dessert: "" },
+    }
+  };
+
+  if (!m || typeof m !== "object") return out;
+
+  out.selectedPreset = String(m.selectedPreset ?? "");
+  out.weekLabel = String(m.weekLabel ?? "");
+
+  const days = m.days && typeof m.days === "object" ? m.days : {};
+  for (const day of Object.keys(out.days)) {
+    const src = days[day] && typeof days[day] === "object" ? days[day] : {};
+    out.days[day] = {
+      breakfast: String(src.breakfast ?? ""),
+      lunch: String(src.lunch ?? ""),
+      dinner: String(src.dinner ?? ""),
+      dessert: String(src.dessert ?? ""),
+    };
+  }
+
+  return out;
+}
 
   function normaliseWins(w) {
   const out = { events: [], version: 1 };
@@ -582,11 +621,12 @@ nextToBuy: false,
           : null,
     };
 
-    base.settings = normaliseSettings(s?.settings);
-    base.wins = normaliseWins(s?.wins);
-    base.home.rooms = normaliseHomeRooms(s?.home?.rooms ?? base.home.rooms);
-    base.skills.categories = s?.skills?.categories ?? base.skills.categories;
-    base.version = 2;
+base.settings = normaliseSettings(s?.settings);
+base.wins = normaliseWins(s?.wins);
+base.meals = normaliseMeals(s?.meals);
+base.home.rooms = normaliseHomeRooms(s?.home?.rooms ?? base.home.rooms);
+base.skills.categories = s?.skills?.categories ?? base.skills.categories;
+base.version = 2;
 
     return base;
   }
