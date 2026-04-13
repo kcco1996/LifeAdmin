@@ -2349,29 +2349,54 @@ function calcRoomProgress(room) {
   };
 }
 
-  function renderHomeStats() {
-    if (!homeStats) return;
-    const rooms = getHomeRooms();
-    const o = calcOverallHomeStats(rooms);
+function calcOverallHomeStats(rooms) {
+  const keys = Object.keys(rooms || {});
+  let eTotal = 0, xTotal = 0, eOwned = 0, xOwned = 0, eCost = 0, xCost = 0;
 
-    homeStats.innerHTML = `
-      <article class="card card--stat">
-        <div class="card__label">Essentials planned</div>
-        <div class="card__value">${o.ePlanned}/${o.eTotal} (${o.ePct}%)</div>
-        <div class="card__hint">Estimated essentials: ${escapeHtml(fmtMoney(o.eCost))}</div>
-      </article>
-      <article class="card card--stat">
-        <div class="card__label">Extras planned</div>
-        <div class="card__value">${o.xPlanned}/${o.xTotal} (${o.xPct}%)</div>
-        <div class="card__hint">Estimated extras: ${escapeHtml(fmtMoney(o.xCost))}</div>
-      </article>
-      <article class="card card--stat">
-        <div class="card__label">Total estimate</div>
-        <div class="card__value">${escapeHtml(fmtMoney(o.eCost + o.xCost))}</div>
-        <div class="card__hint">Based on item costs you’ve entered.</div>
-      </article>
-    `;
+  for (const k of keys) {
+    const r = rooms[k];
+    const p = calcRoomProgress(r);
+
+    eTotal += p.eTotal;
+    xTotal += p.xTotal;
+    eOwned += p.eOwned;
+    xOwned += p.xOwned;
+    eCost += p.eCost;
+    xCost += p.xCost;
   }
+
+  const ePct = eTotal ? Math.round((eOwned / eTotal) * 100) : 0;
+  const xPct = xTotal ? Math.round((xOwned / xTotal) * 100) : 0;
+
+  return { eTotal, xTotal, eOwned, xOwned, eCost, xCost, ePct, xPct };
+}
+
+  function renderHomeStats() {
+  if (!homeStats) return;
+
+  const rooms = getHomeRooms();
+  const o = calcOverallHomeStats(rooms);
+
+  homeStats.innerHTML = `
+    <article class="card card--stat">
+      <div class="card__label">Essentials owned</div>
+      <div class="card__value">${o.eOwned}/${o.eTotal} (${o.ePct}%)</div>
+      <div class="card__hint">Estimated essentials: ${escapeHtml(fmtMoney(o.eCost))}</div>
+    </article>
+
+    <article class="card card--stat">
+      <div class="card__label">Extras owned</div>
+      <div class="card__value">${o.xOwned}/${o.xTotal} (${o.xPct}%)</div>
+      <div class="card__hint">Estimated extras: ${escapeHtml(fmtMoney(o.xCost))}</div>
+    </article>
+
+    <article class="card card--stat">
+      <div class="card__label">Total estimate</div>
+      <div class="card__value">${escapeHtml(fmtMoney(o.eCost + o.xCost))}</div>
+      <div class="card__hint">Based on item costs you’ve entered.</div>
+    </article>
+  `;
+}
 
   function renderRoomsGrid() {
     if (!roomsGrid) return;
