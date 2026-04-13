@@ -2311,39 +2311,43 @@ const homeShoppingBadge = document.getElementById("homeShoppingBadge");
     return { essentials, extras };
   }
 
-  function calcRoomProgress(room) {
-    const { essentials, extras } = roomItems(room);
-    const eTotal = essentials.length || 0;
-    const xTotal = extras.length || 0;
+function calcRoomProgress(room) {
+  const { essentials, extras } = roomItems(room);
 
-    const ePlanned = essentials.filter((i) => !!i.planned).length;
-    const xPlanned = extras.filter((i) => !!i.planned).length;
+  const eTotal = essentials.length || 0;
+  const xTotal = extras.length || 0;
 
-    const eCost = essentials.reduce((a, i) => a + Number(i.cost || 0), 0);
-    const xCost = extras.reduce((a, i) => a + Number(i.cost || 0), 0);
+  const ePlanned = essentials.filter((i) => !!i.planned).length;
+  const xPlanned = extras.filter((i) => !!i.planned).length;
 
-    const ePct = eTotal ? Math.round((ePlanned / eTotal) * 100) : 0;
-    const xPct = xTotal ? Math.round((xPlanned / xTotal) * 100) : 0;
-    const completionPct = (eTotal + xTotal) ? Math.round(((ePlanned + xPlanned) / (eTotal + xTotal)) * 100) : 0;
+  const eOwned = essentials.filter((i) => !!i.owned).length;
+  const xOwned = extras.filter((i) => !!i.owned).length;
 
+  const eCost = essentials.reduce((a, i) => a + Number(i.cost || 0), 0);
+  const xCost = extras.reduce((a, i) => a + Number(i.cost || 0), 0);
 
-    return { eTotal, xTotal, ePlanned, xPlanned, eCost, xCost, ePct, xPct, completionPct };
-  }
+  const ePct = eTotal ? Math.round((eOwned / eTotal) * 100) : 0;
+  const xPct = xTotal ? Math.round((xOwned / xTotal) * 100) : 0;
 
-  function calcOverallHomeStats(rooms) {
-    const keys = Object.keys(rooms || {});
-    let eTotal = 0, xTotal = 0, ePlanned = 0, xPlanned = 0, eCost = 0, xCost = 0;
+  const completionPct =
+    (eTotal + xTotal)
+      ? Math.round(((eOwned + xOwned) / (eTotal + xTotal)) * 100)
+      : 0;
 
-    for (const k of keys) {
-      const r = rooms[k];
-      const p = calcRoomProgress(r);
-      eTotal += p.eTotal;
-      xTotal += p.xTotal;
-      ePlanned += p.ePlanned;
-      xPlanned += p.xPlanned;
-      eCost += p.eCost;
-      xCost += p.xCost;
-    }
+  return {
+    eTotal,
+    xTotal,
+    ePlanned,
+    xPlanned,
+    eOwned,
+    xOwned,
+    eCost,
+    xCost,
+    ePct,
+    xPct,
+    completionPct,
+  };
+}
 
     const ePct = eTotal ? Math.round((ePlanned / eTotal) * 100) : 0;
     const xPct = xTotal ? Math.round((xPlanned / xTotal) * 100) : 0;
