@@ -221,31 +221,31 @@ nextToBuy: false,
         ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
         ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
       ),
-           garage: mk(
-        "Garage",
-        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
-        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
-      ),
-           garden: mk(
-        "Garden",
-        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
-        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
-      ),
-          dining_room: mk(
-        "Dining Room",
-        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
-        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
-      ),
-            hobby_room: mk(
-        "Hobby Room",
-        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
-        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
-      ),
-              hallway: mk(
-        "Hallway",
-        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
-        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
-      ),
+    garage: mk(
+  "Garage",
+  ["Shelving", "Basic tool kit", "Extension lead", "Torch", "Storage hooks"],
+  ["Workbench", "Tool chest", "Bike storage", "Wall organisers", "Car cleaning kit"]
+),
+  garden: mk(
+  "Garden",
+  ["Bin storage", "Outdoor broom", "Basic gardening gloves", "Hose / watering can", "Outdoor storage box"],
+  ["Garden furniture", "BBQ", "Planters", "Solar lights", "Lawn tools"]
+),
+   dining_room: mk(
+  "Dining Room",
+  ["Dining table", "Dining chairs", "Ceiling/light fixture", "Placemat basics", "Storage for tableware"],
+  ["Sideboard", "Table runner", "Wall art", "Mirror", "Display cabinet"]
+),
+     hobby_room: mk(
+  "Hobby Room",
+  ["Main work table", "Chair", "Storage drawers", "Lighting", "Basic shelving"],
+  ["Display shelves", "Pin board", "Extra storage boxes", "Specialist equipment", "Decor"]
+),
+  hallway: mk(
+  "Hallway",
+  ["Doormat", "Coat hooks", "Shoe storage", "Mirror", "Lighting"],
+  ["Console table", "Umbrella stand", "Wall art", "Bench", "Key tray"]
+),
     };
   }
 
@@ -599,15 +599,18 @@ nextToBuy: false,
       .filter(Boolean);
   }
 
-  function normaliseHomeRooms(rooms) {
+function normaliseHomeRooms(rooms) {
   const base = defaultRooms();
-  const out = rooms && typeof rooms === "object" ? rooms : base;
+  const source = rooms && typeof rooms === "object" ? rooms : {};
+  const out = {};
 
-  for (const [rk, r] of Object.entries(out)) {
-    if (!r) continue;
+  for (const [roomKey, baseRoom] of Object.entries(base)) {
+    const r = source[roomKey] && typeof source[roomKey] === "object"
+      ? source[roomKey]
+      : baseRoom;
 
-    const fixArr = (arr) =>
-      (Array.isArray(arr) ? arr : []).map((it) => ({
+    const fixArr = (arr, fallbackArr) =>
+      (Array.isArray(arr) ? arr : fallbackArr).map((it) => ({
         id: String(it?.id ?? uid()),
         name: String(it?.name ?? "").trim() || "Unnamed",
         planned: !!it?.planned,
@@ -620,10 +623,12 @@ nextToBuy: false,
         updatedAtISO: String(it?.updatedAtISO ?? new Date().toISOString()),
       }));
 
-    r.essentials = fixArr(r.essentials);
-    r.extras = fixArr(r.extras);
-    r.notes = String(r.notes ?? "");
-    r.title = String(r.title ?? rk);
+    out[roomKey] = {
+      title: String(r?.title ?? baseRoom.title ?? roomKey),
+      notes: String(r?.notes ?? ""),
+      essentials: fixArr(r?.essentials, baseRoom.essentials),
+      extras: fixArr(r?.extras, baseRoom.extras),
+    };
   }
 
   return out;
