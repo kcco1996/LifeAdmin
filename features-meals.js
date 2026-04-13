@@ -19,34 +19,8 @@
   const MEAL_ORDER = ["breakfast", "lunch", "dinner", "dessert"];
 
   const PRESETS = {
-    italianWeek: {
-      label: "Italian Week",
-      days: {
-        Monday:    { breakfast: "Cornetto", lunch: "Panini", dinner: "Spaghetti Bolognese", dessert: "Tiramisu" },
-        Tuesday:   { breakfast: "Cappuccino and pastry", lunch: "Caprese focaccia", dinner: "Lasagne", dessert: "Gelato" },
-        Wednesday: { breakfast: "Biscotti and coffee", lunch: "Piadina", dinner: "Risotto alla Milanese", dessert: "Panna cotta" },
-        Thursday:  { breakfast: "Ricotta toast", lunch: "Minestrone", dinner: "Chicken Parmigiana", dessert: "Cannoli" },
-        Friday:    { breakfast: "Yoghurt and fruit", lunch: "Arancini", dinner: "Margherita pizza", dessert: "Affogato" },
-        Saturday:  { breakfast: "Frittata", lunch: "Pasta salad", dinner: "Tagliatelle al ragù", dessert: "Sfogliatella" },
-        Sunday:    { breakfast: "Croissant and espresso", lunch: "Bruschetta", dinner: "Roast chicken with rosemary potatoes", dessert: "Zabaglione" },
-      }
-    },
-
-    britishWeek: {
-      label: "British Week",
-      days: {
-        Monday:    { breakfast: "Full English", lunch: "Cheese toastie", dinner: "Cottage pie", dessert: "Apple crumble" },
-        Tuesday:   { breakfast: "Beans on toast", lunch: "Jacket potato with tuna", dinner: "Bangers and mash", dessert: "Sticky toffee pudding" },
-        Wednesday: { breakfast: "Porridge", lunch: "Ploughman’s lunch", dinner: "Fish pie", dessert: "Trifle" },
-        Thursday:  { breakfast: "Scrambled eggs on toast", lunch: "Sausage roll and salad", dinner: "Chicken tikka masala", dessert: "Jam roly-poly" },
-        Friday:    { breakfast: "Bacon sandwich", lunch: "Soup and bread", dinner: "Fish and chips", dessert: "Bread and butter pudding" },
-        Saturday:  { breakfast: "Crumpets", lunch: "Pie and peas", dinner: "Steak and ale pie", dessert: "Eton mess" },
-        Sunday:    { breakfast: "Toast and tea", lunch: "Welsh rarebit", dinner: "Sunday roast", dessert: "Spotted dick" },
-      }
-    },
-
-    americanWeek: {
-      label: "American Week",
+        americanWeek: {
+      label: "American Week Set A",
       days: {
         Monday:    { breakfast: "Pancakes", lunch: "Turkey club sandwich", dinner: "Cheeseburger and fries", dessert: "Brownie" },
         Tuesday:   { breakfast: "Bagel and cream cheese", lunch: "Mac and cheese", dinner: "BBQ chicken", dessert: "Apple pie" },
@@ -58,8 +32,363 @@
       }
     },
 
+               americanWeektwo: {
+      label: "American Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                   americanWeekthree: {
+      label: "American Week Set C",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                   americanWeekfour: {
+      label: "American Week Set D",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                   americanWeekfive: {
+      label: "American Week Set E",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                   americanWeeksix: {
+      label: "American Week Set F",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                   americanWeekseven: {
+      label: "American Week Set G",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                   americanWeekeight: {
+      label: "American Week Set H",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+            argentinianWeek: {
+      label: "Argentinian Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            australianWeek: {
+      label: "Australian Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                 austrianWeek: {
+      label: "Austrian Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+             belgianWeek: {
+      label: "Belgian Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            brazilianWeek: {
+      label: "Brazilian Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+       britishWeek: {
+      label: "British Week Set A",
+      days: {
+        Monday:    { breakfast: "Full English", lunch: "Cheese toastie", dinner: "Cottage pie", dessert: "Apple crumble" },
+        Tuesday:   { breakfast: "Beans on toast", lunch: "Jacket potato with tuna", dinner: "Bangers and mash", dessert: "Sticky toffee pudding" },
+        Wednesday: { breakfast: "Porridge", lunch: "Ploughman’s lunch", dinner: "Fish pie", dessert: "Trifle" },
+        Thursday:  { breakfast: "Scrambled eggs on toast", lunch: "Sausage roll and salad", dinner: "Chicken tikka masala", dessert: "Jam roly-poly" },
+        Friday:    { breakfast: "Bacon sandwich", lunch: "Soup and bread", dinner: "Fish and chips", dessert: "Bread and butter pudding" },
+        Saturday:  { breakfast: "Crumpets", lunch: "Pie and peas", dinner: "Steak and ale pie", dessert: "Eton mess" },
+        Sunday:    { breakfast: "Toast and tea", lunch: "Welsh rarebit", dinner: "Sunday roast", dessert: "Spotted dick" },
+      }
+    },
+
+              britishWeektwo: {
+      label: "British Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                  britishWeekthree: {
+      label: "British Week Set C",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                  britishWeekfour: {
+      label: "British Week Set D",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            canadianWeek: {
+      label: "Canadian Week Set A",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+             canadianWeektwo: {
+      label: "Canadian Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            chineseWeek: {
+      label: "Chinese Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                 dutchWeek: {
+      label: "Dutch Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            filipinoWeek: {
+      label: "Filipino Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+        frenchWeek: {
+      label: "French Week Set A",
+      days: {
+        Monday:    { breakfast: "Croissant and coffee", lunch: "Jambon beurre", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+             frenchWeektwo: {
+      label: "French Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+             irishWeek: {
+      label: "Irish Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+             irishWeek: {
+      label: "Irish Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+            germanWeek: {
+      label: "German Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            greekWeek: {
+      label: "Greek Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
     indianWeek: {
-      label: "Indian Week",
+      label: "Indian Week Set A",
       days: {
         Monday:    { breakfast: "Masala omelette", lunch: "Chicken kathi roll", dinner: "Butter chicken", dessert: "Gulab jamun" },
         Tuesday:   { breakfast: "Aloo paratha", lunch: "Paneer wrap", dinner: "Lamb rogan josh", dessert: "Kheer" },
@@ -68,6 +397,126 @@
         Friday:    { breakfast: "Idli", lunch: "Pav bhaji", dinner: "Palak paneer", dessert: "Kulfi" },
         Saturday:  { breakfast: "Dosa", lunch: "Aloo tikki burger", dinner: "Dansak", dessert: "Barfi" },
         Sunday:    { breakfast: "Egg bhurji", lunch: "Keema naan", dinner: "Tandoori chicken", dessert: "Shrikhand" },
+      }
+    },
+
+            indianWeektwo: {
+      label: "Indian Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                indianWeekthree: {
+      label: "Indian Week Set C",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                indianWeekfour: {
+      label: "Indian Week Set D",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            irishWeek: {
+      label: "Irish Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+    italianWeek: {
+      label: "Italian Week",
+      days: {
+        Monday:    { breakfast: "Cornetto", lunch: "Panini", dinner: "Spaghetti Carbonara", dessert: "Tiramisu" },
+        Tuesday:   { breakfast: "Cappuccino and pastry", lunch: "Pizza Margarita", dinner: "Chicken Parmigiana", dessert: "Gelato" },
+        Wednesday: { breakfast: "Biscotti and coffee", lunch: "Penne Arrabiata", dinner: "Lasagne", dessert: "Panna cotta" },
+        Thursday:  { breakfast: "Ricotta toast", lunch: "Minestrone", dinner: "Spaghetti Bologneise", dessert: "Cannoli" },
+        Friday:    { breakfast: "Yoghurt and fruit", lunch: "Arancini", dinner: "Chicken Risotto", dessert: "Affogato" },
+        Saturday:  { breakfast: "Frittata", lunch: "Italian style burger", dinner: "Calzone", dessert: "Sfogliatella" },
+        Sunday:    { breakfast: "Croissant and espresso", lunch: "Gnocchi", dinner: "Roast chicken with rosemary potatoes", dessert: "Zabaglione" },
+      }
+    },
+
+             irishWeek: {
+      label: "Irish Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+             irishWeek: {
+      label: "Irish Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+             irishWeek: {
+      label: "Irish Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+              jamaicanWeek: {
+      label: "Jamaican Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
       }
     },
 
@@ -84,8 +533,34 @@
       }
     },
 
+            koreanWeek: {
+      label: "Korean Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            malaysianWeek: {
+      label: "Malaysian Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
     mexicanWeek: {
-      label: "Mexican Week",
+      label: "Mexican Week Set A",
       days: {
         Monday:    { breakfast: "Huevos rancheros", lunch: "Chicken quesadilla", dinner: "Beef tacos", dessert: "Churros" },
         Tuesday:   { breakfast: "Breakfast burrito", lunch: "Torta", dinner: "Chicken enchiladas", dessert: "Flan" },
@@ -95,7 +570,232 @@
         Saturday:  { breakfast: "Quesadilla", lunch: "Tostadas", dinner: "Tamales", dessert: "Buñuelos" },
         Sunday:    { breakfast: "Breakfast tacos", lunch: "Elote snack plate", dinner: "Mole chicken", dessert: "Mexican chocolate cake" },
       }
-    }
+    },
+
+    
+                mexicanWeektwo: {
+      label: "Mexican Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+
+                middleeasternWeek: {
+      label: "Middle Eastern Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            moroccanWeek: {
+      label: "Moroccan Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+             nepaleseWeek: {
+      label: "Nepal Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            peruvianWeek: {
+      label: "Peruvian Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+    
+            polishWeek: {
+      label: "Polish Week Set A",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            portugueseWeek: {
+      label: "Portuguese Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+             scandinavianWeek: {
+      label: "Scandinavian Week Set A",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                scandinavianWeektwo: {
+      label: "Scandinavian Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            singaporeanWeek: {
+      label: "Singaporean Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            southafricanWeek: {
+      label: "South African Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+        spanishWeek: {
+      label: "Spanish Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+                 swissWeek: {
+      label: "Swiss Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            thaiWeek: {
+      label: "Thai Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            turkishWeek: {
+      label: "Turkish Week Set A",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+    
+            turkishWeektwo: {
+      label: "Turkish Week Set B",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
+
+            vietnameseWeek: {
+      label: "Vietnamese Week",
+      days: {
+        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+      }
+    },
   };
 
   function getApp() {
