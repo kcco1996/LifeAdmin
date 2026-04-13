@@ -2349,12 +2349,6 @@ function calcRoomProgress(room) {
   };
 }
 
-    const ePct = eTotal ? Math.round((ePlanned / eTotal) * 100) : 0;
-    const xPct = xTotal ? Math.round((xPlanned / xTotal) * 100) : 0;
-
-    return { eTotal, xTotal, ePlanned, xPlanned, eCost, xCost, ePct, xPct };
-  }
-
   function renderHomeStats() {
     if (!homeStats) return;
     const rooms = getHomeRooms();
