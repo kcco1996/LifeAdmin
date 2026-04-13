@@ -221,6 +221,31 @@ nextToBuy: false,
         ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
         ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
       ),
+           garage: mk(
+        "Garage",
+        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+      ),
+           garden: mk(
+        "Garden",
+        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+      ),
+          dining_room: mk(
+        "Dining Room",
+        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+      ),
+            hobby_room: mk(
+        "Hobby Room",
+        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+      ),
+              hallway: mk(
+        "Hallway",
+        ["Basic shelving", "Laundry basket", "Hooks / hangers", "Basic tool kit (starter)"],
+        ["Storage boxes", "Label maker", "Extra shelves", "Bike rack / wall mounts"]
+      ),
     };
   }
 
