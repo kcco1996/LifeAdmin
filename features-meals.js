@@ -22,13 +22,13 @@
         americanWeek: {
       label: "American Week Set A",
       days: {
-        Monday:    { breakfast: "Pancakes", lunch: "Turkey club sandwich", dinner: "Cheeseburger and fries", dessert: "Brownie" },
-        Tuesday:   { breakfast: "Bagel and cream cheese", lunch: "Mac and cheese", dinner: "BBQ chicken", dessert: "Apple pie" },
-        Wednesday: { breakfast: "Breakfast burrito", lunch: "Hot dog", dinner: "Meatloaf", dessert: "Ice cream sundae" },
-        Thursday:  { breakfast: "French toast", lunch: "Grilled cheese", dinner: "Buffalo wings", dessert: "Chocolate chip cookie" },
-        Friday:    { breakfast: "Waffles", lunch: "Chicken Caesar wrap", dinner: "Pepperoni pizza", dessert: "Cheesecake" },
-        Saturday:  { breakfast: "Biscuits and gravy", lunch: "Sloppy Joe", dinner: "Fried chicken", dessert: "Pecan pie" },
-        Sunday:    { breakfast: "Hash browns and eggs", lunch: "BLT sandwich", dinner: "Pot roast", dessert: "Banana pudding" },
+        Monday:    { breakfast: "Bagel and cream cheese", lunch: "Burrito (chicken or beef)", dinner: "Cheeseburger and fries", dessert: "Brownie" },
+        Tuesday:   { breakfast: "Toast + peanut butter", lunch: "Grilled Cheese Sandwich", dinner: "Fried Chicken (oven/air fryer version) + Chips", dessert: "Apple pie" },
+        Wednesday: { breakfast: "Pancakes (microwave mix or ready-made)", lunch: "Hot Dog (quick + oven/microwave)", dinner: "BBQ Ribs (oven or slow cooker)", dessert: "Ice cream sundae" },
+        Thursday:  { breakfast: "Toast + jam", lunch: "Chicken Tenders", dinner: "Philly Cheesesteak", dessert: "Chocolate chip cookie" },
+        Friday:    { breakfast: "Bagel + coffee", lunch: "Pepperoni Pizza (oven or takeaway)", dinner: "Mac and Cheese", dessert: "Cheesecake" },
+        Saturday:  { breakfast: "Eggs + toast", lunch: "Burger or wrap", dinner: "Buffalo Wings", dessert: "Pecan pie" },
+        Sunday:    { breakfast: "Pancakes + syrup", lunch: "Roast Chicken (American-style simple roast)", dinner: "Meatloaf + mash", dessert: "Banana pudding" },
       }
     },
 
@@ -39,9 +39,9 @@
         Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "Sloppy Joes", dessert: "-" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Pot Roast", dinner: "-", dessert: "-" },
       }
     },
 
