@@ -226,6 +226,11 @@ nextToBuy: false,
   ["Shelving", "Basic tool kit", "Extension lead", "Torch", "Storage hooks"],
   ["Workbench", "Tool chest", "Bike storage", "Wall organisers", "Car cleaning kit"]
 ),
+  cabin: mk(
+  "Cabin",
+  ["Arcade machine", "Bar stools", "Bar", "Jukebox", "Pool table"],
+  ["Coasters", "Table", "Sofas", "Large TV", "Blankets"]
+),
   garden: mk(
   "Garden",
   ["Bin storage", "Outdoor broom", "Basic gardening gloves", "Hose / watering can", "Outdoor storage box"],
