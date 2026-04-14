@@ -127,13 +127,13 @@
             argentinianWeek: {
       label: "Argentinian Week",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "Toast + butter + coffee", lunch: "Choripan", dinner: "Steak + chips", dessert: "-" },
+        Tuesday:   { breakfast: "Toast + jam", lunch: "Empanadas", dinner: "Milanesa", dessert: "-" },
+        Wednesday:  { breakfast: "Pastry + coffee", lunch: "Leftover milanesa", dinner: "Argentinian grilled chicken + roast potatoes", dessert: "-" },
+        Thursday:   { breakfast: "Toast + nutella", lunch: "Steak sandwich", dinner: "Asado", dessert: "-" },
+        Friday:     { breakfast: "Toast + coffee", lunch: "Chorizo + bread", dinner: "Gnocchi", dessert: "-" },
+        Saturday:   { breakfast: "Eggs + toast", lunch: "-", dinner: "Chicken wings", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "Soup + bread", dessert: "-" },
       }
     },
 
