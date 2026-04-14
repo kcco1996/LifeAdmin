@@ -48,78 +48,78 @@
                    americanWeekthree: {
       label: "American Week Set C",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "Chicken quesadilla", dinner: "Chicken & Waffles", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "Pulled Pork (slow cooker/oven)", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "Club sandwich", dinner: "Beef tacos", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "Chicken pot pie", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "Cheeseburger" },
+        Saturday:   { breakfast: "Eggs + bacon on toast", lunch: "-", dinner: "BBQ Chicken Wings", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "Chili", dessert: "-" },
       }
     },
 
                    americanWeekfour: {
       label: "American Week Set D",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "Chicken Burrito", dinner: "Fried chicken sandwich & chips", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Loaded mac and cheese", dinner: "BBQ Brisket (oven/slow cooker)", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "Chicken pasta bake", dinner: "Chicken fajitas", dessert: "-" },
         Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "Double cheeseburger" },
+        Saturday:   { breakfast: "Pancakes + bacon", lunch: "-", dinner: "Loaded nachos", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Fried Chicken Dinner (proper plate)", dinner: "Chicken soup", dessert: "-" },
       }
     },
 
                    americanWeekfive: {
       label: "American Week Set E",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "-", dinner: "Chicken fried steak", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Chili cheese fries", dinner: "BBQ pulled chicken", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "Chicken Mac and Cheese Bake", dinner: "Nashville hot chicken", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "Reuben sandwich", dinner: "Beef enchiladas", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "Popcorn chicken", dinner: "-", dessert: "-" },
+        Saturday:   { breakfast: "French toast + syrup", lunch: "-", dinner: "BBQ chicken drumsticks", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Beef brisket sandwich", dinner: "-", dessert: "-" },
       }
     },
 
                    americanWeeksix: {
       label: "American Week Set F",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "Breakfast burrito", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Loaded baked potato", dinner: "-", dessert: "-" },
         Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "Bacon cheeseburger", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "Fried chicken tenders", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "BBQ sausages", dinner: "-", dessert: "-" },
       }
     },
 
                    americanWeekseven: {
       label: "American Week Set G",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "-", dinner: "Southern fried chicken dinner", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Cheesy garlic bread", dinner: "Beef chili mac", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "-", dinner: "BBQ chicken pizza", dessert: "-" },
         Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "Buffalo chicken tenders", dinner: "-", dessert: "-" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Roast beef sandwich", dinner: "-", dessert: "-" },
       }
     },
 
                    americanWeekeight: {
       label: "American Week Set H",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "-", dinner: "Chicken fried rice", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Cheese quesadilla", dinner: "Beef sliders", dessert: "-" },
         Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "Bacon BBQ burger", dessert: "-" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Chicken pot roast", dinner: "Tomato soup + bread", dessert: "-" },
       }
     },
 
