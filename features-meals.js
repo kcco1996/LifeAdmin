@@ -192,52 +192,52 @@
        britishWeek: {
       label: "British Week Set A",
       days: {
-        Monday:    { breakfast: "Full English", lunch: "Cheese toastie", dinner: "Cottage pie", dessert: "Apple crumble" },
-        Tuesday:   { breakfast: "Beans on toast", lunch: "Jacket potato with tuna", dinner: "Bangers and mash", dessert: "Sticky toffee pudding" },
-        Wednesday: { breakfast: "Porridge", lunch: "Ploughman’s lunch", dinner: "Fish pie", dessert: "Trifle" },
-        Thursday:  { breakfast: "Scrambled eggs on toast", lunch: "Sausage roll and salad", dinner: "Chicken tikka masala", dessert: "Jam roly-poly" },
-        Friday:    { breakfast: "Bacon sandwich", lunch: "Soup and bread", dinner: "Fish and chips", dessert: "Bread and butter pudding" },
-        Saturday:  { breakfast: "Crumpets", lunch: "Pie and peas", dinner: "Steak and ale pie", dessert: "Eton mess" },
-        Sunday:    { breakfast: "Toast and tea", lunch: "Welsh rarebit", dinner: "Sunday roast", dessert: "Spotted dick" },
+        Monday:    { breakfast: "Toast + butter + coffee", lunch: "Sausage roll", dinner: "Chicken + chips", dessert: "Apple crumble" },
+        Tuesday:   { breakfast: "Toast + jam", lunch: "Cheese toastie", dinner: "Bangers and mash", dessert: "Sticky toffee pudding" },
+        Wednesday: { breakfast: "Pastry + coffee", lunch: "Beans on toast", dinner: "Shepherds pie", dessert: "Trifle" },
+        Thursday:  { breakfast: "Toast + nutella", lunch: "Bacon sandwich", dinner: "Chicken tikka masala", dessert: "Jam roly-poly" },
+        Friday:    { breakfast: "Toast + coffee", lunch: "Pizza (oven or takeaway)", dinner: "Fish and chips", dessert: "Bread and butter pudding" },
+        Saturday:  { breakfast: "Full English breakfast", lunch: "Burger or hot dog", dinner: "Chicken wings", dessert: "Eton mess" },
+        Sunday:    { breakfast: "Pastry + coffee", lunch: "Sunday roast", dinner: "Soup + bread", dessert: "Spotted dick" },
       }
     },
 
               britishWeektwo: {
       label: "British Week Set B",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "Toast + peanut butter + coffee", lunch: "Cornish pasty", dinner: "Chicken kiev + chips", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Tomato soup + bread", dinner: "Steak and ale pie", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "Spaghetti hoops on toast", dinner: "Gammon steak and chips", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "Sausage casserole", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "Scotch egg", dinner: "Steak + chips", dessert: "-" },
+        Saturday:   { breakfast: "Bacon + eggs on toast", lunch: "Burger", dinner: "Doner kebab", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Toad in the hole", dinner: "-", dessert: "-" },
       }
     },
 
                   britishWeekthree: {
       label: "British Week Set C",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "Steak bake", dinner: "Chicken goujons + chips", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Leek + potato soup", dinner: "Cottage pie", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "Cheese pasta", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "Sausage sandwich", dinner: "Hunters chicken", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "Chicken nuggets", dinner: "Mixed grill", dessert: "-" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Lancashire hotpot", dinner: "-", dessert: "-" },
       }
     },
 
                   britishWeekfour: {
       label: "British Week Set D",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "Chicken bake", dinner: "-", dessert: "-" },
         Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "Ham and cheese toastie", dinner: "Sausage + mash", dessert: "-" },
+        Friday:     { breakfast: "-", lunch: "Chicken burger", dinner: "Scampi + chips", dessert: "-" },
+        Saturday:   { breakfast: "-", lunch: "-", dinner: "Loaded fries", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "Roast pork", dinner: "-", dessert: "-" },
       }
     },
 
