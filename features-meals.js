@@ -19,7 +19,6 @@
   const MEAL_ORDER = ["breakfast", "lunch", "dinner", "dessert"];
 
   const PRESETS = {
-americanWeek: {
 americanWeekone: {
   label: "American Week Set A",
   days: {
@@ -122,9 +121,8 @@ americanWeekeight: {
     Saturday:  { breakfast: "Farmhouse breakfast", lunch: "Sonoran hot dog", dinner: "Sonoran style enchiladas", dessert: "Gooey butter cake" },
     Sunday:    { breakfast: "Pancake stack", lunch: "Truffle Mac and cheese bites", dinner: "Chicago deep dish pizza", dessert: "Boston cream pie" },
   }
-}
-
 },
+
 argentinianWeek: {
   label: "Argentinian Week",
   days: {
