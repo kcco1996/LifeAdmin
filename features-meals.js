@@ -127,13 +127,13 @@
             argentinianWeek: {
       label: "Argentinian Week",
       days: {
-        Monday:    { breakfast: "Toast + butter + coffee", lunch: "Choripan", dinner: "Steak + chips", dessert: "-" },
-        Tuesday:   { breakfast: "Toast + jam", lunch: "Empanadas", dinner: "Milanesa", dessert: "-" },
-        Wednesday:  { breakfast: "Pastry + coffee", lunch: "Leftover milanesa", dinner: "Argentinian grilled chicken + roast potatoes", dessert: "-" },
-        Thursday:   { breakfast: "Toast + nutella", lunch: "Steak sandwich", dinner: "Asado", dessert: "-" },
-        Friday:     { breakfast: "Toast + coffee", lunch: "Chorizo + bread", dinner: "Gnocchi", dessert: "-" },
+        Monday:    { breakfast: "Toast + butter + coffee", lunch: "Choripan", dinner: "Bife de chorizo", dessert: "Alfajores" },
+        Tuesday:   { breakfast: "Toast + jam", lunch: "Empanadas", dinner: "Milanesa napolitana", dessert: "Flan con dulce de leche" },
+        Wednesday:  { breakfast: "Pastry + coffee", lunch: "Leftover milanesa", dinner: "Locro", dessert: "Chocotorta" },
+        Thursday:   { breakfast: "Toast + nutella", lunch: "Steak sandwich", dinner: "Asado de tira", dessert: "-" },
+        Friday:     { breakfast: "Toast + coffee", lunch: "Chorizo + bread", dinner: "Carbonada criolla", dessert: "-" },
         Saturday:   { breakfast: "Eggs + toast", lunch: "-", dinner: "Chicken wings", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "Soup + bread", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "Soup + bread", dessert: "Panqueques dulce de leche" },
       }
     },
 
@@ -141,12 +141,12 @@
       label: "Australian Week",
       days: {
         Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "Lamingtons" },
+        Wednesday:  { breakfast: "Brekky burger", lunch: "-", dinner: "Steak with pepper sauce", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "Pavlova" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "BBQ beef burger", dessert: "-" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "Big aussie breakfast", lunch: "-", dinner: "Lamb roast with mint sauce", dessert: "-" },
       }
     },
 
@@ -154,10 +154,10 @@
       label: "Austrian Week",
       days: {
         Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Schnitzel sandwich", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "Wiener sausage soup", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "Sachertorte" },
+        Friday:     { breakfast: "-", lunch: "-", dinner: "Wiener schnitzel", dessert: "-" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
       }
@@ -166,13 +166,13 @@
              belgianWeek: {
       label: "Belgian Week",
       days: {
-        Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Monday:    { breakfast: "-", lunch: "-", dinner: "Flemish beef stew", dessert: "-" },
+        Tuesday:   { breakfast: "-", lunch: "Beef stew and fries", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "Toast with speculoos", lunch: "Beer cheese soup", dinner: "-", dessert: "-" },
+        Thursday:   { breakfast: "-", lunch: "Gratinated onion soup", dinner: "Waterzooi", dessert: "Belgian waffles" },
+        Friday:     { breakfast: "Breakfast waffles", lunch: "-", dinner: "-", dessert: "Chocolate truffles" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "Belgian pancakes", lunch: "-", dinner: "-", dessert: "Speculoos biscuits" },
       }
     },
 
@@ -181,11 +181,11 @@
       days: {
         Monday:    { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Tuesday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Wednesday:  { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Wednesday:  { breakfast: "-", lunch: "Feijao tropeiro", dinner: "-", dessert: "-" },
         Thursday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Friday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
         Saturday:   { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
-        Sunday:     { breakfast: "-", lunch: "-", dinner: "-", dessert: "-" },
+        Sunday:     { breakfast: "-", lunch: "-", dinner: "Feijoada", dessert: "-" },
       }
     },
 
