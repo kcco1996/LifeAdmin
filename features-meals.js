@@ -20,7 +20,6 @@
 
   const PRESETS = {
 americanWeek: {
-
 americanWeekone: {
   label: "American Week Set A",
   days: {
